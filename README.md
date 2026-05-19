@@ -67,7 +67,7 @@ Built as a lightweight offline-first training tracker with:
 ## Live Demo
 
 GitHub Pages:
-https://YOUR_USERNAME.github.io/ab-wheel-tracker/
+https://enlyl.github.io/ab-wheel-tracker/
 
 ---
 
