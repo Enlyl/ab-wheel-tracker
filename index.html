@@ -353,6 +353,188 @@ body {
 .add-ex-btn:hover { background: var(--goldbg); }
 .add-ex-btn.visible { display: block; }
 
+.ex-head-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.ex-head-title-edit {
+  font-family: 'Italiana', serif;
+  font-size: 20px;
+  color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  width: 100%;
+}
+.ex-head-sub-edit {
+  font-size: 12px;
+  color: var(--text2);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  width: 100%;
+}
+
+/* ── EX HELP BUTTON ── */
+.ex-help-btn {
+  flex-shrink: 0;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text3);
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 12px; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative; z-index: 2;
+  touch-action: manipulation;
+}
+.ex-help-btn:active { background: var(--goldbg); border-color: var(--gold); color: var(--gold); }
+
+/* ── HELP SHEET ── */
+.help-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0); pointer-events: none;
+  transition: background .25s ease;
+}
+.help-overlay.open {
+  background: rgba(0,0,0,0.45);
+  pointer-events: all;
+}
+.help-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--border);
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  transform: translateY(100%);
+  transition: transform .32s cubic-bezier(.4,0,.2,1);
+  max-height: 82vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+}
+[data-theme="dark"] .help-sheet { box-shadow: 0 -8px 60px rgba(0,0,0,0.55); }
+.help-sheet.open { transform: translateY(0); }
+
+.help-handle {
+  width: 36px; height: 3px; border-radius: 2px;
+  background: var(--border);
+  margin: 14px auto 0;
+}
+.help-head {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.help-name {
+  font-family: 'Italiana', serif;
+  font-size: 22px; color: var(--text); line-height: 1.2;
+}
+.help-tag { margin-top: 5px; }
+.help-close {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text3); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.help-close:active { background: var(--surface3); }
+.help-body { padding: 18px 20px 24px; }
+.help-section { margin-bottom: 18px; }
+.help-section:last-child { margin-bottom: 0; }
+.help-section-title {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 7px;
+}
+.help-section-text {
+  font-size: 14px; font-weight: 300;
+  color: var(--text2); line-height: 1.65;
+}
+.help-tips {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.help-tips li {
+  font-size: 13px; font-weight: 300;
+  color: var(--text2); line-height: 1.5;
+  padding-left: 16px; position: relative;
+}
+.help-tips li::before {
+  content: '·'; position: absolute; left: 0;
+  color: var(--gold); font-size: 18px; line-height: 1;
+}
+.help-no-info {
+  font-size: 14px; font-weight: 300;
+  color: var(--text3); font-style: italic;
+  padding: 8px 0;
+}
+
+.help-alts {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.help-alt-btn {
+  padding: 7px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px; font-weight: 400;
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.help-alt-btn:active {
+  background: var(--goldbg);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── EXERCISE SUGGEST DROPDOWN ── */
+.ex-suggest-wrap {
+  position: relative;
+  width: 100%;
+}
+.ex-suggest-list {
+  position: absolute;
+  top: calc(100% + 4px); left: 0; right: 0;
+  z-index: 300;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  max-height: 260px;
+  overflow-y: auto;
+  display: none;
+}
+.ex-suggest-list.open { display: block; }
+.ex-suggest-group {
+  padding: 6px 12px 2px;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text3);
+  border-top: 1px solid var(--border);
+}
+.ex-suggest-group:first-child { border-top: none; }
+.ex-suggest-item {
+  padding: 9px 14px;
+  font-size: 13px; font-weight: 300;
+  color: var(--text2);
+  cursor: pointer;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.ex-suggest-item:active,
+.ex-suggest-item.focused {
+  background: var(--goldbg);
+  color: var(--gold);
+}
+
 /* ── TAGS ── */
 .tag {
   font-family: 'Archivo Narrow', sans-serif; font-size: 8px; font-weight: 600;
@@ -409,6 +591,7 @@ body {
 }
 [data-theme="dark"] .prog-block { border-top-color: rgba(255,255,255,0.09); }
 .prog-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
+.prog-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .prog-title { font-family: 'Italiana', serif; font-size: 24px; color: var(--text); transition: var(--transition); }
 .prog-sub { font-size: 12px; font-weight: 300; color: var(--text2); margin-top: 3px; transition: var(--transition); }
 .prog-item { padding: 14px 20px; border-bottom: 1px solid var(--border2); transition: background .12s; }
@@ -427,10 +610,25 @@ body {
 .pi-status { font-family: 'Archivo Narrow', sans-serif; font-size: 10px; letter-spacing: 0.08em; color: var(--text3); }
 .pi-status.ok { color: var(--green); }
 .bar-bg {
-  height: 2px; background: var(--surface3); border-radius: 1px; overflow: hidden; margin-bottom: 7px;
-  transition: var(--transition);
+  background: var(--surface3); overflow: hidden; margin-bottom: 7px;
+  transition: var(--transition), height .2s;
 }
-.bar-fill { height: 100%; border-radius: 1px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+.bar-fill { height: 100%; transition: width .6s cubic-bezier(.4,0,.2,1); }
+/* Вид: по умолчанию — прямые края */
+.bar-bg.style-rounded  { border-radius: 999px; }
+.bar-bg.style-rounded .bar-fill { border-radius: 999px; }
+/* Вид: полосатый */
+.bar-fill.style-striped {
+  background-image: repeating-linear-gradient(
+    45deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 6px,
+    transparent 6px, transparent 12px
+  ) !important;
+  background-size: 24px 24px;
+}
+/* Вид: градиент (осветляем правый край) */
+.bar-fill.style-gradient {
+  filter: brightness(1.18);
+}
 .pi-desc { font-size: 12px; font-weight: 300; color: var(--text2); transition: var(--transition); }
 
 /* ── DARK GLOW ACCENTS ── */
@@ -852,20 +1050,80 @@ body {
 </head>
 <body>
 <div id="timer-flash" style="background: var(--green);"></div>
+
+<!-- HELP SHEET -->
+<div class="help-overlay" id="help-overlay" onclick="closeHelp()"></div>
+<div class="help-sheet" id="help-sheet">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div>
+      <div class="help-name" id="help-name"></div>
+      <div class="help-tag" id="help-tag"></div>
+    </div>
+    <button class="help-close" onclick="closeHelp()">✕</button>
+  </div>
+  <div class="help-body" id="help-body"></div>
+</div>
+
+<!-- WEEKS EDITOR SHEET -->
+<div class="help-overlay" id="weeks-overlay" onclick="closeWeeksEditor()"></div>
+<div class="help-sheet" id="weeks-sheet">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div><div class="help-name">Дорожная карта</div></div>
+    <button class="help-close" onclick="closeWeeksEditor()">✕</button>
+  </div>
+  <div class="help-body" id="weeks-body"></div>
+</div>
+<div class="help-overlay" id="settings-overlay" onclick="closeAppSettings()"></div>
+<div class="help-sheet" id="settings-sheet">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div><div class="help-name">Настройки приложения</div></div>
+    <button class="help-close" onclick="closeAppSettings()">✕</button>
+  </div>
+  <div class="help-body">
+    <div class="help-section">
+      <div class="help-section-title">Название в шапке</div>
+      <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Заголовок героя</div>
+      <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Описание под заголовком</div>
+      <input class="edit-field" id="cfg-hero-desc" placeholder="Программа 9+ недель..." oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Название программы (прогресс)</div>
+      <input class="edit-field" id="cfg-prog-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Подзаголовок программы</div>
+      <input class="edit-field" id="cfg-prog-sub" placeholder="Дорожная карта..." oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Футер</div>
+      <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
+    </div>
+  </div>
+</div>
 <div class="app">
 
   <div class="topbar">
-    <div class="topbar-logo">Ab Wheel Program</div>
+    <div class="topbar-logo" id="app-topbar-title">Ab Wheel Program</div>
     <div class="topbar-right">
       <div class="topbar-week" id="topbar-wk">Неделя 1</div>
+      <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения">⚙︎</button>
       <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Сменить тему">☽</button>
     </div>
   </div>
 
   <div class="hero">
-    <div class="hero-title">Standing<br><span class="accent">Rollout</span></div>
+    <div class="hero-title" id="app-hero-title">Standing<br><span class="accent">Rollout</span></div>
     <div class="hero-rule"></div>
-    <div class="hero-desc">Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.</div>
+    <div class="hero-desc" id="app-hero-desc">Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.</div>
     <div class="stats">
       <div class="stat"><div class="stat-n" id="s-ex">0</div><div class="stat-l">Упражнений</div></div>
       <div class="stat"><div class="stat-n" id="s-sess">0</div><div class="stat-l">Сессий</div></div>
@@ -975,13 +1233,18 @@ body {
 
   <div class="prog-block">
     <div class="prog-header">
-      <div class="prog-title">Standing Rollout</div>
-      <div class="prog-sub">Дорожная карта к полному выходу стоя</div>
+      <div class="prog-header-row">
+        <div>
+          <div class="prog-title" id="app-prog-title">Standing Rollout</div>
+          <div class="prog-sub" id="app-prog-sub">Дорожная карта к полному выходу стоя</div>
+        </div>
+        <button class="edit-toggle-btn" onclick="openWeeksEditor()" title="Редактировать дорожную карту">✎</button>
+      </div>
     </div>
     <div id="prog-list"></div>
   </div>
 
-  <div class="footer"><div class="footer-txt">Ab Wheel Tracker · Standing Rollout Program</div></div>
+  <div class="footer"><div class="footer-txt" id="app-footer">Ab Wheel Tracker · Standing Rollout Program</div></div>
 </div>
 
 
@@ -1013,13 +1276,21 @@ const DEFAULT_DAYS=[
   ]},
 ];
 
-const WEEKS=[
+const WEEKS_DEFAULT=[
   {l:'Нед. 1–2',d:'Wall Rollout: угол 45°, стена ~50 см',p:25,c:'#5DCAA5'},
   {l:'Нед. 3–4',d:'Wall Rollout: угол 60°, стена ~80 см',p:45,c:'#2aaa72'},
   {l:'Нед. 5–6',d:'Negative без стены: 5–7 сек вниз, возврат с колен',p:62,c:'#c8a96e'},
   {l:'Нед. 7–8',d:'Negative стоя: до пола, возврат с помощью',p:80,c:'#b08840'},
   {l:'Нед. 9+', d:'Standing rollout полный: попытки без помощи',p:100,c:'#c8a96e'},
 ];
+
+function loadWeeks(){
+  try{const w=JSON.parse(localStorage.getItem('abw_weeks')||'null');return w&&w.length?w:JSON.parse(JSON.stringify(WEEKS_DEFAULT));}
+  catch(e){return JSON.parse(JSON.stringify(WEEKS_DEFAULT));}
+}
+function saveWeeks(w){try{localStorage.setItem('abw_weeks',JSON.stringify(w));}catch(e){}}
+
+let WEEKS = loadWeeks();
 
 let S={};
 try{S=JSON.parse(localStorage.getItem('abw8')||'{}');}catch(e){}
@@ -1053,6 +1324,7 @@ function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
 
 function updateExField(di,ei,field,val){S.days[di].ex[ei][field]=val;save();}
+function updateDayField(di,field,val){S.days[di][field]=val;save();}
 function deleteEx(di,ei){
   delete S[k(W,di,ei)];
   const len=S.days[di].ex.length;
@@ -1082,11 +1354,126 @@ const tagH=t=>({
 
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+const EX_GROUPS = [
+  { label: 'Кор', items: [
+    'Hollow Body Hold + Dead Bug', 'Body Saw / Long-Lever Plank', 'Bird Dog',
+    'Планка', 'Скручивания', 'Подъём ног в висе',
+    'Kneeling Rollout дальняя амплитуда', 'Wall Rollout стоя',
+    'Negative Standing Rollout',
+  ]},
+  { label: 'Спина', items: [
+    'Подтягивания', 'Подтягивания обратным хватом',
+    'Тяга верхнего блока', 'Горизонтальная тяга',
+    'Тяга штанги в наклоне', 'Пулловер с резиной стоя',
+    'Гиперэкстензия', 'Шраги',
+  ]},
+  { label: 'Грудь', items: [
+    'Отжимания', 'Отжимания узкие / алмазные', 'Брусья',
+    'Жим лёжа', 'Жим гантелей лёжа', 'Разведение гантелей лёжа',
+  ]},
+  { label: 'Плечи', items: [
+    'Жим штанги стоя', 'Махи в стороны (средняя дельта)',
+    'Задняя дельта (махи в наклоне)', 'Выкруты с резиной',
+  ]},
+  { label: 'Руки', items: [
+    'Сгибания на бицепс', 'Подтягивания обратным хватом',
+    'Французский жим', 'Разгибания на блоке (трицепс)',
+    'Отжимания узкие / алмазные',
+  ]},
+  { label: 'Ноги', items: [
+    'Присед с гантелями', 'Приседания со штангой', 'Выпады',
+    'Жим ногами', 'Румынская тяга', 'Становая тяга',
+    'Ягодичный мостик', 'Икры стоя',
+    'Растяжка сгибателей бедра',
+  ]},
+  { label: 'Мобильность', items: [
+    'Раскрытие грудного отдела на ролле', 'Выкруты с резиной',
+    'Растяжка сгибателей бедра',
+  ]},
+  { label: 'Кардио', items: [
+    'Берпи', 'Кардио (бег)', 'Прыжки на скакалке',
+  ]},
+];
+
+// Собираем плоский список без дублей для поиска
+const EX_ALL_FLAT = [...new Set(EX_GROUPS.flatMap(g => g.items))];
+
+function renderExSuggest(di, ei, currentVal) {
+  const uid = `sug_${di}_${ei}`;
+  return `
+  <div class="ex-suggest-wrap">
+    <input
+      id="exinput_${di}_${ei}"
+      class="edit-field"
+      value="${esc(currentVal)}"
+      oninput="updateExField(${di},${ei},'n',this.value);filterSuggest('${uid}',this.value)"
+      onfocus="openSuggest('${uid}')"
+      onblur="delayCloseSuggest('${uid}')"
+      autocomplete="off"
+      placeholder="Название"
+    >
+    <div class="ex-suggest-list" id="${uid}">
+      ${EX_GROUPS.map(g => `
+        <div class="ex-suggest-group">${g.label}</div>
+        ${g.items.map(item => `
+          <div class="ex-suggest-item"
+               onmousedown="pickSuggest(${di},${ei},'${uid}',${JSON.stringify(item)})"
+               ontouchstart="pickSuggest(${di},${ei},'${uid}',${JSON.stringify(item)})">
+            ${esc(item)}
+          </div>`).join('')}
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function openSuggest(uid) {
+  const el = document.getElementById(uid);
+  if (el) el.classList.add('open');
+}
+
+function delayCloseSuggest(uid) {
+  setTimeout(() => {
+    const el = document.getElementById(uid);
+    if (el) el.classList.remove('open');
+  }, 200);
+}
+
+function filterSuggest(uid, val) {
+  const el = document.getElementById(uid);
+  if (!el) return;
+  const q = val.trim().toLowerCase();
+  let anyVisible = false;
+  el.querySelectorAll('.ex-suggest-item').forEach(item => {
+    const match = !q || item.textContent.toLowerCase().includes(q);
+    item.style.display = match ? '' : 'none';
+    if (match) anyVisible = true;
+  });
+  el.querySelectorAll('.ex-suggest-group').forEach(grp => {
+    // Прячем заголовок группы если все её пункты скрыты
+    let next = grp.nextElementSibling;
+    let hasVisible = false;
+    while (next && !next.classList.contains('ex-suggest-group')) {
+      if (next.style.display !== 'none') hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    grp.style.display = hasVisible ? '' : 'none';
+  });
+  el.classList.toggle('open', anyVisible || !q);
+}
+
+function pickSuggest(di, ei, uid, val) {
+  updateExField(di, ei, 'n', val);
+  const input = document.getElementById(`exinput_${di}_${ei}`);
+  if (input) input.value = val;
+  const el = document.getElementById(uid);
+  if (el) el.classList.remove('open');
+}
+
 function renderExItem(e,di,ei){
   if(editMode){
     return `<div class="ex-item editing">
       <div class="edit-fields">
-        <input class="edit-field" value="${esc(e.n)}" oninput="updateExField(${di},${ei},'n',this.value)" placeholder="Название">
+        ${renderExSuggest(di, ei, e.n)}
         <input class="edit-field detail-field" value="${esc(e.d)}" oninput="updateExField(${di},${ei},'d',this.value)" placeholder="Детали">
         <select class="tag-select" onchange="updateExField(${di},${ei},'t',this.value)">
           <option value="aux"${e.t==='aux'?' selected':''}>База</option>
@@ -1108,6 +1495,7 @@ function renderExItem(e,di,ei){
       <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
       <div class="ei-detail">${esc(e.d)}</div>
     </div>
+    <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
   </div>`;
 }
 
@@ -1132,10 +1520,14 @@ function render(){
   document.getElementById('day-content').innerHTML=
     `<div class="ex-block">
       <div class="ex-head">
-        <div>
+        <div class="ex-head-left">
           <div class="ex-head-tag">День ${day.id}</div>
-          <div class="ex-head-title">${day.title}</div>
-          <div class="ex-head-sub">${day.sub}</div>
+          ${editMode
+            ? `<input class="edit-field ex-head-title-edit" value="${esc(day.title)}" oninput="updateDayField(${D},'title',this.value)" placeholder="Название дня">
+               <input class="edit-field ex-head-sub-edit" value="${esc(day.sub)}" oninput="updateDayField(${D},'sub',this.value)" placeholder="Описание">`
+            : `<div class="ex-head-title">${day.title}</div>
+               <div class="ex-head-sub">${day.sub}</div>`
+          }
         </div>
         <div class="ex-head-right">
           <div class="ex-counter">${done}/${tot}</div>
@@ -1154,12 +1546,224 @@ function render(){
         <span class="pi-name">${w.l}${cur?'<span class="now-pill">сейчас</span>':''}</span>
         <span class="pi-status${past?' ok':''}">${past?'✓ Готово':cur?'В процессе':'Впереди'}</span>
       </div>
-      <div class="bar-bg"><div class="bar-fill" style="width:${i<=wi?w.p:0}%;background:${w.c}"></div></div>
+      <div class="bar-bg style-${w.barStyle||'default'}" style="height:${w.barH||3}px;border-radius:${(w.barStyle||'default')==='rounded'?'999px':'2px'}"><div class="bar-fill style-${w.barStyle||'default'}" style="width:${i<=wi?w.p:0}%;background:${w.c}"></div></div>
       <div class="pi-desc">${w.d}</div>
     </div>`;
   }).join('');
   loadNote();
 }
+
+// ══════════════════════════════════════
+// APP SETTINGS (название и описание)
+// ══════════════════════════════════════
+const APP_CFG_KEY = 'abw_app_cfg';
+
+const APP_DEFAULTS = {
+  topbar:    'Ab Wheel Program',
+  heroTitle: 'Standing\nRollout',
+  heroDesc:  'Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.',
+  progTitle: 'Standing Rollout',
+  progSub:   'Дорожная карта к полному выходу стоя',
+  footer:    'Ab Wheel Tracker · Standing Rollout Program',
+};
+
+function loadAppCfg() {
+  try { return Object.assign({}, APP_DEFAULTS, JSON.parse(localStorage.getItem(APP_CFG_KEY) || '{}')); }
+  catch(e) { return Object.assign({}, APP_DEFAULTS); }
+}
+
+function saveAppCfg(cfg) {
+  try { localStorage.setItem(APP_CFG_KEY, JSON.stringify(cfg)); } catch(e) {}
+}
+
+function renderAppCfg(cfg) {
+  const t  = document.getElementById('app-topbar-title');
+  const ht = document.getElementById('app-hero-title');
+  const hd = document.getElementById('app-hero-desc');
+  const pt = document.getElementById('app-prog-title');
+  const ps = document.getElementById('app-prog-sub');
+  const ft = document.getElementById('app-footer');
+
+  if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
+  if (ht) ht.innerHTML   = (cfg.heroTitle || APP_DEFAULTS.heroTitle).replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>');
+  if (hd) hd.textContent = cfg.heroDesc  || APP_DEFAULTS.heroDesc;
+  if (pt) pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle;
+  if (ps) ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;
+  if (ft) ft.textContent = cfg.footer    || APP_DEFAULTS.footer;
+  document.title = cfg.topbar || APP_DEFAULTS.topbar;
+}
+
+function openAppSettings() {
+  const cfg = loadAppCfg();
+  document.getElementById('cfg-topbar').value     = cfg.topbar;
+  document.getElementById('cfg-hero-title').value = cfg.heroTitle.replace('\n', ' / ');
+  document.getElementById('cfg-hero-desc').value  = cfg.heroDesc;
+  document.getElementById('cfg-prog-title').value = cfg.progTitle;
+  document.getElementById('cfg-prog-sub').value   = cfg.progSub;
+  document.getElementById('cfg-footer').value     = cfg.footer;
+  document.getElementById('settings-overlay').classList.add('open');
+  document.getElementById('settings-sheet').classList.add('open');
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function closeAppSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+  document.getElementById('settings-sheet').classList.remove('open');
+}
+
+function applyAppSettings() {
+  const heroRaw  = document.getElementById('cfg-hero-title').value;
+  const heroTitle = heroRaw.includes(' / ') ? heroRaw.replace(' / ', '\n') : heroRaw;
+  const cfg = {
+    topbar:    document.getElementById('cfg-topbar').value     || APP_DEFAULTS.topbar,
+    heroTitle: heroTitle                                        || APP_DEFAULTS.heroTitle,
+    heroDesc:  document.getElementById('cfg-hero-desc').value  || APP_DEFAULTS.heroDesc,
+    progTitle: document.getElementById('cfg-prog-title').value || APP_DEFAULTS.progTitle,
+    progSub:   document.getElementById('cfg-prog-sub').value   || APP_DEFAULTS.progSub,
+    footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
+  };
+  saveAppCfg(cfg);
+  renderAppCfg(cfg);
+}
+
+// ══════════════════════════════════════
+// WEEKS / ROADMAP EDITOR
+// ══════════════════════════════════════
+function renderWeeksBody() {
+  const body = document.getElementById('weeks-body');
+  body.innerHTML = WEEKS.map((w, i) => `
+    <div class="help-section" style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="help-section-title" style="margin:0;">Этап ${i+1}</div>
+        <div style="display:flex;gap:6px;">
+          ${i > 0 ? `<button class="ea-btn up" onclick="moveWeek(${i},-1)">↑</button>` : ''}
+          ${i < WEEKS.length-1 ? `<button class="ea-btn dn" onclick="moveWeek(${i},1)">↓</button>` : ''}
+          ${WEEKS.length > 1 ? `<button class="ea-btn" onclick="deleteWeek(${i})">✕</button>` : ''}
+        </div>
+      </div>
+      <input class="edit-field" style="margin-bottom:6px;" value="${esc(w.l)}"
+        oninput="updateWeek(${i},'l',this.value)" placeholder="Название (Нед. 1–2)">
+      <input class="edit-field detail-field" style="margin-bottom:6px;" value="${esc(w.d)}"
+        oninput="updateWeek(${i},'d',this.value)" placeholder="Описание этапа">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:11px;color:var(--text3);white-space:nowrap;">Прогресс %</span>
+        <input class="edit-field" style="width:70px;" type="number" min="1" max="100"
+          value="${w.p}" oninput="updateWeek(${i},'p',+this.value)" placeholder="100">
+      </div>
+
+      <div style="font-family:'Archivo Narrow',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Прогресс-бар</div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:12px;color:var(--text2);">Цвет</span>
+          <input type="color" value="${w.c||'#c8a96e'}"
+            style="width:32px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:1px;"
+            oninput="updateWeek(${i},'c',this.value);previewBar(${i})">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:12px;color:var(--text2);">Толщина</span>
+          <input type="range" min="1" max="16" value="${w.barH||3}"
+            style="width:80px;"
+            oninput="updateWeek(${i},'barH',+this.value);previewBar(${i});document.getElementById('bh_${i}').textContent=this.value+'px'">
+          <span id="bh_${i}" style="font-size:11px;color:var(--text3);min-width:24px;">${w.barH||3}px</span>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+        <span style="font-size:12px;color:var(--text2);">Вид</span>
+        <select class="tag-select" style="flex:1;" onchange="updateWeek(${i},'barStyle',this.value);previewBar(${i})">
+          <option value="default"  ${(w.barStyle||'default')==='default' ?'selected':''}>Прямой</option>
+          <option value="rounded"  ${(w.barStyle||'')==='rounded'  ?'selected':''}>Закруглённый</option>
+          <option value="striped"  ${(w.barStyle||'')==='striped'  ?'selected':''}>Полосатый</option>
+          <option value="gradient" ${(w.barStyle||'')==='gradient' ?'selected':''}>Градиент</option>
+        </select>
+      </div>
+
+      <div id="bar-preview-${i}" style="background:var(--surface3);overflow:hidden;margin-bottom:2px;
+           height:${w.barH||3}px;
+           border-radius:${(w.barStyle||'default')==='rounded'?'999px':'2px'}">
+        <div style="height:100%;width:${w.p}%;background:${w.c};
+             ${(w.barStyle||'')==='striped'?'background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.15) 0,rgba(255,255,255,.15) 6px,transparent 6px,transparent 12px);background-size:24px 24px;':''}
+             ${(w.barStyle||'')==='gradient'?'filter:brightness(1.18);':''}
+             border-radius:${(w.barStyle||'default')==='rounded'?'999px':'1px'}"></div>
+      </div>
+    </div>
+  `).join('') + `
+    <button class="add-ex-btn visible" onclick="addWeek()" style="margin-top:4px;">+ Добавить этап</button>
+    <button class="reset-btn" onclick="resetWeeks()" style="margin-top:8px;width:100%;">Сбросить к исходной карте</button>
+  `;
+}
+
+function previewBar(i) {
+  const w = WEEKS[i];
+  const el = document.getElementById(`bar-preview-${i}`);
+  if (!el) return;
+  el.style.height       = (w.barH||3) + 'px';
+  el.style.borderRadius = (w.barStyle||'default')==='rounded' ? '999px' : '2px';
+  const fill = el.firstElementChild;
+  if (!fill) return;
+  fill.style.width        = w.p + '%';
+  fill.style.background   = w.c;
+  fill.style.borderRadius = (w.barStyle||'default')==='rounded' ? '999px' : '1px';
+  fill.style.backgroundImage = (w.barStyle||'')==='striped'
+    ? 'repeating-linear-gradient(45deg,rgba(255,255,255,.15) 0,rgba(255,255,255,.15) 6px,transparent 6px,transparent 12px)'
+    : '';
+  fill.style.filter = (w.barStyle||'')==='gradient' ? 'brightness(1.18)' : '';
+}
+
+function openWeeksEditor() {
+  renderWeeksBody();
+  document.getElementById('weeks-overlay').classList.add('open');
+  document.getElementById('weeks-sheet').classList.add('open');
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function closeWeeksEditor() {
+  document.getElementById('weeks-overlay').classList.remove('open');
+  document.getElementById('weeks-sheet').classList.remove('open');
+  render(); // Обновляем прогресс-блок
+}
+
+function updateWeek(i, field, val) {
+  WEEKS[i][field] = val;
+  saveWeeks(WEEKS);
+}
+
+function moveWeek(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= WEEKS.length) return;
+  [WEEKS[i], WEEKS[j]] = [WEEKS[j], WEEKS[i]];
+  saveWeeks(WEEKS);
+  renderWeeksBody();
+}
+
+function deleteWeek(i) {
+  if (WEEKS.length <= 1) return;
+  WEEKS.splice(i, 1);
+  saveWeeks(WEEKS);
+  renderWeeksBody();
+}
+
+function addWeek() {
+  WEEKS.push({l: 'Новый этап', d: 'Описание', p: 100, c: '#c8a96e'});
+  saveWeeks(WEEKS);
+  renderWeeksBody();
+  // Скроллим вниз до нового этапа
+  setTimeout(() => {
+    const sheet = document.getElementById('weeks-sheet');
+    sheet.scrollTop = sheet.scrollHeight;
+  }, 50);
+}
+
+function resetWeeks() {
+  if (!confirm('Сбросить дорожную карту к исходной?')) return;
+  WEEKS = JSON.parse(JSON.stringify(WEEKS_DEFAULT));
+  saveWeeks(WEEKS);
+  renderWeeksBody();
+}
+
+// Применяем при загрузке
+renderAppCfg(loadAppCfg());
 
 render();
 
@@ -1262,6 +1866,335 @@ document.addEventListener('visibilitychange', () => {
     if (left <= 0) onInlineFinishedUI();
   }
 });
+
+// ══════════════════════════════════════
+// EXERCISE HELP DATABASE
+// ══════════════════════════════════════
+const EX_DB = {
+  // ── Программа: День A ──────────────────
+  'Присед с гантелями': {
+    how: 'Встань прямо, гантели в руках вдоль тела или на плечах. Стопы на ширине плеч, носки чуть развёрнуты наружу. Опускайся вниз, отводя таз назад и вниз, сохраняя спину прямой. Колени следуют за носками, не заваливаясь внутрь. Опустись до параллели бёдер с полом или ниже. Вставай через пятки.',
+    tips: ['Держи грудь поднятой — не горби спину', 'Пятки не отрывай от пола', 'Колени не выходят за носки чрезмерно', 'Вдох вниз, выдох на подъём'],
+    alts: ['Приседания со штангой', 'Жим ногами', 'Выпады', 'Румынская тяга']
+  },
+  'Брусья': {
+    how: 'Возьмись за брусья прямым хватом, руки на ширине плеч. Слегка наклони корпус вперёд — это переключает акцент на грудь. Согни локти и опустись вниз до угла 90° в локтях или чуть ниже. Не раскачивайся. Выжми себя вверх до полного выпрямления рук.',
+    tips: ['Наклон вперёд = больше грудь, вертикаль = больше трицепс', 'Не разводи локти слишком широко', 'Контролируй опускание — не падай вниз', 'Если тяжело — используй резиновую петлю'],
+    alts: ['Отжимания', 'Жим лёжа', 'Жим гантелей лёжа', 'Отжимания узкие / алмазные']
+  },
+  'Отжимания узкие / алмазные': {
+    how: 'Ляг в упор лёжа. Поставь ладони так, чтобы большие и указательные пальцы образовали ромб под грудью. Локти прижаты к телу и двигаются вдоль корпуса. Опустись грудью к рукам, не разводя локти. Выжми вверх.',
+    tips: ['Тело — одна прямая линия от головы до пяток', 'Не задирай таз вверх', 'Основная нагрузка — трицепс и внутренняя часть груди', 'Темп медленный на опускании'],
+    alts: ['Французский жим', 'Разгибания на блоке (трицепс)', 'Брусья', 'Отжимания']
+  },
+  'Hollow Body Hold + Dead Bug': {
+    how: 'Hollow Body: лёжа на спине, прижми поясницу к полу. Вытяни руки за голову, ноги подними под углом 30–45°. Удерживай положение — это и есть планка для передней цепи. Dead Bug: из той же позиции вытяни правую руку назад и выпрями левую ногу одновременно. Медленно вернись. Чередуй стороны.',
+    tips: ['Поясница должна быть прижата к полу — это ключ', 'Не задерживай дыхание — дыши медленно', 'Если тяжело — сгибай ноги в коленях', 'Dead Bug тренирует то же, что нужно для rollout — антиэкстензию'],
+    alts: ['Планка', 'Body Saw / Long-Lever Plank', 'Скручивания', 'Подъём ног в висе']
+  },
+  'Махи в стороны (средняя дельта)': {
+    how: 'Стой прямо, гантели в опущенных руках. Слегка согни локти — так они и останутся. Поднимай руки в стороны до уровня плеч, мизинцы чуть выше больших пальцев (как будто выливаешь воду из кружки). Медленно опускай.',
+    tips: ['Не раскачивайся — убери инерцию', 'Подъём — 1 сек, опускание — 2–3 сек', 'Не поднимай выше уровня плеч', 'Локти чуть согнуты на протяжении всего движения'],
+    alts: ['Жим штанги стоя', 'Жим гантелей лёжа', 'Задняя дельта (махи в наклоне)', 'Шраги']
+  },
+
+  // ── Программа: День B ──────────────────
+  'Выпады': {
+    how: 'Стой прямо, ноги вместе. Сделай широкий шаг вперёд. Опусти заднее колено вниз, не касаясь пола. Переднее колено над щиколоткой, не выходит за носок. Оттолкнись передней ногой и вернись в исходное положение.',
+    tips: ['Держи корпус вертикально — не наклоняйся вперёд', 'Шаг достаточно широкий, чтобы голень была вертикальной', 'Вариант: выпады на месте или обратные выпады — мягче для колен', 'Одинаково прорабатывай обе стороны'],
+    alts: ['Присед с гантелями', 'Приседания со штангой', 'Жим ногами', 'Румынская тяга']
+  },
+  'Горизонтальная тяга': {
+    how: 'Тяга горизонтального блока, гантелей в наклоне или резины. Спина прямая, небольшой наклон вперёд. Тяни рукоять/гантели к поясу, ведя локти вдоль тела назад. В конечной точке сведи лопатки. Медленно возвращай вперёд.',
+    tips: ['Не горби спину и не округляй поясницу', 'Лопатки двигаются — не блокируй их', 'Не тяни за счёт бицепса — думай "локоть назад"', 'Полное выпрямление рук в начале — полный диапазон'],
+    alts: ['Тяга штанги в наклоне', 'Тяга верхнего блока', 'Подтягивания', 'Подтягивания обратным хватом']
+  },
+  'Пулловер с резиной стоя': {
+    how: 'Прикрепи резину высоко (турник, дверной якорь). Стань лицом к точке крепления, возьми резину прямыми руками над головой. Потяни руки вниз и вперёд дугой, не сгибая локти, до уровня бёдер. Это движение имитирует возврат из rollout — используй его осознанно.',
+    tips: ['Представляй, что возвращаешься из rollout — тот же паттерн', 'Держи поясницу нейтральной, не прогибайся', 'Работают широчайшие и задняя дельта', 'Медленный возврат вверх — 3 сек'],
+    alts: ['Тяга верхнего блока', 'Подтягивания', 'Горизонтальная тяга', 'Тяга штанги в наклоне']
+  },
+  'Body Saw / Long-Lever Plank': {
+    how: 'Встань в планку на локтях. Body Saw: медленно двигай всё тело вперёд и назад на локтях, как маятник. Long-Lever Plank: просто стой в планке с руками максимально вытянутыми вперёд — плечи над запястьями или дальше.',
+    tips: ['Поясница нейтральная — не прогибается и не округляется', 'Напряги ягодицы и пресс одновременно', 'Body Saw — прямой перенос на движение в rollout', 'Если легко — добавь вес на спину'],
+    alts: ['Планка', 'Hollow Body Hold + Dead Bug', 'Kneeling Rollout дальняя амплитуда', 'Скручивания']
+  },
+  'Bird Dog': {
+    how: 'Встань на четвереньки: колени под бёдрами, запястья под плечами. Одновременно вытяни правую руку вперёд и левую ногу назад. Удержи 2–3 секунды. Вернись без касания пола. Поменяй стороны.',
+    tips: ['Таз не поворачивай и не задирай — удерживай стабильность', 'Тело от руки до пятки — одна линия', 'Движение медленное и контролируемое', 'Смотри в пол, шея нейтральная'],
+    alts: ['Hollow Body Hold + Dead Bug', 'Планка', 'Гиперэкстензия', 'Body Saw / Long-Lever Plank']
+  },
+  'Задняя дельта (махи в наклоне)': {
+    how: 'Наклонись вперёд до параллели с полом, спина прямая. Гантели свисают вниз. Разводи руки в стороны, ведя локти вверх. В верхней точке ощути сжатие между лопаток. Медленно опускай.',
+    tips: ['Не раскачивай корпус', 'Мизинцы направлены вверх в верхней точке', 'Поясница не округляется', 'Вес небольшой — это изоляция'],
+    alts: ['Горизонтальная тяга', 'Тяга штанги в наклоне', 'Пулловер с резиной стоя', 'Махи в стороны (средняя дельта)']
+  },
+
+  // ── Программа: День C ──────────────────
+  'Раскрытие грудного отдела на ролле': {
+    how: 'Положи foam roller поперёк спины на уровне лопаток. Руки за головой или скрещены на груди. Медленно разгибайся назад через ролл, позволяя позвонкам мобилизоваться. Перекатывайся немного выше и ниже, задерживаясь на тугих участках.',
+    tips: ['Поясницу не разгибай — работай только грудным отделом', 'Дыши глубоко и расслабляйся на каждом выдохе', 'Не торопись — 2 минуты медленной работы лучше 30 секунд быстрой', 'Голову поддерживай руками, не запрокидывай'],
+    alts: ['Выкруты с резиной', 'Растяжка сгибателей бедра']
+  },
+  'Выкруты с резиной': {
+    how: 'Возьми резину или палку широким хватом перед собой. Медленно переведи прямые руки над головой и за спину. Вернись тем же путём. Хват по мере прогресса можно сужать.',
+    tips: ['Чем шире хват — тем легче', 'Руки прямые на протяжении всего движения', 'Если есть дискомфорт в плечах — расшири хват', 'Отличная разминка для плечевых суставов перед rollout'],
+    alts: ['Раскрытие грудного отдела на ролле', 'Махи в стороны (средняя дельта)', 'Задняя дельта (махи в наклоне)']
+  },
+  'Растяжка сгибателей бедра': {
+    how: 'Встань на одно колено (поза рыцаря). Таз сдвинь вперёд, не наклоняя корпус. Почувствуй растяжение в передней части бедра сзадистоящей ноги. Удерживай, дыши.',
+    tips: ['Важно для rollout — короткие сгибатели бедра мешают нейтральному тазу', 'Не прогибай поясницу — работает только бедро', 'Можно добавить подъём руки вверх для большего диапазона', 'Делай на обе стороны'],
+    alts: ['Раскрытие грудного отдела на ролле', 'Ягодичный мостик', 'Румынская тяга']
+  },
+  'Wall Rollout стоя': {
+    how: 'Встань лицом к стене на расстоянии ~50–80 см. Возьми ab wheel. Катись вперёд под углом к стене — стена ограничивает глубину выхода. Тело вытягивается в прямую линию. Вернись назад усилием кора и широчайших.',
+    tips: ['Поясница нейтральная — не прогибайся в нижней точке', 'Ягодицы напряжены на протяжении всего движения', 'Возврат — не руками, а "подкручиванием" таза', 'По мере прогресса отходи дальше от стены'],
+    alts: ['Kneeling Rollout дальняя амплитуда', 'Negative Standing Rollout', 'Body Saw / Long-Lever Plank', 'Пулловер с резиной стоя']
+  },
+  'Negative Standing Rollout': {
+    how: 'Начни стоя. Медленно катись колесом вперёд вниз — контролируй каждый сантиметр. Опускайся как можно дальше, сохраняя контроль. Когда удержать уже невозможно — аккуратно опустись на колени и вернись из положения на коленях.',
+    tips: ['Опускание — 5–7 секунд, не быстрее', 'Цель — построить эксцентрическую силу', 'Не бойся дальней амплитуды — ты контролируешь движение вниз', 'Возврат с колен — полноценная работа, не халтурь'],
+    alts: ['Wall Rollout стоя', 'Kneeling Rollout дальняя амплитуда', 'Body Saw / Long-Lever Plank']
+  },
+  'Kneeling Rollout дальняя амплитуда': {
+    how: 'Встань на колени, ab wheel в руках. Катись максимально далеко вперёд, вытягивая тело в прямую линию параллельно полу. Вернись, подкручивая таз и сокращая пресс.',
+    tips: ['Дальняя амплитуда — главный стресс на кор', 'Не прогибай поясницу в нижней точке', 'Возврат начинается с подкручивания таза, а не с рук', 'Если теряешь поясницу — уменьши амплитуду'],
+    alts: ['Wall Rollout стоя', 'Negative Standing Rollout', 'Body Saw / Long-Lever Plank', 'Hollow Body Hold + Dead Bug']
+  },
+  'Тяга блока + жим гантелей сидя': {
+    how: 'Суперсет: тяга горизонтального блока узким хватом (12 повт) + жим гантелей сидя (12 повт). Без паузы между упражнениями, лёгкий рабочий вес. Пауза между суперсетами 90 сек.',
+    tips: ['Лёгкий вес — это не тренировка силы, а активная работа', 'Сохраняй технику даже при усталости', 'Жим сидя: гантели на уровне плеч, жмёшь вертикально вверх', 'Цель — кровоток и закрепление паттернов'],
+    alts: ['Горизонтальная тяга', 'Жим штанги стоя', 'Тяга верхнего блока', 'Жим гантелей лёжа']
+  },
+
+  // ── Популярные упражнения ──────────────
+  'Подтягивания': {
+    how: 'Повисни на перекладине прямым хватом шире плеч. Сведи лопатки и потяни себя вверх до уровня подбородка выше перекладины. Медленно опустись до полного выпрямления рук.',
+    tips: ['Не раскачивайся — мёртвый вис в начале', 'Лопатки вниз и назад перед началом тяги', 'Локти двигаются вниз и в стороны', 'Полное выпрямление внизу — полный диапазон'],
+    alts: ['Подтягивания обратным хватом', 'Тяга верхнего блока', 'Горизонтальная тяга', 'Пулловер с резиной стоя']
+  },
+  'Подтягивания обратным хватом': {
+    how: 'Повисни на перекладине обратным (супинированным) хватом на ширине плеч. Тяни себя вверх, локти движутся вдоль тела вниз. Подбородок выше перекладины. Полное выпрямление внизу.',
+    tips: ['Обратный хват активнее включает бицепс', 'Проще для большинства, чем прямой хват', 'Не болтай ногами', 'Старайся контролировать опускание — 2–3 сек'],
+    alts: ['Подтягивания', 'Тяга верхнего блока', 'Сгибания на бицепс', 'Горизонтальная тяга']
+  },
+  'Отжимания': {
+    how: 'Упор лёжа: ладони чуть шире плеч, пальцы смотрят вперёд. Тело — прямая линия. Опускайся, пока грудь почти не коснётся пола, локти под углом ~45° к телу. Выжми вверх.',
+    tips: ['Не прогибай и не горби спину', 'Напряги пресс и ягодицы на протяжении всего движения', 'Локти не разводи перпендикулярно телу', 'Смотри чуть вперёд, не вниз'],
+    alts: ['Жим лёжа', 'Жим гантелей лёжа', 'Брусья', 'Отжимания узкие / алмазные']
+  },
+  'Планка': {
+    how: 'Упор на локтях или ладонях. Тело прямая линия от головы до пяток. Поясница нейтральная — не прогибается и не округляется. Напряги всё тело: пресс, ягодицы, квадрицепсы.',
+    tips: ['Не задирай таз вверх — это облегчает, но убирает нагрузку', 'Дыши равномерно', 'Боковая планка — усложнение для косых мышц', 'Качество важнее времени'],
+    alts: ['Body Saw / Long-Lever Plank', 'Hollow Body Hold + Dead Bug', 'Скручивания', 'Подъём ног в висе']
+  },
+  'Становая тяга': {
+    how: 'Штанга у голеней, стопы на ширине бёдер. Возьмись за гриф хватом чуть шире ног. Прогни поясницу, подними грудь. Отжимай пол ногами и одновременно тяни штангу вдоль тела вверх. Бёдра и плечи поднимаются вместе. В верхней точке — полное выпрямление.',
+    tips: ['Штанга касается голеней — она должна идти по вертикали', 'Не округляй поясницу — это критично', 'Лопатки над грифом в начале движения', 'Опускание контролируемое — не бросай штангу'],
+    alts: ['Румынская тяга', 'Гиперэкстензия', 'Жим ногами', 'Приседания со штангой']
+  },
+  'Жим лёжа': {
+    how: 'Лёжа на скамье, гриф над грудью. Хват чуть шире плеч. Сведи и опусти лопатки, арка в пояснице. Опускай гриф к нижней части груди, локти под углом ~45–75° к телу. Выжми вверх.',
+    tips: ['Лопатки прижаты к скамье и сведены — создай стабильную базу', 'Стопы твёрдо на полу', 'Не отбивай штангу от груди', 'Вдох вниз, выдох на подъём'],
+    alts: ['Жим гантелей лёжа', 'Отжимания', 'Брусья', 'Разведение гантелей лёжа']
+  },
+  'Жим гантелей лёжа': {
+    how: 'Лёжа на скамье, гантели над грудью ладонями друг к другу или вперёд. Опускай гантели в стороны до уровня груди, локти чуть ниже плеч. Выжми вверх, слегка сводя гантели.',
+    tips: ['Больший диапазон движения, чем со штангой', 'Не разводи локти перпендикулярно — 45–75° к телу', 'Контролируй опускание', 'Можно менять угол наклона скамьи'],
+    alts: ['Жим лёжа', 'Разведение гантелей лёжа', 'Отжимания', 'Брусья']
+  },
+  'Жим штанги стоя': {
+    how: 'Штанга на уровне ключиц, хват чуть шире плеч. Стой прямо, ноги на ширине плеч. Выжми штангу вертикально вверх, слегка отводя голову назад при прохождении грифа мимо лица. В верхней точке руки полностью выпрямлены.',
+    tips: ['Не прогибай поясницу — напряги пресс', 'В верхней точке уши между руками', 'Локти чуть впереди грифа в начале', 'Ягодицы напряжены на протяжении всего движения'],
+    alts: ['Жим гантелей лёжа', 'Махи в стороны (средняя дельта)', 'Шраги', 'Задняя дельта (махи в наклоне)']
+  },
+  'Тяга штанги в наклоне': {
+    how: 'Наклонись вперёд до ~45°, спина прямая, колени слегка согнуты. Возьми штангу прямым хватом. Тяни к поясу, ведя локти вдоль тела и назад. Лопатки сводятся в конечной точке.',
+    tips: ['Не дёргай корпусом', 'Поясница нейтральная весь подход', 'Полное выпрямление рук внизу', 'Хват может быть прямым или обратным'],
+    alts: ['Горизонтальная тяга', 'Подтягивания', 'Тяга верхнего блока', 'Пулловер с резиной стоя']
+  },
+  'Приседания со штангой': {
+    how: 'Штанга на верхней части трапеции (high bar) или на задних дельтах (low bar). Стопы чуть шире плеч, носки развёрнуты 15–30°. Опускайся, сохраняя грудь поднятой и поясницу нейтральной. Бёдра ниже параллели. Вставай через пятки.',
+    tips: ['Колени следуют за носками — не заваливаются внутрь', 'Поясница нейтральная — не округляй в нижней точке', 'Взгляд чуть вперёд и вниз', 'Глубокий вдох перед опусканием — напряжение кора'],
+    alts: ['Присед с гантелями', 'Жим ногами', 'Выпады', 'Румынская тяга']
+  },
+  'Румынская тяга': {
+    how: 'Стой прямо со штангой или гантелями. Слегка согни колени — и зафиксируй их. Наклоняйся вперёд, отводя таз назад. Гриф скользит вдоль ног вниз. Почувствуй растяжение задней поверхности бедра. Вернись через разгибание бёдер.',
+    tips: ['Основное движение — в тазобедренном суставе, не в колене', 'Спина прямая всё движение', 'Не нужно опускаться до пола — стоп на растяжении', 'Отличное упражнение для ягодиц и задней поверхности бедра'],
+    alts: ['Становая тяга', 'Гиперэкстензия', 'Ягодичный мостик', 'Выпады']
+  },
+  'Подъём ног в висе': {
+    how: 'Повисни на перекладине. Подними прямые ноги до параллели с полом или выше. Медленно опускай. Для усложнения — поднимай до перекладины.',
+    tips: ['Не раскачивайся', 'Поясница не прогибается — таз чуть подкручен вверх в верхней точке', 'Для начинающих — согнутые ноги', 'Выдох на подъёме'],
+    alts: ['Скручивания', 'Hollow Body Hold + Dead Bug', 'Планка', 'Body Saw / Long-Lever Plank']
+  },
+  'Скручивания': {
+    how: 'Лёжа на спине, колени согнуты. Руки за головой или скрещены на груди. Отрывай плечи и верхнюю часть спины от пола, сокращая пресс. Поясница остаётся прижатой к полу. Медленно возвращайся.',
+    tips: ['Не тяни за шею руками', 'Движение небольшое — не нужно садиться полностью', 'Поясница на полу на протяжении всего движения', 'Выдох на подъёме'],
+    alts: ['Подъём ног в висе', 'Hollow Body Hold + Dead Bug', 'Планка', 'Kneeling Rollout дальняя амплитуда']
+  },
+  'Берпи': {
+    how: 'Стоя — присядь и упрись руками в пол. Прыжком выброси ноги назад в планку. Отожмись (опционально). Прыжком подтяни ноги к рукам. Встань и прыгни вверх с хлопком над головой.',
+    tips: ['Темп зависит от цели: медленнее — сила, быстрее — кардио', 'Держи планку ровной при выбросе ног', 'Приземляйся мягко на носки', 'Можно убрать прыжок вверх для облегчения'],
+    alts: ['Кардио (бег)', 'Прыжки на скакалке', 'Отжимания', 'Приседания со штангой']
+  },
+  'Гиперэкстензия': {
+    how: 'Ляг на скамью для гиперэкстензии лицом вниз, таз на краю, ноги зафиксированы. Опусти корпус вниз до вертикали. Поднимись до горизонтали или чуть выше, сокращая ягодицы и поясницу.',
+    tips: ['Не переразгибайся выше горизонтали', 'Плавное движение без рывков', 'Можно держать блин к груди для утяжеления', 'Отличная профилактика болей в пояснице'],
+    alts: ['Румынская тяга', 'Становая тяга', 'Ягодичный мостик', 'Bird Dog']
+  },
+  'Жим ногами': {
+    how: 'Сядь в тренажёр, стопы на платформе на ширине плеч. Опускай платформу, сгибая колени до угла ~90°. Выжми платформу вверх, не блокируя колени полностью в верхней точке.',
+    tips: ['Поясница и крестец прижаты к спинке', 'Не поднимай пятки с платформы', 'Не блокируй колени в верхней точке — держи мышечное напряжение', 'Стопы выше = больше ягодиц, ниже = больше квадрицепсы'],
+    alts: ['Приседания со штангой', 'Присед с гантелями', 'Выпады', 'Румынская тяга']
+  },
+  'Шраги': {
+    how: 'Стой прямо, гантели или штанга в опущенных руках. Подними плечи вертикально вверх — к ушам. Секундная пауза. Опусти.',
+    tips: ['Только вертикальное движение — без вращения', 'Руки прямые, бицепс не работает', 'Не нужно делать круговых движений плечами', 'Полное опускание вниз — растяжение трапеции'],
+    alts: ['Тяга штанги в наклоне', 'Тяга верхнего блока', 'Подтягивания', 'Горизонтальная тяга']
+  },
+  'Разведение гантелей лёжа': {
+    how: 'Лёжа на скамье, гантели над грудью, ладони друг к другу. Слегка согни локти и зафиксируй — они так и останутся. Разводи руки в стороны широкой дугой до уровня груди. Сводя руки обратно, представляй, что обнимаешь дерево.',
+    tips: ['Локти слегка согнуты — не меняй угол в процессе', 'Основная растяжка в нижней точке', 'Вес меньше, чем на жиме', 'Хорошее упражнение для растяжения грудных'],
+    alts: ['Жим лёжа', 'Жим гантелей лёжа', 'Отжимания', 'Брусья']
+  },
+  'Французский жим': {
+    how: 'Лёжа на скамье, штанга или гантели вверху на вытянутых руках. Опускай снаряд ко лбу (или за голову), сгибая только локти — плечи неподвижны. Разгибай обратно.',
+    tips: ['Локти смотрят вверх и не расходятся в стороны', 'Плечи вертикальны и неподвижны', 'Медленное опускание', 'ЕZ-гриф мягче для запястий'],
+    alts: ['Разгибания на блоке (трицепс)', 'Отжимания узкие / алмазные', 'Брусья']
+  },
+  'Разгибания на блоке (трицепс)': {
+    how: 'Стоя у верхнего блока, возьми рукоять прямым или обратным хватом. Прижми локти к телу и зафиксируй их — они не двигаются. Разгибай руки вниз до полного выпрямления. Медленно возвращай.',
+    tips: ['Локти неподвижны — это ключ к изоляции трицепса', 'Немного наклонись вперёд для удобства', 'Канат позволяет развести руки в конце — чуть больше амплитуды', 'Не раскачивайся'],
+    alts: ['Французский жим', 'Отжимания узкие / алмазные', 'Брусья']
+  },
+  'Сгибания на бицепс': {
+    how: 'Стоя, гантели или штанга в опущенных руках ладонями вперёд. Сгибай руки в локтях, поднимая снаряд к плечам. Локти неподвижны у тела. Медленно опускай до полного выпрямления.',
+    tips: ['Локти у тела — не выводи их вперёд', 'Полное выпрямление внизу', 'Не раскачивайся и не помогай корпусом', 'Молотковый хват = больше брахиалис'],
+    alts: ['Подтягивания обратным хватом', 'Подтягивания', 'Тяга верхнего блока']
+  },
+  'Икры стоя': {
+    how: 'Встань носками на возвышение (ступеньку, блин), пятки свисают. Опустись вниз — почувствуй растяжение. Поднимись на носки максимально высоко. Удержи секунду.',
+    tips: ['Полный диапазон — опускание ниже уровня носков важно', 'Можно выполнять на одной ноге', 'Медленный темп лучше быстрого', 'Небольшое сгибание колен = камбаловидная мышца'],
+    alts: ['Жим ногами', 'Берпи', 'Прыжки на скакалке']
+  },
+  'Тяга верхнего блока': {
+    how: 'Сядь в тренажёр, зафиксируй бёдра. Возьмись за рукоять широким хватом. Тяни к верхней части груди, ведя локти вниз и в стороны. Лопатки сводятся в нижней точке.',
+    tips: ['Не тяни за счёт наклона назад', 'Лопатки двигаются — не блокируй их', 'Полное выпрямление рук вверху', 'Узкий хват ладонями к себе = больше бицепс'],
+    alts: ['Подтягивания', 'Подтягивания обратным хватом', 'Горизонтальная тяга', 'Пулловер с резиной стоя']
+  },
+  'Ягодичный мостик': {
+    how: 'Лёжа на спине, колени согнуты, стопы на полу. Подними таз вверх, сжимая ягодицы. В верхней точке тело от плеч до колен — прямая линия. Удержи секунду. Опустись.',
+    tips: ['Сожми ягодицы максимально в верхней точке', 'Не запрокидывай голову', 'Штанга на бёдрах — хорошее утяжеление', 'Одна нога вверху — болгарский вариант'],
+    alts: ['Румынская тяга', 'Гиперэкстензия', 'Выпады', 'Растяжка сгибателей бедра']
+  },
+  'Кардио (бег)': {
+    how: 'Беги в умеренном темпе, при котором ты можешь говорить предложениями. Стопы приземляются под центром тяжести, не перед собой. Корпус слегка наклонён вперёд. Руки согнуты под 90° и двигаются вперёд-назад.',
+    tips: ['Зона 2 (разговорный темп) — лучшее кардио для здоровья', 'Не бей пяткой о землю — приземляйся на среднюю часть стопы', 'Дыши носом если возможно', 'Разминка и заминка по 5 минут'],
+    alts: ['Прыжки на скакалке', 'Берпи']
+  },
+  'Прыжки на скакалке': {
+    how: 'Держи рукоятки локтями у тела, вращение — только запястьями. Прыгай невысоко, приземляясь на носки. Колени слегка согнуты. Ритм равномерный.',
+    tips: ['Не прыгай высоко — трата энергии', 'Корпус прямой, взгляд вперёд', 'Начни с 30-секундных серий', 'Double under: двойное вращение на один прыжок — требует практики'],
+    alts: ['Кардио (бег)', 'Берпи', 'Икры стоя']
+  },
+};
+
+function showHelp(name, type, fromName) {
+  const info = EX_DB[name];
+  const overlay = document.getElementById('help-overlay');
+  const sheet   = document.getElementById('help-sheet');
+
+  document.getElementById('help-name').textContent = name;
+  document.getElementById('help-tag').innerHTML = tagH(type || 'aux');
+
+  const body = document.getElementById('help-body');
+  if (!info) {
+    body.innerHTML = `<p class="help-no-info">Описание для этого упражнения пока не добавлено.</p>`;
+  } else {
+    // Если пришли из другого упражнения — добавляем его в список если там нет
+    let alts = info.alts ? [...info.alts] : [];
+    if (fromName && fromName !== name && !alts.includes(fromName)) {
+      alts = [fromName, ...alts];
+    }
+
+    const altsHTML = alts.length
+      ? `<div class="help-section">
+           <div class="help-section-title">Упражнения на тему</div>
+           <div class="help-alts">
+             ${alts.map(a => `<button class="help-alt-btn" data-name="${a.replace(/"/g,'&quot;')}" data-from="${name.replace(/"/g,'&quot;')}">${a}</button>`).join('')}
+           </div>
+         </div>`
+      : '';
+    body.innerHTML = `
+      <div class="help-section">
+        <div class="help-section-title">Техника</div>
+        <div class="help-section-text">${info.how}</div>
+      </div>
+      ${info.tips && info.tips.length ? `
+      <div class="help-section">
+        <div class="help-section-title">На что обратить внимание</div>
+        <ul class="help-tips">${info.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>` : ''}
+      ${altsHTML}
+    `;
+  }
+
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+  sheet.scrollTop = 0;
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function closeHelp() {
+  document.getElementById('help-overlay').classList.remove('open');
+  document.getElementById('help-sheet').classList.remove('open');
+}
+
+// Закрытие свайпом вниз
+(function(){
+  const sheet = document.getElementById('help-sheet');
+  let startY = 0, dragging = false;
+  sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; dragging = true; }, {passive:true});
+  sheet.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dy = e.touches[0].clientY - startY;
+    if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
+  }, {passive:true});
+  sheet.addEventListener('touchend', e => {
+    dragging = false;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (dy > 80) { closeHelp(); }
+    sheet.style.transform = '';
+  });
+})();
+
+// ── Делегированный обработчик кнопки ? ──
+// Перехватываем и touchstart и click чтобы на мобиле работало надёжно
+(function(){
+  function handleHelp(e) {
+    const btn = e.target.closest('.ex-help-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    showHelp(btn.dataset.exname, btn.dataset.extag);
+  }
+  document.addEventListener('touchstart', handleHelp, { capture: true, passive: false });
+  document.addEventListener('click',      handleHelp, { capture: true });
+})();
+
+// ── Делегированный обработчик "Упражнения на тему" ──
+(function(){
+  function handleAlt(e) {
+    const btn = e.target.closest('.help-alt-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    showHelp(btn.dataset.name, 'aux', btn.dataset.from);
+  }
+  document.addEventListener('touchstart', handleAlt, { capture: true, passive: false });
+  document.addEventListener('click',      handleAlt, { capture: true });
+})();
 
 // ══════════════════════════════════════
 // INLINE TIMER
