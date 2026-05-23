@@ -374,6 +374,45 @@ body {
   width: 100%;
 }
 
+/* ── SETS COUNTER ── */
+.sets-row {
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 5px; flex-wrap: wrap;
+}
+.set-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  cursor: pointer; transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.set-dot.done {
+  background: var(--green);
+  border-color: var(--green);
+}
+.ex-item.partial .set-dot.done {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.set-add-btn {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px dashed var(--border);
+  background: transparent; color: var(--text3);
+  font-size: 12px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.set-add-btn:active { border-color: var(--gold); color: var(--gold); }
+.set-rem-btn { border-color: var(--border); color: var(--text3); }
+.set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; }
+.ex-item.partial .chk-box { border-color: var(--gold); }
+.partial-num {
+  font-size: 13px; font-weight: 600; color: var(--gold);
+}
+
 /* ── EX HELP BUTTON ── */
 .ex-help-btn {
   flex-shrink: 0;
@@ -1314,9 +1353,78 @@ function toggleTheme(){
 
 const save=()=>{S.W=W;S.D=D;try{localStorage.setItem('abw8',JSON.stringify(S));}catch(e){}};
 const k=(w,d,i)=>`c_w${w}d${d}e${i}`;
-const got=(w,d,i)=>!!S[k(w,d,i)];
 
-function tog(w,d,i){if(editMode)return;const wasDone=dayDone(w,d)===S.days[d].ex.length;S[k(w,d,i)]=!S[k(w,d,i)];if(navigator.vibrate)navigator.vibrate(S[k(w,d,i)]?[18]:[12,40,12]);save();const nowDone=dayDone(w,d)===S.days[d].ex.length;render();if(!wasDone&&nowDone&&!editMode)triggerGoldWave();}
+// ── Работа с подходами ─────────────────
+// S[k] теперь: false | true (legacy) | { done: N, total: N }
+function parseSets(detail){
+  const m=(detail||'').match(/(\d+)\s*[×x\*]/);
+  return m?parseInt(m[1]):1;
+}
+function getSets(w,d,i){
+  const v=S[k(w,d,i)];
+  if(!v) return null;
+  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s}; }
+  return v;
+}
+const got=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return true;return v.done>=v.total;};
+const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return false;return v.done>0&&v.done<v.total;};
+
+function tog(w,d,i){
+  if(editMode) return;
+  const wasDone=dayDone(w,d)===S.days[d].ex.length;
+  const cur=S[k(w,d,i)];
+  if(!cur){
+    const total=parseSets(S.days[d].ex[i].d);
+    S[k(w,d,i)]=total<=1?true:{done:1,total};
+  } else if(cur===true){
+    S[k(w,d,i)]=false;
+  } else {
+    S[k(w,d,i)]=cur.done<cur.total?{done:cur.done+1,total:cur.total}:false;
+  }
+  if(navigator.vibrate) navigator.vibrate(S[k(w,d,i)]?[18]:[12,40,12]);
+  save();
+  const nowDone=dayDone(w,d)===S.days[d].ex.length;
+  render();
+  if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
+}
+
+function addSet(w,d,i){
+  if(editMode) return;
+  const cur=S[k(w,d,i)];
+  if(!cur){ S[k(w,d,i)]={done:0,total:parseSets(S.days[d].ex[i].d)+1}; }
+  else if(cur===true){ const b=parseSets(S.days[d].ex[i].d); S[k(w,d,i)]={done:b,total:b+1}; }
+  else { S[k(w,d,i)]={done:cur.done,total:cur.total+1}; }
+  if(navigator.vibrate) navigator.vibrate([8]);
+  save(); render();
+}
+
+function removeSet(w,d,i){
+  if(editMode) return;
+  const cur=S[k(w,d,i)];
+  const total=cur&&cur!==true?cur.total:parseSets(S.days[d].ex[i].d);
+  if(total<=1) return;
+  const done=cur&&cur!==true?Math.min(cur.done,total-1):cur===true?total-1:0;
+  const newTotal=total-1;
+  S[k(w,d,i)]=newTotal<=0?false:done>=newTotal?(newTotal===1?true:{done:newTotal,total:newTotal}):{done,total:newTotal};
+  if(navigator.vibrate) navigator.vibrate([8]);
+  save(); render();
+}
+
+function togSet(w,d,i,setIdx){
+  if(editMode) return;
+  const wasDone=dayDone(w,d)===S.days[d].ex.length;
+  const cur=S[k(w,d,i)];
+  const total=cur&&cur!==true?cur.total:parseSets(S.days[d].ex[i].d);
+  const doneBefore=cur&&cur!==true?cur.done:cur===true?total:0;
+  const newDone = doneBefore===setIdx+1 ? setIdx : setIdx+1;
+  S[k(w,d,i)] = newDone>=total ? (total<=1?true:{done:total,total}) : newDone===0 ? false : {done:newDone,total};
+  if(navigator.vibrate) navigator.vibrate([10]);
+  save();
+  const nowDone=dayDone(w,d)===S.days[d].ex.length;
+  render();
+  if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
+}
+
 function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();render();}
 function confirmResetDay(){if(confirm('Сбросить все отметки за сегодня?'))resetDay();}
 function chWk(dir){W=Math.max(1,Math.min(9,W+dir));save();render();}
@@ -1489,11 +1597,24 @@ function renderExItem(e,di,ei){
     </div>`;
   }
   const chk=got(W,di,ei);
-  return `<div class="ex-item normal${chk?' chk':''}" onclick="tog(${W},${di},${ei})">
-    <div class="chk-box">${chk?'&#10003;':''}</div>
+  const partial=gotPartial(W,di,ei);
+  const sets=getSets(W,di,ei);
+  const total=parseSets(e.d);
+  const setsHTML = total>1
+    ? `<div class="sets-row" onclick="event.stopPropagation()">
+        ${Array.from({length:sets?sets.total:total},(_,s)=>`
+          <div class="set-dot ${sets&&s<sets.done?'done':''}" onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"></div>
+        `).join('')}
+        <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+        ${(sets?sets.total:total)>1?`<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
+      </div>`
+    : '';
+  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
+    <div class="chk-box">${chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
     <div class="ei-body">
       <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
       <div class="ei-detail">${esc(e.d)}</div>
+      ${setsHTML}
     </div>
     <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
   </div>`;
@@ -1551,6 +1672,7 @@ function render(){
     </div>`;
   }).join('');
   loadNote();
+  renderHistoryBtn();
 }
 
 // ══════════════════════════════════════
@@ -2337,7 +2459,78 @@ function loadNote(){
 
 
 // ══════════════════════════════════════
-// GOLD WAVE — day complete animation
+// ИСТОРИЯ ТРЕНИРОВОК
+// ══════════════════════════════════════
+const HISTORY_KEY = 'abw_history';
+
+function loadHistory(){ try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return[];} }
+function saveHistory(h){ try{localStorage.setItem(HISTORY_KEY,JSON.stringify(h));}catch(e){} }
+
+function recordSession(w,d){
+  const h = loadHistory();
+  const day = S.days[d];
+  const note = S[`note_w${w}_d${d}`]||'';
+  const done = day.ex.filter((_,i)=>{const v=S[k(w,d,i)];return !!v;}).length;
+  h.unshift({
+    date: new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}),
+    week: w, dayId: day.id, dayTitle: day.title,
+    done, total: day.ex.length,
+    note: note.trim(),
+  });
+  // Храним последние 100 записей
+  if(h.length>100) h.length=100;
+  saveHistory(h);
+}
+
+function openHistory(){
+  const h = loadHistory();
+  const overlay = document.getElementById('settings-overlay');
+  const sheet   = document.getElementById('settings-sheet');
+
+  document.querySelector('#settings-sheet .help-name').textContent = 'История тренировок';
+  const body = document.querySelector('#settings-sheet .help-body');
+
+  if(!h.length){
+    body.innerHTML = `<p class="help-no-info">Тренировок пока нет. Завершите первый день целиком.</p>`;
+  } else {
+    body.innerHTML = h.map(r=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border2);">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
+          <span style="font-size:13px;font-weight:500;color:var(--text);">${r.date}</span>
+          <span style="font-size:11px;color:var(--text3);">Нед. ${r.week} · День ${r.dayId}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:${r.note?'4px':'0'};">${r.dayTitle} — ${r.done}/${r.total} упражнений</div>
+        ${r.note?`<div style="font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
+      </div>
+    `).join('') + `
+      <button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>
+    `;
+  }
+
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+}
+
+function clearHistory(){
+  if(!confirm('Очистить всю историю тренировок?')) return;
+  saveHistory([]);
+  openHistory();
+}
+
+// Добавляем кнопку истории в топбар — вызывается после render()
+function renderHistoryBtn(){
+  let btn = document.getElementById('history-btn');
+  if(!btn){
+    btn = document.createElement('button');
+    btn.id = 'history-btn';
+    btn.className = 'theme-toggle';
+    btn.title = 'История тренировок';
+    btn.textContent = '📋';
+    btn.onclick = openHistory;
+    const right = document.querySelector('.topbar-right');
+    if(right) right.insertBefore(btn, right.firstChild);
+  }
+}
 // ══════════════════════════════════════
 function triggerGoldWave() {
   // 1. full-screen shimmer
