@@ -195,8 +195,17 @@ body {
   letter-spacing: 0.2em; text-transform: uppercase; color: var(--text3); transition: var(--transition);
 }
 .wn-num {
-  font-family: 'Italiana', serif; font-size: 32px; color: var(--text); line-height: 1; transition: var(--transition);
+  font-family: 'Italiana', serif; font-size: 32px; line-height: 1; transition: color .3s ease;
 }
+.wn-num[data-w="1"] { color: #5dcaa5; }
+.wn-num[data-w="2"] { color: #2aaa72; }
+.wn-num[data-w="3"] { color: #4a9fd4; }
+.wn-num[data-w="4"] { color: #7b6fe8; }
+.wn-num[data-w="5"] { color: #c8a96e; }
+.wn-num[data-w="6"] { color: #e07a3a; }
+.wn-num[data-w="7"] { color: #d45a5a; }
+.wn-num[data-w="8"] { color: #c45faa; }
+.wn-num[data-w="9"] { color: #b08840; }
 .wn-btn {
   width: 40px; height: 40px; border-radius: 50%;
   border: 1px solid var(--border);
@@ -438,6 +447,19 @@ body {
 .set-add-btn:active { border-color: var(--gold); color: var(--gold); }
 .set-rem-btn { border-color: var(--border); color: var(--text3); }
 .set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; }
+.sets-divider {
+  width: 1px; height: 14px;
+  background: var(--border);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+.reps-count {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--text2);
+  white-space: nowrap;
+  min-width: 28px; text-align: center;
+}
 .ex-item.partial .chk-box { border-color: var(--gold); }
 .partial-num {
   font-size: 13px; font-weight: 600; color: var(--gold);
@@ -734,6 +756,16 @@ body {
   letter-spacing: 0.22em; text-transform: uppercase;
   color: var(--text3);
 }
+
+.metro-toggle {
+  background: none; border: none; cursor: pointer;
+  font-size: 15px; padding: 2px 4px; line-height: 1;
+  opacity: 0.85; transition: opacity .15s;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.metro-toggle.muted { opacity: 0.28; filter: grayscale(1); }
+.metro-toggle:active { opacity: 0.5; }
 
 .itimer-presets {
   display: flex; gap: 5px;
@@ -1295,6 +1327,7 @@ body {
   <div class="itimer" id="itimer">
     <div class="itimer-top">
       <div class="itimer-label">Отдых между подходами</div>
+      <button class="metro-toggle" id="metro-btn" onclick="toggleMetronome()" title="Метроном">🔊</button>
       <div class="itimer-presets">
         <button class="ipreset" onclick="iSetPreset(30,this)">0:30</button>
         <button class="ipreset" onclick="iSetPreset(60,this)">1:00</button>
@@ -1449,11 +1482,43 @@ function parseSets(detail){
   const m=(detail||'').match(/(\d+)\s*[×x\*]/);
   return m?parseInt(m[1]):1;
 }
+function parseReps(detail){
+  // "3 × 10" → 10, "4 × 5–7" → 5, "× 30 сек" → 30
+  const m=(detail||'').match(/[×x\*]\s*(\d+)/);
+  return m?parseInt(m[1]):0;
+}
 function getSets(w,d,i){
   const v=S[k(w,d,i)];
   if(!v) return null;
-  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s}; }
+  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s,reps:parseReps(S.days[d].ex[i].d)}; }
   return v;
+}
+function getReps(w,d,i){
+  const v=S[k(w,d,i)];
+  if(v&&v!==true&&v.reps!=null) return v.reps;
+  return parseReps(S.days[d].ex[i].d);
+}
+
+function addRep(w,d,i){
+  if(editMode) return;
+  const cur=S[k(w,d,i)];
+  const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:parseReps(S.days[d].ex[i].d)};
+  const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
+  obj.reps=(obj.reps||0)+1;
+  S[k(w,d,i)]=obj;
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save(); render();
+}
+
+function removeRep(w,d,i){
+  if(editMode) return;
+  const cur=S[k(w,d,i)];
+  const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:parseReps(S.days[d].ex[i].d)};
+  const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
+  obj.reps=Math.max(0,(obj.reps||0)-1);
+  S[k(w,d,i)]=obj;
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save(); render();
 }
 const got=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return true;return v.done>=v.total;};
 const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return false;return v.done>0&&v.done<v.total;};
@@ -1716,6 +1781,7 @@ function renderExItem(e,di,ei){
         <span class="toast-label">Запустить таймер</span>
        </div>`
     : '';
+  const reps = getReps(W,di,ei);
   const setsHTML = total>1
     ? `<div class="sets-row" onclick="event.stopPropagation()">
         ${Array.from({length:sets?sets.total:total},(_,s)=>`
@@ -1723,6 +1789,10 @@ function renderExItem(e,di,ei){
         `).join('')}
         <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
         ${(sets?sets.total:total)>1?`<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
+        ${reps>0?`<span class="sets-divider"></span>
+          <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>
+          <span class="reps-count">× ${reps}</span>
+          <button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeRep(${W},${di},${ei})" title="Меньше повторений">−</button>`:''}
       </div>`
     : '';
   return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
@@ -1738,8 +1808,11 @@ function renderExItem(e,di,ei){
 }
 
 function render(){
+  const WK_COLORS=['','#5dcaa5','#2aaa72','#4a9fd4','#7b6fe8','#c8a96e','#e07a3a','#d45a5a','#c45faa','#b08840'];
   document.getElementById('topbar-wk').textContent='Неделя '+W;
+  document.getElementById('topbar-wk').style.color=WK_COLORS[W]||'var(--text2)';
   document.getElementById('wn-n').textContent=W;
+  document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('s-ex').textContent=allEx();
   document.getElementById('s-sess').textContent=allSess();
   document.getElementById('s-str').textContent=Math.min(allSess(),W*3);
@@ -2483,6 +2556,67 @@ function iSetPreset(secs, btn){
   iUpdateRing();
 }
 
+// ══════════════════════════════════════
+// METRONOME
+// ══════════════════════════════════════
+let metroEnabled = localStorage.getItem('abw_metro') !== 'off';
+let _metroCtx    = null;
+let _metroLastSec = -1;
+
+function toggleMetronome() {
+  metroEnabled = !metroEnabled;
+  localStorage.setItem('abw_metro', metroEnabled ? 'on' : 'off');
+  const btn = document.getElementById('metro-btn');
+  if (btn) {
+    btn.textContent  = metroEnabled ? '🔊' : '🔇';
+    btn.classList.toggle('muted', !metroEnabled);
+  }
+  if (navigator.vibrate) navigator.vibrate([8]);
+}
+
+function initMetroBtn() {
+  const btn = document.getElementById('metro-btn');
+  if (!btn) return;
+  btn.textContent = metroEnabled ? '🔊' : '🔇';
+  btn.classList.toggle('muted', !metroEnabled);
+}
+
+function metroTick(left) {
+  if (!metroEnabled) return;
+  // Играем только раз в секунду
+  if (left === _metroLastSec) return;
+  _metroLastSec = left;
+
+  try {
+    if (!_metroCtx) _metroCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _metroCtx;
+    const urgent = left <= 5 && left > 0;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+
+    if (urgent) {
+      // Акцентированный — выше и громче
+      o.frequency.value = left === 1 ? 1200 : 900;
+      o.type = 'sine';
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.2);
+    } else {
+      // Тихий тик
+      o.frequency.value = 480;
+      o.type = 'sine';
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      o.start(ctx.currentTime);
+      o.stop(ctx.currentTime + 0.1);
+    }
+  } catch(e) {}
+}
+
 function iToggle(){ iRunning ? iStop() : iStart(); }
 
 async function iStart(){
@@ -2499,8 +2633,10 @@ async function iStart(){
   iInterval=setInterval(()=>{
     const left = Math.max(0, Math.round((iEndsAt - Date.now()) / 1000));
     iLeft = left; iUpdateRing();
+    metroTick(left);
     if(left<=0){
       clearInterval(iInterval); iRunning=false;
+      _metroLastSec = -1;
       dropWakeLock();
       if(!sent) onInlineFinishedUI();
     }
@@ -2524,6 +2660,7 @@ function onInlineFinishedUI(){
 
 function iStop(){
   clearInterval(iInterval); iRunning=false;
+  _metroLastSec = -1;
   iPPBtn.classList.remove('running');
   document.getElementById('ipp-icon-play').style.display='';
   document.getElementById('ipp-icon-pause').style.display='none';
@@ -2564,6 +2701,7 @@ function iBeep(){
 }
 
 iUpdateRing();
+initMetroBtn();
 
 // ══════════════════════════════════════
 // NOTES
