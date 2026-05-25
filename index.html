@@ -374,6 +374,36 @@ body {
   width: 100%;
 }
 
+/* ── TIMER TOAST ON CARD ── */
+.ex-timer-toast {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 7px;
+  padding: 5px 10px 5px 8px;
+  background: var(--goldbg);
+  border: 1px solid var(--goldborder, var(--gold));
+  border-radius: 20px;
+  cursor: pointer;
+  width: fit-content;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  animation: toastIn .2s cubic-bezier(.4,0,.2,1);
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ex-timer-toast:active { background: var(--gold); }
+.ex-timer-toast:active .toast-label { color: #fff; }
+.toast-icon { font-size: 13px; }
+.toast-label {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
 /* ── SETS COUNTER ── */
 .sets-row {
   display: flex; align-items: center; gap: 5px;
@@ -899,7 +929,66 @@ body {
 
 .chk-pop { animation: checkPop 0.32s cubic-bezier(.4,0,.2,1); }
 
-/* ── SWIPE TRANSITION ── */
+/* ── WEEK COMPLETE ANIMATION ── */
+@keyframes particleRise {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+}
+@keyframes weekFlash {
+  0%   { opacity: 0; }
+  15%  { opacity: 0.12; }
+  50%  { opacity: 0.06; }
+  100% { opacity: 0; }
+}
+@keyframes weekBadgePop {
+  0%   { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 0; }
+  60%  { transform: translate(-50%, -50%) scale(1.15) rotate(4deg); opacity: 1; }
+  80%  { transform: translate(-50%, -50%) scale(0.95) rotate(-2deg); }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+}
+
+.week-flash-overlay {
+  pointer-events: none;
+  position: fixed; inset: 0; z-index: 210;
+  background: radial-gradient(ellipse at 50% 80%, rgba(200,169,110,0.22) 0%, transparent 70%);
+  animation: weekFlash 1.8s ease-out forwards;
+}
+.week-particle {
+  pointer-events: none;
+  position: fixed;
+  bottom: 10%; z-index: 211;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  animation: particleRise linear forwards;
+}
+.week-badge {
+  pointer-events: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  z-index: 212;
+  background: var(--gold);
+  color: #fff;
+  font-family: 'Italiana', serif;
+  font-size: 22px;
+  padding: 18px 32px;
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(200,169,110,0.45);
+  text-align: center;
+  animation: weekBadgePop .55s cubic-bezier(.4,0,.2,1) .2s forwards;
+  white-space: nowrap;
+  margin: 0;
+  width: max-content;
+  max-width: 80vw;
+}
+.week-badge-sub {
+  display: block;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  margin-top: 4px; opacity: 0.8;
+}
+
 #day-content {
   transition: opacity .18s ease, transform .18s cubic-bezier(.4,0,.2,1);
 }
@@ -1369,6 +1458,9 @@ function getSets(w,d,i){
 const got=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return true;return v.done>=v.total;};
 const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return false;return v.done>0&&v.done<v.total;};
 
+// ── Последнее нажатое упражнение (для плашки таймера) ──
+let lastTappedEx = null; // { d, i }
+
 function tog(w,d,i){
   if(editMode) return;
   const wasDone=dayDone(w,d)===S.days[d].ex.length;
@@ -1381,11 +1473,27 @@ function tog(w,d,i){
   } else {
     S[k(w,d,i)]=cur.done<cur.total?{done:cur.done+1,total:cur.total}:false;
   }
+  // Показываем плашку если что-то отмечено (не снято)
+  lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate(S[k(w,d,i)]?[18]:[12,40,12]);
   save();
   const nowDone=dayDone(w,d)===S.days[d].ex.length;
   render();
   if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
+}
+
+// ── Запуск таймера с плашки ──
+function startTimerFromToast() {
+  lastTappedEx = null;
+  // Если таймер уже идёт — перезапускаем
+  if (iRunning) iStop();
+  iLeft = iTotal;
+  iBlock.classList.remove('finished');
+  iStart();
+  // Скроллим к таймеру
+  const el = document.getElementById('itimer');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  render();
 }
 
 function addSet(w,d,i){
@@ -1418,6 +1526,7 @@ function togSet(w,d,i,setIdx){
   const doneBefore=cur&&cur!==true?cur.done:cur===true?total:0;
   const newDone = doneBefore===setIdx+1 ? setIdx : setIdx+1;
   S[k(w,d,i)] = newDone>=total ? (total<=1?true:{done:total,total}) : newDone===0 ? false : {done:newDone,total};
+  lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate([10]);
   save();
   const nowDone=dayDone(w,d)===S.days[d].ex.length;
@@ -1600,6 +1709,13 @@ function renderExItem(e,di,ei){
   const partial=gotPartial(W,di,ei);
   const sets=getSets(W,di,ei);
   const total=parseSets(e.d);
+  const showToast = !editMode && lastTappedEx && lastTappedEx.d===di && lastTappedEx.i===ei;
+  const toastHTML = showToast
+    ? `<div class="ex-timer-toast" onclick="event.stopPropagation();startTimerFromToast()">
+        <span class="toast-icon">⏱</span>
+        <span class="toast-label">Запустить таймер</span>
+       </div>`
+    : '';
   const setsHTML = total>1
     ? `<div class="sets-row" onclick="event.stopPropagation()">
         ${Array.from({length:sets?sets.total:total},(_,s)=>`
@@ -1615,6 +1731,7 @@ function renderExItem(e,di,ei){
       <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
       <div class="ei-detail">${esc(e.d)}</div>
       ${setsHTML}
+      ${toastHTML}
     </div>
     <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
   </div>`;
@@ -2470,16 +2587,46 @@ function recordSession(w,d){
   const h = loadHistory();
   const day = S.days[d];
   const note = S[`note_w${w}_d${d}`]||'';
-  const done = day.ex.filter((_,i)=>{const v=S[k(w,d,i)];return !!v;}).length;
+
+  // Собираем список упражнений с подходами
+  const exList = day.ex.map((e,i) => {
+    const v = S[k(w,d,i)];
+    if (!v) return null;
+    const total = v===true ? parseSets(e.d) : v.total;
+    const done  = v===true ? total : v.done;
+    return { name: e.n, done, total };
+  }).filter(Boolean);
+
+  // Длительность тренировки из секундомера
+  const swElapsedNow = swRunning ? swElapsed + (Date.now() - swStarted) : swElapsed;
+  const duration = swElapsedNow > 5000 ? swElapsedNow : null; // игнорируем < 5 сек
+
+  const now = new Date();
   h.unshift({
-    date: new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}),
+    date: now.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    time: now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
     week: w, dayId: day.id, dayTitle: day.title,
-    done, total: day.ex.length,
+    done: exList.length, total: day.ex.length,
+    exList,
+    duration,
     note: note.trim(),
   });
-  // Храним последние 100 записей
   if(h.length>100) h.length=100;
   saveHistory(h);
+
+  const allDaysDone = [0,1,2].every(di => dayDone(w,di) === S.days[di].ex.length);
+  if (allDaysDone) setTimeout(() => triggerWeekComplete(w), 800);
+}
+
+function fmtDuration(ms){
+  if(!ms) return null;
+  const s = Math.floor(ms/1000);
+  const h = Math.floor(s/3600);
+  const m = Math.floor((s%3600)/60);
+  const ss = s%60;
+  if(h>0) return `${h}ч ${m}мин`;
+  if(m>0) return `${m}мин ${ss}с`;
+  return `${ss}с`;
 }
 
 function openHistory(){
@@ -2493,16 +2640,32 @@ function openHistory(){
   if(!h.length){
     body.innerHTML = `<p class="help-no-info">Тренировок пока нет. Завершите первый день целиком.</p>`;
   } else {
-    body.innerHTML = h.map(r=>`
-      <div style="padding:10px 0;border-bottom:1px solid var(--border2);">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
-          <span style="font-size:13px;font-weight:500;color:var(--text);">${r.date}</span>
-          <span style="font-size:11px;color:var(--text3);">Нед. ${r.week} · День ${r.dayId}</span>
-        </div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:${r.note?'4px':'0'};">${r.dayTitle} — ${r.done}/${r.total} упражнений</div>
-        ${r.note?`<div style="font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
-      </div>
-    `).join('') + `
+    body.innerHTML = h.map(r => {
+      const dur = r.duration ? fmtDuration(r.duration) : null;
+      const exHTML = r.exList && r.exList.length
+        ? `<div style="margin-top:7px;display:flex;flex-direction:column;gap:3px;">
+            ${r.exList.map(e=>`
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
+                <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
+                <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}</span>
+              </div>`).join('')}
+          </div>`
+        : '';
+      return `
+        <div style="padding:12px 0;border-bottom:1px solid var(--border2);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+            <span style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
+            <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-left:8px;">Нед.${r.week} · Д${r.dayId}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--text2);">${r.dayTitle}</span>
+            ${dur?`<span style="font-size:11px;color:var(--text3);">⏱ ${dur}</span>`:''}
+            <span style="font-size:11px;font-weight:600;color:${r.done>=r.total?'var(--green)':'var(--gold)'};">${r.done}/${r.total} упр.</span>
+          </div>
+          ${exHTML}
+          ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
+        </div>`;
+    }).join('') + `
       <button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>
     `;
   }
@@ -2532,6 +2695,43 @@ function renderHistoryBtn(){
   }
 }
 // ══════════════════════════════════════
+function triggerWeekComplete(w) {
+  // 1. Фон-вспышка снизу
+  const flash = document.createElement('div');
+  flash.className = 'week-flash-overlay';
+  document.body.appendChild(flash);
+  setTimeout(() => flash.remove(), 1900);
+
+  // 2. Частицы — 24 штуки
+  const colors = ['#c8a96e','#e8c98e','#f0d8a0','#2aaa72','#5dcaa5','#fff'];
+  for (let i = 0; i < 24; i++) {
+    const p = document.createElement('div');
+    p.className = 'week-particle';
+    p.style.left     = (8 + Math.random() * 84) + '%';
+    p.style.bottom   = (5 + Math.random() * 20) + '%';
+    p.style.width    = p.style.height = (4 + Math.random() * 7) + 'px';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration  = (0.9 + Math.random() * 1.2) + 's';
+    p.style.animationDelay     = (Math.random() * 0.4) + 's';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2200);
+  }
+
+  // 3. Бейдж по центру
+  const badge = document.createElement('div');
+  badge.className = 'week-badge';
+  badge.innerHTML = `Неделя ${w} завершена!<span class="week-badge-sub">Отличная работа</span>`;
+  document.body.appendChild(badge);
+  setTimeout(() => {
+    badge.style.transition = 'opacity .4s ease';
+    badge.style.opacity = '0';
+    setTimeout(() => badge.remove(), 450);
+  }, 2000);
+
+  // 4. Сильная вибрация
+  if (navigator.vibrate) navigator.vibrate([40, 40, 40, 40, 120, 60, 120]);
+}
+
 function triggerGoldWave() {
   // 1. full-screen shimmer
   const overlay = document.createElement('div');
@@ -2860,6 +3060,26 @@ const MOTIVS = [
   {e:'😏', t:'Кто-то сегодня не тренировался. Ты — тренировался. Разница копится.'},
   {e:'🌋', t:'Сила — не взрыв. Сила — это давление, которое накапливается тихо.'},
   {e:'🎪', t:'Wall rollout выглядит просто. Делается не просто. Это и есть смысл.'},
+  {e:'🛋️', t:'Диван звал. Ты отказал. Это уже победа над 80% населения.'},
+  {e:'🍕', t:'Пицца никуда не денется. Пресс — денется, если не тренироваться. Приоритеты.'},
+  {e:'😭', t:'Первый подход — всегда ложь. Тело говорит "не могу", но через минуту делает.'},
+  {e:'🐢', t:'Ты сейчас медленнее черепахи. Но черепаха не делает rollout. А ты — делаешь.'},
+  {e:'🤡', t:'Колесо для пресса выглядит как игрушка. Обманул тебя, правда?'},
+  {e:'🧅', t:'Сила — как лук. Слой за слоем. И иногда заставляет плакать.'},
+  {e:'☕', t:'Кофе помогает проснуться. Hollow body hold — тоже. Второй дешевле.'},
+  {e:'📺', t:'Netflix спросил "ты ещё смотришь?". Твои мышцы спрашивают "ты ещё тренируешься?". Разные вопросы — разные ответы.'},
+  {e:'🦆', t:'Выглядит нелепо? Утка тоже выглядит нелепо. Но плавает отлично.'},
+  {e:'😤', t:'Ты злишься на колесо? Хорошо. Злость — топливо. Жги.'},
+  {e:'🧻', t:'Body Saw на локтях. Потому что на коленях уже скучно. Уважаем.'},
+  {e:'🐸', t:'Hollow body hold — ты лежишь и страдаешь. Называется "базовая подготовка". Ирония жизни.'},
+  {e:'🎻', t:'Самое маленькое в мире: скрипка для тех, кто не хочет делать Bird Dog.'},
+  {e:'🥴', t:'Если не больно — ты делаешь неправильно. Если очень больно — тоже неправильно. Ищи золотую середину.'},
+  {e:'🦧', t:'Обезьяна висит на перекладине. Ты катишь колесо. Эволюция — странная штука.'},
+  {e:'🏃', t:'Убегаешь от боли — она тебя догоняет. Иди к ней навстречу. Она растеряется.'},
+  {e:'🎂', t:'День рождения? Тренировка всё равно. Тело не знает дат. Только нагрузку.'},
+  {e:'🕳️', t:'Яма между "хочу пресс" и "делаю планку" называется "прокрастинация". Ты уже из неё вылез.'},
+  {e:'🦴', t:'Суставы скрипят? Это они аплодируют твоей работе. Стоя.'},
+  {e:'🧲', t:'Колесо катится к полу само. Назад — только с твоей помощью. Вот кто здесь главный.'},
 ];
 
 function renderMotiv(){
