@@ -2088,7 +2088,10 @@ async function grabWakeLock() {
   if (!('wakeLock' in navigator)) return;
   try {
     _wakeLock = await navigator.wakeLock.request('screen');
-    _wakeLock.addEventListener('release', () => { if (iRunning) grabWakeLock(); });
+    // При сбросе (сворачивание вкладки и т.п.) — перезапрашиваем когда вернулись
+    _wakeLock.addEventListener('release', () => {
+      if (document.visibilityState === 'visible') grabWakeLock();
+    });
   } catch(e) {}
 }
 
@@ -2096,9 +2099,17 @@ function dropWakeLock() {
   if (_wakeLock) { _wakeLock.release().catch(()=>{}); _wakeLock = null; }
 }
 
+// Держим экран активным пока страница видима
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') grabWakeLock();
+  else dropWakeLock();
+});
+
+// Запрашиваем сразу при загрузке
+grabWakeLock();
+
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && iRunning) {
-    grabWakeLock();
     // пересчитываем остаток по реальному времени
     const left = Math.max(0, Math.round((iEndsAt - Date.now()) / 1000));
     iLeft = left; iUpdateRing();
@@ -2640,30 +2651,36 @@ function openHistory(){
   if(!h.length){
     body.innerHTML = `<p class="help-no-info">Тренировок пока нет. Завершите первый день целиком.</p>`;
   } else {
-    body.innerHTML = h.map(r => {
+    body.innerHTML = h.map((r,idx) => {
       const dur = r.duration ? fmtDuration(r.duration) : null;
       const exHTML = r.exList && r.exList.length
-        ? `<div style="margin-top:7px;display:flex;flex-direction:column;gap:3px;">
-            ${r.exList.map(e=>`
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
-                <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
-                <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}</span>
-              </div>`).join('')}
-          </div>`
-        : '';
+        ? r.exList.map(e=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
+              <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
+              <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}</span>
+            </div>`).join('')
+        : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">Нет данных</div>';
+
       return `
-        <div style="padding:12px 0;border-bottom:1px solid var(--border2);">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
-            <span style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
-            <span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-left:8px;">Нед.${r.week} · Д${r.dayId}</span>
+        <div style="border-bottom:1px solid var(--border2);">
+          <div onclick="toggleHistoryRow(${idx})" style="padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
+                <span style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
+                <span style="font-size:11px;color:var(--text3);">Нед.${r.week} · Д${r.dayId}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:12px;color:var(--text2);">${r.dayTitle}</span>
+                ${dur?`<span style="font-size:11px;color:var(--text3);">⏱ ${dur}</span>`:''}
+                <span style="font-size:11px;font-weight:600;color:${r.done>=r.total?'var(--green)':'var(--gold)'};">${r.done}/${r.total} упр.</span>
+              </div>
+            </div>
+            <span id="hist-arrow-${idx}" style="color:var(--text3);font-size:13px;flex-shrink:0;transition:transform .2s;">▸</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <span style="font-size:12px;color:var(--text2);">${r.dayTitle}</span>
-            ${dur?`<span style="font-size:11px;color:var(--text3);">⏱ ${dur}</span>`:''}
-            <span style="font-size:11px;font-weight:600;color:${r.done>=r.total?'var(--green)':'var(--gold)'};">${r.done}/${r.total} упр.</span>
+          <div id="hist-body-${idx}" style="display:none;padding-bottom:10px;">
+            <div style="display:flex;flex-direction:column;gap:3px;">${exHTML}</div>
+            ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
           </div>
-          ${exHTML}
-          ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
         </div>`;
     }).join('') + `
       <button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>
@@ -2672,6 +2689,16 @@ function openHistory(){
 
   overlay.classList.add('open');
   sheet.classList.add('open');
+}
+
+function toggleHistoryRow(idx){
+  const body  = document.getElementById(`hist-body-${idx}`);
+  const arrow = document.getElementById(`hist-arrow-${idx}`);
+  if(!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display  = open ? 'none' : 'block';
+  arrow.style.transform = open ? '' : 'rotate(90deg)';
+  if(navigator.vibrate) navigator.vibrate([6]);
 }
 
 function clearHistory(){
