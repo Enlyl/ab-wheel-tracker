@@ -305,6 +305,10 @@ body {
 .ex-item.normal.chk { background: var(--greenbg2); }
 .ex-item.editing { background: var(--goldbg); cursor: default; }
 
+.chk-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; flex-shrink: 0;
+}
 .chk-box {
   width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--border);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
@@ -312,6 +316,11 @@ body {
 }
 [data-theme="dark"] .chk-box { border-color: rgba(255,255,255,0.14); }
 .ex-item.normal.chk .chk-box { background: var(--green); border-color: var(--green); }
+.ex-num {
+  font-size: 13px; font-weight: 700;
+  color: var(--text3); opacity: 0.55;
+  letter-spacing: 0.04em; line-height: 1;
+}
 
 .ei-body { flex: 1; min-width: 0; }
 .ei-name {
@@ -415,15 +424,16 @@ body {
 
 /* ── SETS COUNTER ── */
 .sets-row {
-  display: flex; align-items: center; gap: 5px;
-  margin-top: 5px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 4px;
+  margin-top: 7px; flex-wrap: wrap;
 }
 .set-dot {
-  width: 10px; height: 10px; border-radius: 50%;
+  width: 22px; height: 22px; border-radius: 50%;
   border: 1.5px solid var(--border);
   background: transparent;
   cursor: pointer; transition: all .15s;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   flex-shrink: 0;
 }
 .set-dot.done {
@@ -435,31 +445,40 @@ body {
   border-color: var(--gold);
 }
 .set-add-btn {
-  width: 18px; height: 18px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   border: 1.5px dashed var(--border);
   background: transparent; color: var(--text3);
-  font-size: 12px; line-height: 1;
+  font-size: 16px; line-height: 1;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all .15s;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   flex-shrink: 0;
 }
-.set-add-btn:active { border-color: var(--gold); color: var(--gold); }
-.set-rem-btn { border-color: var(--border); color: var(--text3); }
-.set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; }
+.set-add-btn:active { border-color: var(--gold); color: var(--gold); background: var(--goldbg); }
+.set-rem-btn { border-style: solid; border-color: var(--border); color: var(--text3); }
+.set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.08); }
 .sets-divider {
-  width: 1px; height: 14px;
+  width: 1px; height: 20px;
   background: var(--border);
-  margin: 0 2px;
+  margin: 0 3px;
   flex-shrink: 0;
 }
-.reps-count {
+.reps-input {
+  width: 42px; height: 32px;
   font-family: 'Archivo Narrow', sans-serif;
-  font-size: 12px; font-weight: 600;
+  font-size: 14px; font-weight: 600;
   color: var(--text2);
-  white-space: nowrap;
-  min-width: 28px; text-align: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+  padding: 2px 2px;
+  -moz-appearance: textfield;
 }
+.reps-input::-webkit-outer-spin-button,
+.reps-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.reps-input:focus { outline: none; border-color: var(--gold); color: var(--text); }
 .ex-item.partial .chk-box { border-color: var(--gold); }
 .partial-num {
   font-size: 13px; font-weight: 600; color: var(--gold);
@@ -1024,6 +1043,58 @@ body {
 #day-content {
   transition: opacity .18s ease, transform .18s cubic-bezier(.4,0,.2,1);
 }
+/* ── HISTORY CALENDAR ── */
+.cal-wrap {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 4px;
+}
+.cal-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cal-month-label {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--text);
+}
+.cal-nav-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: 8px; width: 28px; height: 28px;
+  color: var(--text2); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent; transition: all .15s;
+}
+.cal-nav-btn:active { background: var(--surface3); }
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+}
+.cal-head {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text3);
+  text-align: center; padding: 2px 0 4px;
+}
+.cal-cell {
+  aspect-ratio: 1; border-radius: 8px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 400; color: var(--text2);
+  cursor: pointer; position: relative;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s; gap: 2px;
+}
+.cal-cell.empty { cursor: default; }
+.cal-cell:not(.empty):active { background: var(--surface3); }
+.cal-cell.today { font-weight: 700; color: var(--text); border: 1px solid var(--border); }
+.cal-cell.trained { background: var(--greenbg); color: var(--green); font-weight: 600; }
+.cal-cell.trained.count-2 { background: rgba(42,170,114,0.18); }
+.cal-cell.trained.count-3 { background: rgba(42,170,114,0.28); }
+.cal-cell.selected { background: var(--green) !important; color: #fff !important; }
+.cal-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.7; flex-shrink: 0; }
+
 #day-content.swipe-out-left  { opacity: 0; transform: translateX(-28px); }
 #day-content.swipe-out-right { opacity: 0; transform: translateX(28px); }
 #notes-block {
@@ -1460,6 +1531,20 @@ if(!S.W) S.W=1;
 if(!S.D) S.D=0;
 if(!S.theme) S.theme='light';
 
+// Миграция: синхронизируем поле d (детали/повторения) из DEFAULT_DAYS
+// Это нужно если пользователь не менял упражнение вручную, но мы обновили DEFAULT_DAYS
+DEFAULT_DAYS.forEach((day, di) => {
+  if (!S.days[di]) return;
+  day.ex.forEach((defEx, ei) => {
+    const curEx = S.days[di].ex[ei];
+    if (!curEx) return;
+    // Если название совпадает но детали устарели — обновляем
+    if (curEx.n === defEx.n && curEx.d !== defEx.d) {
+      curEx.d = defEx.d;
+    }
+  });
+});
+
 let W=S.W, D=S.D, editMode=false;
 
 // Apply saved theme immediately
@@ -1499,12 +1584,28 @@ function getReps(w,d,i){
   return parseReps(S.days[d].ex[i].d);
 }
 
-function addRep(w,d,i){
-  if(editMode) return;
+function _getRepObj(w,d,i){
   const cur=S[k(w,d,i)];
   const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:parseReps(S.days[d].ex[i].d)};
   const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
-  obj.reps=(obj.reps||0)+1;
+  if(obj.reps==null) obj.reps=parseReps(S.days[d].ex[i].d);
+  return obj;
+}
+
+function setRep(w,d,i,val){
+  if(editMode) return;
+  const n = Math.max(1, Math.min(999, Math.round(val)||1));
+  const obj=_getRepObj(w,d,i);
+  obj.reps = n;
+  S[k(w,d,i)]=obj;
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save(); render();
+}
+
+function addRep(w,d,i){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  obj.reps = obj.reps>=50 ? 1 : obj.reps+1;
   S[k(w,d,i)]=obj;
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
@@ -1512,10 +1613,8 @@ function addRep(w,d,i){
 
 function removeRep(w,d,i){
   if(editMode) return;
-  const cur=S[k(w,d,i)];
-  const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:parseReps(S.days[d].ex[i].d)};
-  const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
-  obj.reps=Math.max(0,(obj.reps||0)-1);
+  const obj=_getRepObj(w,d,i);
+  obj.reps = obj.reps<=1 ? 50 : obj.reps-1;
   S[k(w,d,i)]=obj;
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
@@ -1601,7 +1700,31 @@ function togSet(w,d,i,setIdx){
 
 function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();render();}
 function confirmResetDay(){if(confirm('Сбросить все отметки за сегодня?'))resetDay();}
-function chWk(dir){W=Math.max(1,Math.min(9,W+dir));save();render();}
+function chWk(dir){
+  const prevW = W;
+  W = Math.max(1, Math.min(9, W + dir));
+  D = 0; // всегда первый день
+
+  // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
+  if (dir > 0 && W > prevW) {
+    S.days.forEach((day, di) => {
+      day.ex.forEach((ex, ei) => {
+        const prevVal = S[k(prevW, di, ei)];
+        const newVal  = S[k(W, di, ei)];
+        // Берём кастомные total и reps из прошлой недели
+        // но сбрасываем done (новая неделя — новые подходы)
+        if (prevVal && prevVal !== true) {
+          const carried = { done: 0, total: prevVal.total };
+          if (prevVal.reps != null) carried.reps = prevVal.reps;
+          // Не перезаписываем если уже есть данные на новой неделе
+          if (!newVal) S[k(W, di, ei)] = carried;
+        }
+      });
+    });
+  }
+
+  save(); render();
+}
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
 
@@ -1627,6 +1750,23 @@ function addEx(di){S.days[di].ex.push({n:'Новое упражнение',d:'3 
 const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)).length;
 const allEx=()=>{let t=0;for(let w=1;w<=9;w++)for(let d=0;d<3;d++)t+=dayDone(w,d);return t;};
 const allSess=()=>{let t=0;for(let w=1;w<=9;w++)for(let d=0;d<3;d++)if(dayDone(w,d)===S.days[d].ex.length)t++;return t;};
+const calcStreak=()=>{
+  // Строим плоский список всех дней до текущего включительно
+  // и считаем непрерывную серию с конца
+  let streak=0;
+  // Идём от текущей позиции назад
+  outer: for(let w=W;w>=1;w--){
+    const dMax = w===W ? D : 2;
+    for(let d=dMax;d>=0;d--){
+      if(dayDone(w,d)===S.days[d].ex.length && S.days[d].ex.length>0){
+        streak++;
+      } else {
+        break outer;
+      }
+    }
+  }
+  return streak;
+};
 
 const tagH=t=>({
   key:'<span class="tag t-key">ключ</span>',
@@ -1781,22 +1921,32 @@ function renderExItem(e,di,ei){
         <span class="toast-label">Запустить таймер</span>
        </div>`
     : '';
-  const reps = getReps(W,di,ei);
-  const setsHTML = total>1
+  const planReps = parseReps(e.d);
+  const reps = planReps > 0 ? getReps(W,di,ei) : 0;
+  const showSets = total>1;
+  const setsHTML = showSets || reps>0
     ? `<div class="sets-row" onclick="event.stopPropagation()">
-        ${Array.from({length:sets?sets.total:total},(_,s)=>`
+        ${showSets ? Array.from({length:sets?sets.total:total},(_,s)=>`
           <div class="set-dot ${sets&&s<sets.done?'done':''}" onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"></div>
-        `).join('')}
-        <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
-        ${(sets?sets.total:total)>1?`<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
-        ${reps>0?`<span class="sets-divider"></span>
-          <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>
-          <span class="reps-count">× ${reps}</span>
-          <button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeRep(${W},${di},${ei})" title="Меньше повторений">−</button>`:''}
+        `).join('') : ''}
+        ${showSets && (sets?sets.total:total)>1 ? `<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>` : ''}
+        ${showSets ? `<button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>` : ''}
+        ${reps>0?`${showSets?'<span class="sets-divider"></span>':''}
+          <button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeRep(${W},${di},${ei})" title="Меньше повторений">−</button>
+          <input class="reps-input" type="number" min="1" max="999"
+            value="${reps}"
+            onclick="event.stopPropagation()"
+            onchange="event.stopPropagation();setRep(${W},${di},${ei},+this.value)"
+            oninput="event.stopPropagation()"
+          >
+          <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>`:''}
       </div>`
     : '';
   return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
-    <div class="chk-box">${chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
+    <div class="chk-wrap">
+      <span class="ex-num">${ei+1}</span>
+      <div class="chk-box">${chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
+    </div>
     <div class="ei-body">
       <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
       <div class="ei-detail">${esc(e.d)}</div>
@@ -1815,7 +1965,7 @@ function render(){
   document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('s-ex').textContent=allEx();
   document.getElementById('s-sess').textContent=allSess();
-  document.getElementById('s-str').textContent=Math.min(allSess(),W*3);
+  document.getElementById('s-str').textContent=calcStreak();
 
   document.getElementById('day-tabs').innerHTML=S.days.map((d,i)=>{
     const full=dayDone(W,i)===d.ex.length, act=i===D;
@@ -2743,7 +2893,8 @@ function recordSession(w,d){
     if (!v) return null;
     const total = v===true ? parseSets(e.d) : v.total;
     const done  = v===true ? total : v.done;
-    return { name: e.n, done, total };
+    const reps  = v!==true && v.reps!=null ? v.reps : parseReps(e.d);
+    return { name: e.n, done, total, reps };
   }).filter(Boolean);
 
   // Длительность тренировки из секундомера
@@ -2751,9 +2902,11 @@ function recordSession(w,d){
   const duration = swElapsedNow > 5000 ? swElapsedNow : null; // игнорируем < 5 сек
 
   const now = new Date();
+  const isoDate = now.toISOString().slice(0,10); // "2025-05-26"
   h.unshift({
     date: now.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
     time: now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+    isoDate,
     week: w, dayId: day.id, dayTitle: day.title,
     done: exList.length, total: day.ex.length,
     exList,
@@ -2782,26 +2935,76 @@ function openHistory(){
   const h = loadHistory();
   const overlay = document.getElementById('settings-overlay');
   const sheet   = document.getElementById('settings-sheet');
-
   document.querySelector('#settings-sheet .help-name').textContent = 'История тренировок';
   const body = document.querySelector('#settings-sheet .help-body');
 
   if(!h.length){
     body.innerHTML = `<p class="help-no-info">Тренировок пока нет. Завершите первый день целиком.</p>`;
-  } else {
-    body.innerHTML = h.map((r,idx) => {
+    overlay.classList.add('open'); sheet.classList.add('open');
+    return;
+  }
+
+  // Строим Set дат тренировок для подсветки
+  const trainDates = {};
+  h.forEach(r => { if(r.isoDate) trainDates[r.isoDate] = (trainDates[r.isoDate]||0)+1; });
+
+  // Текущий отображаемый месяц
+  const now = new Date();
+  let calYear  = now.getFullYear();
+  let calMonth = now.getMonth(); // 0-based
+
+  function renderCalendar(){
+    const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                        'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    const firstDay = new Date(calYear, calMonth, 1);
+    const lastDay  = new Date(calYear, calMonth+1, 0);
+    // Понедельник = 0
+    let startDow = (firstDay.getDay()+6)%7;
+    const todayIso = now.toISOString().slice(0,10);
+
+    let cells = '';
+    // Пустые ячейки до первого числа
+    for(let i=0;i<startDow;i++) cells += `<div class="cal-cell empty"></div>`;
+    for(let d=1;d<=lastDay.getDate();d++){
+      const iso = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const count = trainDates[iso]||0;
+      const isToday = iso===todayIso;
+      cells += `<div class="cal-cell${count?` trained count-${Math.min(count,3)}`:''}${isToday?' today':''}"
+        onclick="calDayClick('${iso}')">${d}${count?`<span class="cal-dot"></span>`:''}
+      </div>`;
+    }
+
+    return `
+      <div class="cal-wrap" id="cal-wrap">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+          <span class="cal-month-label">${monthNames[calMonth]} ${calYear}</span>
+          <button class="cal-nav-btn" onclick="calNext()">›</button>
+        </div>
+        <div class="cal-grid">
+          ${dayNames.map(d=>`<div class="cal-head">${d}</div>`).join('')}
+          ${cells}
+        </div>
+      </div>`;
+  }
+
+  function renderList(filterDate){
+    const filtered = filterDate ? h.filter(r=>r.isoDate===filterDate) : h;
+    if(!filtered.length) return `<p class="help-no-info" style="margin-top:8px;">Нет тренировок${filterDate?' в этот день':''}.</p>`;
+    return filtered.map((r,idx)=>{
+      const globalIdx = h.indexOf(r);
       const dur = r.duration ? fmtDuration(r.duration) : null;
       const exHTML = r.exList && r.exList.length
         ? r.exList.map(e=>`
             <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
               <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
-              <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}</span>
+              <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}${e.reps?` × ${e.reps}`:''}</span>
             </div>`).join('')
         : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">Нет данных</div>';
-
       return `
         <div style="border-bottom:1px solid var(--border2);">
-          <div onclick="toggleHistoryRow(${idx})" style="padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div onclick="toggleHistoryRow(${globalIdx})" style="padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;">
             <div style="flex:1;min-width:0;">
               <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
                 <span style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
@@ -2813,20 +3016,50 @@ function openHistory(){
                 <span style="font-size:11px;font-weight:600;color:${r.done>=r.total?'var(--green)':'var(--gold)'};">${r.done}/${r.total} упр.</span>
               </div>
             </div>
-            <span id="hist-arrow-${idx}" style="color:var(--text3);font-size:13px;flex-shrink:0;transition:transform .2s;">▸</span>
+            <span id="hist-arrow-${globalIdx}" style="color:var(--text3);font-size:13px;flex-shrink:0;transition:transform .2s;">▸</span>
           </div>
-          <div id="hist-body-${idx}" style="display:none;padding-bottom:10px;">
+          <div id="hist-body-${globalIdx}" style="display:none;padding-bottom:10px;">
             <div style="display:flex;flex-direction:column;gap:3px;">${exHTML}</div>
             ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
           </div>
         </div>`;
-    }).join('') + `
-      <button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>
-    `;
+    }).join('');
   }
 
-  overlay.classList.add('open');
-  sheet.classList.add('open');
+  // Глобальные для calDayClick/calPrev/calNext
+  window._calFilterDate = null;
+  window.calPrev = ()=>{ if(calMonth===0){calMonth=11;calYear--;}else calMonth--; refreshCal(); };
+  window.calNext = ()=>{ if(calMonth===11){calMonth=0;calYear++;}else calMonth++; refreshCal(); };
+  window.calDayClick = (iso)=>{
+    if(window._calFilterDate===iso){ window._calFilterDate=null; }
+    else { window._calFilterDate=iso; }
+    refreshCal();
+  };
+
+  function refreshCal(){
+    const cw = document.getElementById('cal-wrap');
+    if(cw) cw.outerHTML = renderCalendar();
+    // Re-attach since outerHTML replaces element
+    const newCw = document.getElementById('cal-wrap');
+    const listEl = document.getElementById('hist-list');
+    if(listEl) listEl.innerHTML = renderList(window._calFilterDate) +
+      `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>`;
+    // Подсветить выбранный день
+    document.querySelectorAll('.cal-cell.selected').forEach(el=>el.classList.remove('selected'));
+    if(window._calFilterDate){
+      document.querySelectorAll('.cal-cell').forEach(el=>{
+        if(el.onclick && el.getAttribute('onclick')&&el.getAttribute('onclick').includes(window._calFilterDate))
+          el.classList.add('selected');
+      });
+    }
+  }
+
+  body.innerHTML = renderCalendar() +
+    `<div id="hist-list" style="margin-top:8px;">` +
+    renderList(null) +
+    `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button></div>`;
+
+  overlay.classList.add('open'); sheet.classList.add('open');
 }
 
 function toggleHistoryRow(idx){
