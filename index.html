@@ -165,6 +165,16 @@ body {
   font-size: 13px; font-weight: 300; color: var(--text2); letter-spacing: 0.02em;
   line-height: 1.6; max-width: 280px; transition: var(--transition);
 }
+.hero-motiv {
+  display: flex; align-items: flex-start; gap: 8px;
+  max-width: 300px;
+}
+.hero-motiv-emoji { font-size: 18px; flex-shrink: 0; line-height: 1.5; }
+.hero-motiv-text {
+  font-size: 12px; font-weight: 300;
+  color: var(--text3); font-style: italic; line-height: 1.6;
+  transition: var(--transition);
+}
 .stats {
   display: grid; grid-template-columns: 1fr 1fr 1fr;
   border-top: 1px solid var(--border); margin-top: 28px;
@@ -1047,53 +1057,52 @@ body {
 .cal-wrap {
   background: var(--surface2);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  margin-bottom: 4px;
+  border-radius: 10px;
+  padding: 6px 8px;
+  margin-bottom: 8px;
 }
 .cal-nav {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 .cal-month-label {
   font-family: 'Archivo Narrow', sans-serif;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
   color: var(--text);
 }
 .cal-nav-btn {
   background: none; border: 1px solid var(--border);
-  border-radius: 8px; width: 28px; height: 28px;
-  color: var(--text2); font-size: 16px; cursor: pointer;
+  border-radius: 5px; width: 20px; height: 20px;
+  color: var(--text2); font-size: 12px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  -webkit-tap-highlight-color: transparent; transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
 }
 .cal-nav-btn:active { background: var(--surface3); }
 .cal-grid {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px;
 }
 .cal-head {
-  font-family: 'Archivo Narrow', sans-serif;
-  font-size: 9px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--text3);
-  text-align: center; padding: 2px 0 4px;
+  font-size: 8px; font-weight: 600;
+  color: var(--text3); text-align: center;
+  padding: 1px 0 2px;
 }
 .cal-cell {
-  aspect-ratio: 1; border-radius: 8px;
+  height: 24px; border-radius: 4px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 400; color: var(--text2);
-  cursor: pointer; position: relative;
+  font-size: 10px; color: var(--text2);
+  cursor: pointer; gap: 1px;
   -webkit-tap-highlight-color: transparent;
-  transition: background .12s; gap: 2px;
+  transition: background .1s;
 }
 .cal-cell.empty { cursor: default; }
 .cal-cell:not(.empty):active { background: var(--surface3); }
-.cal-cell.today { font-weight: 700; color: var(--text); border: 1px solid var(--border); }
+.cal-cell.today { font-weight: 700; color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
 .cal-cell.trained { background: var(--greenbg); color: var(--green); font-weight: 600; }
-.cal-cell.trained.count-2 { background: rgba(42,170,114,0.18); }
-.cal-cell.trained.count-3 { background: rgba(42,170,114,0.28); }
+.cal-cell.trained.count-2 { background: rgba(42,170,114,0.2); }
+.cal-cell.trained.count-3 { background: rgba(42,170,114,0.32); }
 .cal-cell.selected { background: var(--green) !important; color: #fff !important; }
-.cal-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0.7; flex-shrink: 0; }
+.cal-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.8; flex-shrink: 0; }
 
 #day-content.swipe-out-left  { opacity: 0; transform: translateX(-28px); }
 #day-content.swipe-out-right { opacity: 0; transform: translateX(28px); }
@@ -1133,6 +1142,62 @@ body {
   color: var(--text); line-height: 1.6;
   font-style: italic;
 }
+
+/* ── STOPWATCH STOP POPUP ── */
+.sw-popup-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.5);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.sw-popup-overlay.open { opacity: 1; pointer-events: all; }
+
+.sw-popup {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 301;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--border);
+  padding: 24px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+  text-align: center;
+}
+[data-theme="dark"] .sw-popup { box-shadow: 0 -8px 60px rgba(0,0,0,0.5); }
+.sw-popup.open { transform: translateY(0); }
+
+.sw-popup-time {
+  font-family: 'Italiana', serif;
+  font-size: 48px; color: var(--text); line-height: 1;
+  margin-bottom: 4px;
+}
+.sw-popup-label {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 24px;
+}
+.sw-popup-btns {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.sw-popup-btn {
+  width: 100%; height: 52px; border-radius: 14px;
+  border: none; cursor: pointer; font-family: 'Archivo', sans-serif;
+  font-size: 15px; font-weight: 500;
+  transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.sw-popup-btn.continue {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.sw-popup-btn.continue:active { background: var(--surface3); }
+.sw-popup-btn.finish {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(42,170,114,0.3);
+}
+.sw-popup-btn.finish:active { opacity: 0.85; }
 
 /* ── STOPWATCH ── */
 .sw-block {
@@ -1282,6 +1347,17 @@ body {
 <body>
 <div id="timer-flash" style="background: var(--green);"></div>
 
+<!-- STOPWATCH STOP POPUP -->
+<div class="sw-popup-overlay" id="sw-popup-overlay" onclick="swPopupContinue()"></div>
+<div class="sw-popup" id="sw-popup">
+  <div class="sw-popup-time" id="sw-popup-time">0:00:00</div>
+  <div class="sw-popup-label">Тренировка на паузе</div>
+  <div class="sw-popup-btns">
+    <button class="sw-popup-btn continue" onclick="swPopupContinue()">Продолжить</button>
+    <button class="sw-popup-btn finish" onclick="swPopupFinish()">Закончить тренировку</button>
+  </div>
+</div>
+
 <!-- HELP SHEET -->
 <div class="help-overlay" id="help-overlay" onclick="closeHelp()"></div>
 <div class="help-sheet" id="help-sheet">
@@ -1294,6 +1370,17 @@ body {
     <button class="help-close" onclick="closeHelp()">✕</button>
   </div>
   <div class="help-body" id="help-body"></div>
+</div>
+
+<!-- STOPWATCH RESET CONFIRM POPUP -->
+<div class="sw-popup-overlay" id="sw-reset-overlay" onclick="swResetCancel()"></div>
+<div class="sw-popup" id="sw-reset-popup">
+  <div class="sw-popup-time" id="sw-reset-time">0:00:00</div>
+  <div class="sw-popup-label">Сбросить время тренировки?</div>
+  <div class="sw-popup-btns">
+    <button class="sw-popup-btn continue" onclick="swResetCancel()">Отмена</button>
+    <button class="sw-popup-btn finish" style="background:#e05a3a;box-shadow:0 2px 12px rgba(224,90,58,0.3);" onclick="swResetConfirm()">Сбросить</button>
+  </div>
 </div>
 
 <!-- WEEKS EDITOR SHEET -->
@@ -1323,10 +1410,6 @@ body {
       <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
     </div>
     <div class="help-section">
-      <div class="help-section-title">Описание под заголовком</div>
-      <input class="edit-field" id="cfg-hero-desc" placeholder="Программа 9+ недель..." oninput="applyAppSettings()">
-    </div>
-    <div class="help-section">
       <div class="help-section-title">Название программы (прогресс)</div>
       <input class="edit-field" id="cfg-prog-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
     </div>
@@ -1337,6 +1420,10 @@ body {
     <div class="help-section">
       <div class="help-section-title">Футер</div>
       <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Сброс данных</div>
+      <button class="reset-btn" style="width:100%;" onclick="clearAllLocalStorage()">Очистить LocalStorage</button>
     </div>
   </div>
 </div>
@@ -1354,7 +1441,11 @@ body {
   <div class="hero">
     <div class="hero-title" id="app-hero-title">Standing<br><span class="accent">Rollout</span></div>
     <div class="hero-rule"></div>
-    <div class="hero-desc" id="app-hero-desc">Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.</div>
+    <div class="hero-desc" id="app-hero-desc" style="display:none">Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.</div>
+    <div class="hero-motiv">
+      <span class="hero-motiv-emoji" id="hero-motiv-emoji"></span>
+      <span class="hero-motiv-text" id="hero-motiv-text"></span>
+    </div>
     <div class="stats">
       <div class="stat"><div class="stat-n" id="s-ex">0</div><div class="stat-l">Упражнений</div></div>
       <div class="stat"><div class="stat-n" id="s-sess">0</div><div class="stat-l">Сессий</div></div>
@@ -1453,13 +1544,6 @@ body {
     <button class="reset-btn" onclick="confirmResetDay()">Сбросить день</button>
   </div>
 
-  <div class="motiv-block">
-    <div class="motiv-emoji" id="motiv-emoji"></div>
-    <div class="motiv-body">
-      <div class="motiv-label">Мотивация дня</div>
-      <div class="motiv-text" id="motiv-text"></div>
-    </div>
-  </div>
 
   <div class="divider"><span>Прогрессия навыка</span></div>
 
@@ -1575,20 +1659,27 @@ function parseReps(detail){
 function getSets(w,d,i){
   const v=S[k(w,d,i)];
   if(!v) return null;
-  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s,reps:parseReps(S.days[d].ex[i].d)}; }
+  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s,reps:getBaseReps(d,i)}; }
   return v;
 }
+
+// Базовые повторения — берём кастомное если есть, иначе из плана
+function getBaseReps(d,i){
+  const saved = S[`reps_d${d}e${i}`];
+  return saved!=null ? saved : parseReps(S.days[d].ex[i].d);
+}
+
 function getReps(w,d,i){
   const v=S[k(w,d,i)];
   if(v&&v!==true&&v.reps!=null) return v.reps;
-  return parseReps(S.days[d].ex[i].d);
+  return getBaseReps(d,i);
 }
 
 function _getRepObj(w,d,i){
   const cur=S[k(w,d,i)];
-  const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:parseReps(S.days[d].ex[i].d)};
+  const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:getBaseReps(d,i)};
   const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
-  if(obj.reps==null) obj.reps=parseReps(S.days[d].ex[i].d);
+  if(obj.reps==null) obj.reps=getBaseReps(d,i);
   return obj;
 }
 
@@ -1598,6 +1689,8 @@ function setRep(w,d,i,val){
   const obj=_getRepObj(w,d,i);
   obj.reps = n;
   S[k(w,d,i)]=obj;
+  // Сохраняем как базовое значение для будущих недель
+  S[`reps_d${d}e${i}`] = n;
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -1607,6 +1700,7 @@ function addRep(w,d,i){
   const obj=_getRepObj(w,d,i);
   obj.reps = obj.reps>=50 ? 1 : obj.reps+1;
   S[k(w,d,i)]=obj;
+  S[`reps_d${d}e${i}`] = obj.reps;
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -1616,6 +1710,7 @@ function removeRep(w,d,i){
   const obj=_getRepObj(w,d,i);
   obj.reps = obj.reps<=1 ? 50 : obj.reps-1;
   S[k(w,d,i)]=obj;
+  S[`reps_d${d}e${i}`] = obj.reps;
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -2059,13 +2154,19 @@ function openAppSettings() {
   const cfg = loadAppCfg();
   document.getElementById('cfg-topbar').value     = cfg.topbar;
   document.getElementById('cfg-hero-title').value = cfg.heroTitle.replace('\n', ' / ');
-  document.getElementById('cfg-hero-desc').value  = cfg.heroDesc;
   document.getElementById('cfg-prog-title').value = cfg.progTitle;
   document.getElementById('cfg-prog-sub').value   = cfg.progSub;
   document.getElementById('cfg-footer').value     = cfg.footer;
   document.getElementById('settings-overlay').classList.add('open');
   document.getElementById('settings-sheet').classList.add('open');
   if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function clearAllLocalStorage(){
+  if(!confirm('Удалить все данные приложения?\n\nЭто сотрёт прогресс, историю, заметки, настройки.\nДействие необратимо.')) return;
+  localStorage.clear();
+  closeAppSettings();
+  location.reload();
 }
 
 function closeAppSettings() {
@@ -2079,7 +2180,6 @@ function applyAppSettings() {
   const cfg = {
     topbar:    document.getElementById('cfg-topbar').value     || APP_DEFAULTS.topbar,
     heroTitle: heroTitle                                        || APP_DEFAULTS.heroTitle,
-    heroDesc:  document.getElementById('cfg-hero-desc').value  || APP_DEFAULTS.heroDesc,
     progTitle: document.getElementById('cfg-prog-title').value || APP_DEFAULTS.progTitle,
     progSub:   document.getElementById('cfg-prog-sub').value   || APP_DEFAULTS.progSub,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
@@ -2750,7 +2850,7 @@ function metroTick(left) {
       o.frequency.value = left === 1 ? 1200 : 900;
       o.type = 'sine';
       g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 0.005);
+      g.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.005);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
       o.start(ctx.currentTime);
       o.stop(ctx.currentTime + 0.2);
@@ -2759,7 +2859,7 @@ function metroTick(left) {
       o.frequency.value = 480;
       o.type = 'sine';
       g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 0.004);
+      g.gain.linearRampToValueAtTime(0.22, ctx.currentTime + 0.004);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
       o.start(ctx.currentTime);
       o.stop(ctx.currentTime + 0.1);
@@ -2842,7 +2942,7 @@ function iBeep(){
       o.connect(g); g.connect(ctx.destination);
       o.frequency.value=f; o.type='sine';
       g.gain.setValueAtTime(0,ctx.currentTime+t);
-      g.gain.linearRampToValueAtTime(0.28,ctx.currentTime+t+0.01);
+      g.gain.linearRampToValueAtTime(0.7,ctx.currentTime+t+0.01);
       g.gain.linearRampToValueAtTime(0,ctx.currentTime+t+d);
       o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+d+0.05);
     });
@@ -3222,6 +3322,7 @@ function swUpdate() {
 
 function swToggle() {
   if (swRunning) {
+    // Пауза — показываем попап
     swElapsed += Date.now() - swStarted;
     clearInterval(swTick);
     swRunning = false;
@@ -3231,6 +3332,12 @@ function swToggle() {
     swStartBtn.textContent = 'Старт';
     swStartBtn.classList.remove('running');
     swUpdate();
+    swSave();
+    // Показываем попап
+    document.getElementById('sw-popup-time').textContent = swDisplayEl.textContent;
+    document.getElementById('sw-popup-overlay').classList.add('open');
+    document.getElementById('sw-popup').classList.add('open');
+    if (navigator.vibrate) navigator.vibrate([8]);
   } else {
     swStarted = Date.now();
     swRunning = true;
@@ -3242,13 +3349,31 @@ function swToggle() {
     clearInterval(swTick);
     swTick = setInterval(swUpdate, 500);
     swUpdate();
+    swSave();
   }
+}
+
+function swPopupContinue() {
+  // Закрываем попап и возобновляем
+  document.getElementById('sw-popup-overlay').classList.remove('open');
+  document.getElementById('sw-popup').classList.remove('open');
+  swStarted = Date.now();
+  swRunning = true;
+  swDisplayEl.classList.add('running');
+  swStatusEl.classList.add('running');
+  swStatusEl.textContent = 'Идёт';
+  swStartBtn.textContent = 'Стоп';
+  swStartBtn.classList.add('running');
+  clearInterval(swTick);
+  swTick = setInterval(swUpdate, 500);
+  swUpdate();
   swSave();
 }
 
-function swReset() {
-  if (swElapsed === 0 && !swRunning) return; // нечего сбрасывать
-  if (!confirm('Сбросить время тренировки?')) return;
+function swPopupFinish() {
+  // Закрываем попап, сбрасываем секундомер
+  document.getElementById('sw-popup-overlay').classList.remove('open');
+  document.getElementById('sw-popup').classList.remove('open');
   clearInterval(swTick);
   swRunning = false;
   swElapsed = 0;
@@ -3260,6 +3385,38 @@ function swReset() {
   swStartBtn.classList.remove('running');
   swDisplayEl.textContent = '0:00:00';
   swSave();
+  if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+}
+
+function swReset() {
+  if (swElapsed === 0 && !swRunning) return;
+  // Показываем кастомный попап
+  const total = swRunning ? swElapsed + (Date.now() - swStarted) : swElapsed;
+  document.getElementById('sw-reset-time').textContent = swFmt(total);
+  document.getElementById('sw-reset-overlay').classList.add('open');
+  document.getElementById('sw-reset-popup').classList.add('open');
+  if (navigator.vibrate) navigator.vibrate([8]);
+}
+
+function swResetCancel() {
+  document.getElementById('sw-reset-overlay').classList.remove('open');
+  document.getElementById('sw-reset-popup').classList.remove('open');
+}
+
+function swResetConfirm() {
+  swResetCancel();
+  clearInterval(swTick);
+  swRunning = false;
+  swElapsed = 0;
+  swStarted = 0;
+  swDisplayEl.classList.remove('running');
+  swStatusEl.classList.remove('running');
+  swStatusEl.textContent = 'Не запущена';
+  swStartBtn.textContent = 'Старт';
+  swStartBtn.classList.remove('running');
+  swDisplayEl.textContent = '0:00:00';
+  swSave();
+  if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
 }
 
 // Восстанавливаем состояние при загрузке
@@ -3289,7 +3446,7 @@ function beep() {
       o.frequency.value = freq;
       o.type = 'sine';
       g.gain.setValueAtTime(0, ctx.currentTime + start);
-      g.gain.linearRampToValueAtTime(0.3, ctx.currentTime + start + 0.01);
+      g.gain.linearRampToValueAtTime(0.7, ctx.currentTime + start + 0.01);
       g.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
       o.start(ctx.currentTime + start);
       o.stop(ctx.currentTime + start + dur + 0.05);
@@ -3483,10 +3640,16 @@ const MOTIVS = [
 function renderMotiv(){
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
   const m = MOTIVS[dayOfYear % MOTIVS.length];
+  // Старый блок (внизу страницы)
   const eEl = document.getElementById('motiv-emoji');
   const tEl = document.getElementById('motiv-text');
   if(eEl) eEl.textContent = m.e;
   if(tEl) tEl.textContent = m.t;
+  // Новый блок (под заголовком героя)
+  const heEl = document.getElementById('hero-motiv-emoji');
+  const htEl = document.getElementById('hero-motiv-text');
+  if(heEl) heEl.textContent = m.e;
+  if(htEl) htEl.textContent = m.t;
 }
 
 renderMotiv();
