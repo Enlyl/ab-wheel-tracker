@@ -437,6 +437,21 @@ body {
   display: flex; align-items: center; gap: 4px;
   margin-top: 7px; flex-wrap: wrap;
 }
+.sets-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(128,128,128,0.08);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 8px;
+  flex-wrap: wrap;
+}
+.reps-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(200,169,110,0.08);
+  border: 1px solid rgba(200,169,110,0.2);
+  border-radius: 20px;
+  padding: 4px 8px;
+}
 .set-dot {
   width: 22px; height: 22px; border-radius: 50%;
   border: 1.5px solid var(--border);
@@ -449,6 +464,27 @@ body {
 .set-dot.done {
   background: var(--green);
   border-color: var(--green);
+}
+.set-dot.warmup {
+  background: var(--green);
+  border-color: var(--green);
+  position: relative;
+}
+.set-dot.warmup::after {
+  content: 'Р';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 10px; font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+.ex-item.partial .set-dot.warmup {
+  background: var(--gold);
+  border-color: var(--gold);
 }
 .ex-item.partial .set-dot.done {
   background: var(--gold);
@@ -492,6 +528,17 @@ body {
 .ex-item.partial .chk-box { border-color: var(--gold); }
 .partial-num {
   font-size: 13px; font-weight: 600; color: var(--gold);
+}
+
+.name-pill {
+  display: inline-flex; flex-direction: column; gap: 2px;
+  background: rgba(128,128,128,0.06);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ── EX HELP BUTTON ── */
@@ -1659,8 +1706,25 @@ function parseReps(detail){
 function getSets(w,d,i){
   const v=S[k(w,d,i)];
   if(!v) return null;
-  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s,reps:getBaseReps(d,i)}; }
+  if(v===true){ const s=parseSets(S.days[d].ex[i].d); return {done:s,total:s,reps:getBaseReps(d,i),warmup:[]}; }
   return v;
+}
+
+function togWarmup(w,d,i,setIdx){
+  if(editMode) return;
+  const cur = S[k(w,d,i)];
+  // Подход должен быть отмечен чтобы пометить как разминочный
+  if(!cur) return;
+  const obj = cur===true
+    ? {done:parseSets(S.days[d].ex[i].d),total:parseSets(S.days[d].ex[i].d),reps:getBaseReps(d,i),warmup:[]}
+    : {...cur, warmup: cur.warmup ? [...cur.warmup] : []};
+  if(setIdx >= obj.done) return; // нельзя пометить невыполненный
+  const idx = obj.warmup.indexOf(setIdx);
+  if(idx>=0) obj.warmup.splice(idx,1);
+  else obj.warmup.push(setIdx);
+  S[k(w,d,i)] = obj;
+  if(navigator.vibrate) navigator.vibrate([6,30,6]);
+  save(); render();
 }
 
 // Базовые повторения — берём кастомное если есть, иначе из плана
@@ -2021,12 +2085,15 @@ function renderExItem(e,di,ei){
   const showSets = total>1;
   const setsHTML = showSets || reps>0
     ? `<div class="sets-row" onclick="event.stopPropagation()">
-        ${showSets ? Array.from({length:sets?sets.total:total},(_,s)=>`
-          <div class="set-dot ${sets&&s<sets.done?'done':''}" onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"></div>
-        `).join('') : ''}
-        ${showSets && (sets?sets.total:total)>1 ? `<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>` : ''}
-        ${showSets ? `<button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>` : ''}
-        ${reps>0?`${showSets?'<span class="sets-divider"></span>':''}
+        ${showSets ? `<div class="sets-pill">
+          ${Array.from({length:sets?sets.total:total},(_,s)=>`
+            <div class="set-dot ${sets&&s<sets.done?(sets.warmup&&sets.warmup.includes(s)?'done warmup':'done'):''}"
+              onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
+              data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>`).join('')}
+          ${(sets?sets.total:total)>1 ? `<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>` : ''}
+          <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+        </div>` : ''}
+        ${reps>0?`<div class="reps-pill">
           <button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeRep(${W},${di},${ei})" title="Меньше повторений">−</button>
           <input class="reps-input" type="number" min="1" max="999"
             value="${reps}"
@@ -2034,7 +2101,8 @@ function renderExItem(e,di,ei){
             onchange="event.stopPropagation();setRep(${W},${di},${ei},+this.value)"
             oninput="event.stopPropagation()"
           >
-          <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>`:''}
+          <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>
+        </div>`:''}
       </div>`
     : '';
   return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
@@ -2043,8 +2111,10 @@ function renderExItem(e,di,ei){
       <div class="chk-box">${chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
     </div>
     <div class="ei-body">
-      <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
-      <div class="ei-detail">${esc(e.d)}</div>
+      <div class="name-pill">
+        <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
+        <div class="ei-detail">${esc(e.d)}</div>
+      </div>
       ${setsHTML}
       ${toastHTML}
     </div>
@@ -2742,7 +2812,35 @@ function closeHelp() {
   });
 })();
 
-// ── Делегированный обработчик кнопки ? ──
+// ── Долгий тап на точке подхода → разминочный ──
+(function(){
+  let _pressTimer = null;
+  let _pressEl    = null;
+  const LONG_MS   = 500;
+
+  function startPress(e) {
+    const dot = e.target.closest('.set-dot');
+    if (!dot || !dot.dataset.w) return;
+    _pressEl = dot;
+    _pressTimer = setTimeout(() => {
+      _pressTimer = null;
+      if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+      togWarmup(+dot.dataset.w, +dot.dataset.d, +dot.dataset.i, +dot.dataset.s);
+    }, LONG_MS);
+  }
+
+  function cancelPress() {
+    if (_pressTimer) { clearTimeout(_pressTimer); _pressTimer = null; }
+    _pressEl = null;
+  }
+
+  document.addEventListener('touchstart',  startPress,  { passive: true });
+  document.addEventListener('touchend',    cancelPress, { passive: true });
+  document.addEventListener('touchmove',   cancelPress, { passive: true });
+  document.addEventListener('mousedown',   startPress);
+  document.addEventListener('mouseup',     cancelPress);
+  document.addEventListener('mouseleave',  cancelPress);
+})();
 // Перехватываем и touchstart и click чтобы на мобиле работало надёжно
 (function(){
   function handleHelp(e) {
