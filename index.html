@@ -3205,7 +3205,7 @@ function openHistory(){
           <div onclick="toggleHistoryRow(${globalIdx})" style="padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;">
             <div style="flex:1;min-width:0;">
               <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
-                <span style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
+                <span id="hist-date-${globalIdx}" style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
                 <span style="font-size:11px;color:var(--text3);">Нед.${r.week} · Д${r.dayId}</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -3219,6 +3219,13 @@ function openHistory(){
           <div id="hist-body-${globalIdx}" style="display:none;padding-bottom:10px;">
             <div style="display:flex;flex-direction:column;gap:3px;">${exHTML}</div>
             ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
+            <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Дата:</span>
+              <input type="date" value="${r.isoDate||''}"
+                style="flex:1;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
+                       font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
+                onchange="histEditDate(${globalIdx}, this.value)">
+            </div>
           </div>
         </div>`;
     }).join('');
@@ -3268,6 +3275,20 @@ function toggleHistoryRow(idx){
   body.style.display  = open ? 'none' : 'block';
   arrow.style.transform = open ? '' : 'rotate(90deg)';
   if(navigator.vibrate) navigator.vibrate([6]);
+}
+
+function histEditDate(globalIdx, isoDate){
+  if(!isoDate) return;
+  const h = loadHistory();
+  if(!h[globalIdx]) return;
+  const d = new Date(isoDate);
+  h[globalIdx].isoDate = isoDate;
+  h[globalIdx].date = d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  saveHistory(h);
+  // Обновляем отображение даты в заголовке без полного перерендера
+  const dateEl = document.getElementById(`hist-date-${globalIdx}`);
+  if(dateEl) dateEl.textContent = h[globalIdx].date + (h[globalIdx].time ? ` · ${h[globalIdx].time}` : '');
+  if(navigator.vibrate) navigator.vibrate([8]);
 }
 
 function clearHistory(){
