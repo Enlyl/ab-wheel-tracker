@@ -266,15 +266,35 @@ body {
 
 /* Edit mode tab */
 .d-tab.editing {
-  padding: 8px 4px;
+  padding: 10px 6px 8px;
   cursor: default;
   background: var(--surface2);
+  position: relative;
 }
 .d-tab-day-select {
   font-family: 'Italiana', serif; font-size: 18px;
-  background: transparent; border: none; outline: none;
-  color: inherit; text-align: center; width: 100%;
-  cursor: pointer; padding: 0;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  padding: 4px 16px 4px 8px;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6'%3E%3Cpath d='M0 0l4 6 4-6z' fill='%23888780'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 7px;
+  transition: border-color .15s;
+}
+.d-tab-day-select:hover { border-color: var(--gold); }
+.d-tab.editing .d-tab-del {
+  top: 2px; right: 2px;
+  width: 16px; height: 16px;
+  z-index: 1;
 }
 .d-tab-role-input {
   font-family: 'Archivo Narrow', sans-serif; font-size: 8px;
@@ -282,6 +302,28 @@ body {
   background: transparent; border: none; outline: none;
   color: var(--text3); text-align: center; width: 100%;
   padding: 0; margin-top: 3px;
+}
+.d-tab.editing .d-tab-role-wrap {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--goldbg);
+  border: 1px solid var(--goldborder);
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-top: 4px;
+  gap: 4px;
+}
+.d-tab.editing .d-tab-role-wrap::before {
+  content: '✎';
+  font-size: 9px; color: var(--gold2); opacity: 0.7;
+  flex-shrink: 0; line-height: 1;
+}
+.d-tab.editing .d-tab-role-input {
+  background: transparent;
+  border: none;
+  color: var(--gold2);
+  padding: 0;
+  margin: 0;
+  font-weight: 600;
 }
 .d-tab-del {
   position: absolute; top: 3px; right: 3px;
@@ -304,7 +346,7 @@ body {
 /* ── EXERCISE BLOCK ── */
 .ex-block {
   margin: 0 24px 10px;
-  border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 14px;
   background: var(--surface);
   box-shadow: var(--shadow-md);
   transition: var(--transition);
@@ -354,6 +396,17 @@ body {
 .ex-item.normal:hover { background: var(--surface2); }
 .ex-item.normal.chk { background: var(--greenbg2); }
 .ex-item.editing { background: var(--goldbg); cursor: default; }
+.ex-item.editing.dragging { opacity: 0.4; background: var(--surface3); }
+.ex-item.editing.drag-over { border-top: 2px solid var(--gold); }
+
+.drag-handle {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1; color: var(--text3);
+  cursor: grab; user-select: none; padding: 2px 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.drag-handle:active { cursor: grabbing; }
 
 .chk-wrap {
   display: flex; flex-direction: column; align-items: center;
@@ -472,6 +525,74 @@ body {
   white-space: nowrap;
 }
 
+/* ── SET ROWS (per-set reps/load) ── */
+.set-rows {
+  margin-top: 7px; display: flex; flex-direction: column; gap: 4px;
+  background: var(--surface2); border-radius: 12px;
+  padding: 5px 10px 6px;
+}
+.set-row {
+  display: flex; align-items: center; gap: 3px;
+}
+.set-row .set-dot { width: 22px; height: 22px; flex-shrink: 0; }
+.set-step-btn {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: none; background: var(--surface2);
+  color: var(--text3); font-size: 13px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.set-step-btn:active { background: var(--surface3); }
+.set-step-rem { font-size: 10px; color: #e05a3a; }
+.set-step-rem:active { background: rgba(224,90,58,0.1); }
+.set-reps {
+  width: 34px; height: 22px; min-width:0; border:1px solid var(--border);
+  border-radius:5px; background:var(--bg); color:var(--text);
+  font-family:'Archivo',sans-serif; font-size:12px; font-weight:600;
+  text-align:center; outline:none; -moz-appearance:textfield;
+}
+.set-reps::-webkit-outer-spin-button,
+.set-reps::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.set-reps:focus { border-color:var(--gold); }
+.set-load {
+  width: 40px; height: 22px; min-width:0; border:1px solid var(--border);
+  border-radius:5px; background:var(--bg); color:var(--text);
+  font-family:'Archivo',sans-serif; font-size:12px; font-weight:600;
+  text-align:center; outline:none; -moz-appearance:textfield;
+}
+.set-load::-webkit-outer-spin-button,
+.set-load::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.set-load:focus { border-color:var(--gold); }
+.set-row .load-unit-select {
+  border:1px solid transparent; background:var(--bg);
+  font-family:'Archivo Narrow',sans-serif; font-size:12px; font-weight:600;
+  color:var(--text2); cursor:pointer; outline:none; padding:4px 2px;
+  border-radius:5px; -webkit-appearance:none; appearance:none;
+}
+.set-add-btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent; color: var(--text3);
+  font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; flex-shrink: 0;
+}
+.set-add-btn:active,
+.set-add-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--goldbg); }
+.set-rem-btn {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--surface2);
+  color: var(--text3); font-size: 14px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  flex-shrink: 0;
+}
+.set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.08); }
+
 /* ── SETS COUNTER ── */
 .sets-row {
   display: flex; align-items: center; gap: 4px;
@@ -547,20 +668,6 @@ body {
   background: var(--gold);
   border-color: var(--gold);
 }
-.set-add-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 1.5px dashed var(--border);
-  background: transparent; color: var(--text3);
-  font-size: 16px; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  flex-shrink: 0;
-}
-.set-add-btn:active { border-color: var(--gold); color: var(--gold); background: var(--goldbg); }
-.set-rem-btn { border-style: solid; border-color: var(--border); color: var(--text3); }
-.set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.08); }
 .sets-divider {
   width: 1px; height: 20px;
   background: var(--border);
@@ -652,10 +759,9 @@ body {
   transition: transform .32s cubic-bezier(.4,0,.2,1);
   max-height: 82vh;
   overflow-y: auto;
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
 }
-[data-theme="dark"] .help-sheet { box-shadow: 0 -8px 60px rgba(0,0,0,0.55); }
-.help-sheet.open { transform: translateY(0); }
+.help-sheet.open { transform: translateY(0); box-shadow: 0 -8px 40px rgba(0,0,0,0.18); }
+[data-theme="dark"] .help-sheet.open { box-shadow: 0 -8px 60px rgba(0,0,0,0.55); }
 
 .help-handle {
   width: 36px; height: 3px; border-radius: 2px;
@@ -829,6 +935,7 @@ body {
   overflow: hidden; background: var(--surface);
   box-shadow: var(--shadow-md); transition: var(--transition);
 }
+
 [data-theme="dark"] .prog-block { border-top-color: rgba(255,255,255,0.09); }
 .prog-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
 .prog-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
@@ -1039,7 +1146,8 @@ body {
 #timer-flash {
   position: fixed; inset: 0; z-index: 9999;
   pointer-events: none;
-  opacity: 0;
+  display: none;
+  background: var(--green);
 }
 @keyframes timerFlash {
   0%   { opacity: 0; }
@@ -1057,6 +1165,7 @@ body {
   100% { opacity: 0; }
 }
 #timer-flash.flash {
+  display: block;
   animation: timerFlash 1.6s ease-out forwards;
 }
 
@@ -1232,37 +1341,6 @@ body {
 #notes-block.swipe-out-left  { opacity: 0; transform: translateX(-28px); }
 #notes-block.swipe-out-right { opacity: 0; transform: translateX(28px); }
 
-/* ── DAILY MOTIVATION ── */
-.motiv-block {
-  margin: 0 24px 10px;
-  background: var(--goldbg);
-  border: 1px solid var(--goldborder);
-  border-radius: 14px;
-  padding: 16px 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  transition: var(--transition);
-}
-.motiv-emoji {
-  font-size: 22px;
-  flex-shrink: 0;
-  line-height: 1.3;
-}
-.motiv-body {}
-.motiv-label {
-  font-family: 'Archivo Narrow', sans-serif;
-  font-size: 9px; font-weight: 600;
-  letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--gold2); margin-bottom: 5px;
-}
-.motiv-text {
-  font-family: 'Archivo', sans-serif;
-  font-size: 13px; font-weight: 300;
-  color: var(--text); line-height: 1.6;
-  font-style: italic;
-}
-
 /* ── STOPWATCH STOP POPUP ── */
 .sw-popup-overlay {
   position: fixed; inset: 0; z-index: 300;
@@ -1280,11 +1358,10 @@ body {
   padding: 24px 24px calc(24px + env(safe-area-inset-bottom, 0px));
   transform: translateY(100%);
   transition: transform .3s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
   text-align: center;
 }
-[data-theme="dark"] .sw-popup { box-shadow: 0 -8px 60px rgba(0,0,0,0.5); }
-.sw-popup.open { transform: translateY(0); }
+.sw-popup.open { transform: translateY(0); box-shadow: 0 -8px 40px rgba(0,0,0,0.18); }
+[data-theme="dark"] .sw-popup.open { box-shadow: 0 -8px 60px rgba(0,0,0,0.5); }
 
 .sw-popup-time {
   font-family: 'Italiana', serif;
@@ -1318,33 +1395,6 @@ body {
   box-shadow: 0 2px 12px rgba(42,170,114,0.3);
 }
 .sw-popup-btn.finish:active { opacity: 0.85; }
-
-.add-extra-day-btn {
-  font-family: 'Archivo Narrow', sans-serif;
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 0.08em;
-  background: none; border: 1px dashed var(--border);
-  border-radius: 8px; padding: 3px 10px;
-  color: var(--text3); cursor: pointer;
-  transition: all .15s;
-  -webkit-tap-highlight-color: transparent;
-}
-.add-extra-day-btn:active { border-color: var(--gold); color: var(--gold); }
-
-.weekday-select {
-  font-family: 'Archivo Narrow', sans-serif;
-  font-size: 12px; font-weight: 600;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 4px 8px;
-  color: var(--text); cursor: pointer; outline: none;
-}
-.extra-day-remove {
-  font-size: 11px; color: var(--text3);
-  background: none; border: 1px solid var(--border);
-  border-radius: 6px; padding: 2px 6px; cursor: pointer;
-  transition: all .15s;
-}
-.extra-day-remove:active { border-color: #e05a3a; color: #e05a3a; }
 
 /* ── STOPWATCH ── */
 .sw-block {
@@ -1492,7 +1542,7 @@ body {
 </style>
 </head>
 <body>
-<div id="timer-flash" style="background: var(--green);"></div>
+<div id="timer-flash"></div>
 
 <!-- STOPWATCH STOP POPUP -->
 <div class="sw-popup-overlay" id="sw-popup-overlay" onclick="swPopupContinue()"></div>
@@ -1849,31 +1899,131 @@ function togWarmup(w,d,i,setIdx){
 // Базовые повторения — берём кастомное если есть, иначе из плана
 function getBaseReps(d,i){
   const saved = S[`reps_d${d}e${i}`];
-  return saved!=null ? saved : parseReps(S.days[d].ex[i].d);
+  if(saved!=null) return Array.isArray(saved)?saved[0]:saved;
+  return parseReps(S.days[d].ex[i].d);
 }
 
 function getReps(w,d,i){
   const v=S[k(w,d,i)];
-  if(v&&v!==true&&v.reps!=null) return v.reps;
+  if(v&&v!==true&&v.reps!=null) return Array.isArray(v.reps)?v.reps[0]:v.reps;
   return getBaseReps(d,i);
 }
 
 function _getRepObj(w,d,i){
   const cur=S[k(w,d,i)];
-  const base={done:0,total:parseSets(S.days[d].ex[i].d),reps:getBaseReps(d,i)};
+  const baseTotal=parseSets(S.days[d].ex[i].d);
+  const baseRepsVal=parseReps(S.days[d].ex[i].d);
+  const base={done:0,total:baseTotal};
   const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
-  if(obj.reps==null) obj.reps=getBaseReps(d,i);
+  // reps as array
+  if(obj.reps==null){
+    const saved=S[`reps_d${d}e${i}`];
+    if(saved!=null){obj.reps=Array.isArray(saved)?[...saved]:Array(obj.total).fill(saved);}
+    else {obj.reps=Array(obj.total).fill(baseRepsVal);}
+  } else if(!Array.isArray(obj.reps)){
+    obj.reps=Array(obj.total).fill(obj.reps);
+  }
+  while(obj.reps.length<obj.total) obj.reps.push(baseRepsVal);
+  while(obj.reps.length>obj.total) obj.reps.pop();
+  // load as array
+  if(obj.load!=null && !Array.isArray(obj.load)){obj.load=Array(obj.total).fill(obj.load);}
+  if(Array.isArray(obj.load)){
+    while(obj.load.length<obj.total) obj.load.push(0);
+    while(obj.load.length>obj.total) obj.load.pop();
+  }
   return obj;
 }
 
+function getSetRep(w,d,i,s){
+  const v=S[k(w,d,i)];
+  if(v&&v!==true&&Array.isArray(v.reps)&&v.reps[s]!=null) return v.reps[s];
+  if(v&&v!==true&&v.reps!=null) return v.reps;
+  const saved=S[`reps_d${d}e${i}`];
+  if(saved!=null) return Array.isArray(saved)?(saved[s]!=null?saved[s]:0):saved;
+  return parseReps(S.days[d].ex[i].d);
+}
+function setSetRep(w,d,i,s,val){
+  if(editMode) return;
+  const n=Math.max(1,Math.min(999,Math.round(val)||1));
+  const obj=_getRepObj(w,d,i);
+  obj.reps[s]=n;
+  S[k(w,d,i)]=obj;
+  S[`reps_d${d}e${i}`]=[...obj.reps];
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save();render();
+}
+function getSetLoad(w,d,i,s){
+  if(!S.days[d].ex[i].showLoad) return null;
+  const v=S[k(w,d,i)];
+  if(v&&v!==true&&Array.isArray(v.load)&&v.load[s]!=null) return v.load[s];
+  if(v&&v!==true&&v.load!=null) return v.load;
+  const saved=S[`load_d${d}e${i}`];
+  if(saved!=null) return Array.isArray(saved)?(saved[s]!=null?saved[s]:0):saved;
+  return 0;
+}
+function setSetLoad(w,d,i,s,val){
+  if(editMode) return;
+  const n=Math.max(0,val);
+  const obj=_getRepObj(w,d,i);
+  obj.load=obj.load||Array(obj.total).fill(0);
+  if(!Array.isArray(obj.load)) obj.load=Array(obj.total).fill(obj.load);
+  obj.load[s]=n;
+  S[k(w,d,i)]=obj;
+  S[`load_d${d}e${i}`]=[...obj.load];
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save();render();
+}
+function incSetRep(w,d,i,s){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  const cur=obj.reps[s]||0;
+  obj.reps[s]=cur>=50?1:cur+1;
+  S[k(w,d,i)]=obj;
+  S[`reps_d${d}e${i}`]=[...obj.reps];
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save();render();
+}
+function decSetRep(w,d,i,s){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  const cur=obj.reps[s]||0;
+  obj.reps[s]=cur<=1?50:cur-1;
+  S[k(w,d,i)]=obj;
+  S[`reps_d${d}e${i}`]=[...obj.reps];
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save();render();
+}
+function incSetLoad(w,d,i,s){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  obj.load=obj.load||Array(obj.total).fill(0);
+  if(!Array.isArray(obj.load)) obj.load=Array(obj.total).fill(obj.load);
+  const cur=obj.load[s]||0;
+  obj.load[s]=Math.round((cur+0.5)*2)/2;
+  S[k(w,d,i)]=obj;
+  S[`load_d${d}e${i}`]=[...obj.load];
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save();render();
+}
+function decSetLoad(w,d,i,s){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  obj.load=obj.load||Array(obj.total).fill(0);
+  if(!Array.isArray(obj.load)) obj.load=Array(obj.total).fill(obj.load);
+  const cur=obj.load[s]||0;
+  obj.load[s]=Math.max(0,Math.round((cur-0.5)*2)/2);
+  S[k(w,d,i)]=obj;
+  S[`load_d${d}e${i}`]=[...obj.load];
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save();render();
+}
 function setRep(w,d,i,val){
   if(editMode) return;
   const n = Math.max(1, Math.min(999, Math.round(val)||1));
   const obj=_getRepObj(w,d,i);
-  obj.reps = n;
+  obj.reps = Array(obj.total).fill(n);
   S[k(w,d,i)]=obj;
-  // Сохраняем как базовое значение для будущих недель
-  S[`reps_d${d}e${i}`] = n;
+  S[`reps_d${d}e${i}`] = [...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -1881,9 +2031,11 @@ function setRep(w,d,i,val){
 function addRep(w,d,i){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
-  obj.reps = obj.reps>=50 ? 1 : obj.reps+1;
+  const v = Array.isArray(obj.reps) ? obj.reps[0] : obj.reps;
+  const n = v>=50 ? 1 : v+1;
+  obj.reps = Array(obj.total).fill(n);
   S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`] = obj.reps;
+  S[`reps_d${d}e${i}`] = [...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -1891,9 +2043,11 @@ function addRep(w,d,i){
 function removeRep(w,d,i){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
-  obj.reps = obj.reps<=1 ? 50 : obj.reps-1;
+  const v = Array.isArray(obj.reps) ? obj.reps[0] : obj.reps;
+  const n = v<=1 ? 50 : v-1;
+  obj.reps = Array(obj.total).fill(n);
   S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`] = obj.reps;
+  S[`reps_d${d}e${i}`] = [...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -1909,11 +2063,21 @@ function tog(w,d,i){
   const cur=S[k(w,d,i)];
   if(!cur){
     const total=parseSets(S.days[d].ex[i].d);
-    S[k(w,d,i)]=total<=1?true:{done:1,total};
+    if(total<=1){ S[k(w,d,i)]=true; }
+    else {
+      const obj=_getRepObj(w,d,i);
+      obj.done=1;
+      S[k(w,d,i)]=obj;
+    }
   } else if(cur===true){
     S[k(w,d,i)]=false;
   } else {
-    S[k(w,d,i)]=cur.done<cur.total?{done:cur.done+1,total:cur.total}:false;
+    if(cur.done<cur.total){
+      const obj={...cur, done: cur.done+1};
+      S[k(w,d,i)]=obj;
+    } else {
+      S[k(w,d,i)]=false;
+    }
   }
   // Показываем плашку если что-то отмечено (не снято)
   lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
@@ -1941,9 +2105,23 @@ function startTimerFromToast() {
 function addSet(w,d,i){
   if(editMode) return;
   const cur=S[k(w,d,i)];
-  if(!cur){ S[k(w,d,i)]={done:0,total:parseSets(S.days[d].ex[i].d)+1}; }
-  else if(cur===true){ const b=parseSets(S.days[d].ex[i].d); S[k(w,d,i)]={done:b,total:b+1}; }
-  else { S[k(w,d,i)]={done:cur.done,total:cur.total+1}; }
+  if(!cur){
+    const bt=parseSets(S.days[d].ex[i].d);
+    const obj={done:0,total:bt+1};
+    obj.reps=Array(bt+1).fill(parseReps(S.days[d].ex[i].d));
+    S[k(w,d,i)]=obj;
+  } else if(cur===true){
+    const b=parseSets(S.days[d].ex[i].d);
+    const obj={done:b,total:b+1};
+    obj.reps=Array(b+1).fill(parseReps(S.days[d].ex[i].d));
+    S[k(w,d,i)]=obj;
+  } else {
+    const obj=_getRepObj(w,d,i);
+    obj.total++;
+    obj.reps.push(obj.reps[obj.reps.length-1] || parseReps(S.days[d].ex[i].d));
+    if(Array.isArray(obj.load)) obj.load.push(obj.load[obj.load.length-1] || 0);
+    S[k(w,d,i)]=obj;
+  }
   if(navigator.vibrate) navigator.vibrate([8]);
   save(); render();
 }
@@ -1955,7 +2133,24 @@ function removeSet(w,d,i){
   if(total<=1) return;
   const done=cur&&cur!==true?Math.min(cur.done,total-1):cur===true?total-1:0;
   const newTotal=total-1;
-  S[k(w,d,i)]=newTotal<=0?false:done>=newTotal?(newTotal===1?true:{done:newTotal,total:newTotal}):{done,total:newTotal};
+  if(newTotal<=0){ S[k(w,d,i)]=false; }
+  else if(done>=newTotal){
+    const obj=newTotal===1?true:{done:newTotal,total:newTotal};
+    if(obj!==true){
+      obj.reps=Array(newTotal).fill(parseReps(S.days[d].ex[i].d));
+      const saved=S[`reps_d${d}e${i}`];
+      if(Array.isArray(saved)){obj.reps=saved.slice(0,newTotal);}
+    }
+    S[k(w,d,i)]=obj;
+  } else {
+    const obj=cur===true
+      ?{done:done,total:newTotal,reps:Array(newTotal).fill(parseReps(S.days[d].ex[i].d))}
+      :_getRepObj(w,d,i);
+    obj.total=newTotal;
+    if(obj.reps&&Array.isArray(obj.reps)) obj.reps.pop();
+    if(obj.load&&Array.isArray(obj.load)) obj.load.pop();
+    S[k(w,d,i)]=obj;
+  }
   if(navigator.vibrate) navigator.vibrate([8]);
   save(); render();
 }
@@ -1967,7 +2162,15 @@ function togSet(w,d,i,setIdx){
   const total=cur&&cur!==true?cur.total:parseSets(S.days[d].ex[i].d);
   const doneBefore=cur&&cur!==true?cur.done:cur===true?total:0;
   const newDone = doneBefore===setIdx+1 ? setIdx : setIdx+1;
-  S[k(w,d,i)] = newDone>=total ? (total<=1?true:{done:total,total}) : newDone===0 ? false : {done:newDone,total};
+  if(newDone>=total){
+    S[k(w,d,i)] = total<=1 ? true : (()=>{const o=_getRepObj(w,d,i);o.done=total;return o;})();
+  } else if(newDone===0){
+    S[k(w,d,i)] = false;
+  } else {
+    const obj=cur&&cur!==true?{...cur}:_getRepObj(w,d,i);
+    obj.done=newDone;
+    S[k(w,d,i)] = obj;
+  }
   lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate([10]);
   save();
@@ -1993,7 +2196,13 @@ function chWk(dir){
         // но сбрасываем done (новая неделя — новые подходы)
         if (prevVal && prevVal !== true) {
           const carried = { done: 0, total: prevVal.total };
-          if (prevVal.reps != null) carried.reps = prevVal.reps;
+          if (prevVal.reps != null) {
+            carried.reps = Array.isArray(prevVal.reps) ? [...prevVal.reps] : prevVal.reps;
+          }
+          if (prevVal.load != null) {
+            carried.load = Array.isArray(prevVal.load) ? [...prevVal.load] : prevVal.load;
+          }
+          if (prevVal.loadUnit) carried.loadUnit = prevVal.loadUnit;
           // Не перезаписываем если уже есть данные на новой неделе
           if (!newVal) S[k(W, di, ei)] = carried;
         }
@@ -2005,6 +2214,19 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
+function editDayRole(di, el) {
+  const current = S.days[di].role;
+  el.innerHTML = `<input class="d-tab-role-input" value="${esc(current)}" 
+    onblur="finishEditDayRole(${di},this.value)" 
+    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape')render();">`;
+  const input = el.querySelector('input');
+  if (input) { input.focus(); input.select(); }
+}
+function finishEditDayRole(di, val) {
+  const role = val.trim() || 'Роль';
+  updateDayField(di, 'role', role);
+  render();
+}
 
 function updateExField(di,ei,field,val){S.days[di].ex[ei][field]=val;save();}
 function updateDayField(di,field,val){S.days[di][field]=val;save();}
@@ -2012,8 +2234,10 @@ function updateDayField(di,field,val){S.days[di][field]=val;save();}
 function getLoad(w,d,i){
   if(!S.days[d].ex[i].showLoad) return null;
   const v=S[k(w,d,i)];
-  if(v&&v!==true&&v.load!=null) return v.load;
-  return S[`load_d${d}e${i}`]||0;
+  if(v&&v!==true&&v.load!=null) return Array.isArray(v.load)?v.load[0]:v.load;
+  const saved=S[`load_d${d}e${i}`];
+  if(saved!=null) return Array.isArray(saved)?saved[0]:saved;
+  return 0;
 }
 function getLoadUnit(w,d,i){
   const v=S[k(w,d,i)];
@@ -2023,9 +2247,10 @@ function getLoadUnit(w,d,i){
 function setLoad(w,d,i,val){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
-  obj.load=Math.max(0,val);
+  const n=Math.max(0,val);
+  obj.load=Array(obj.total).fill(n);
   S[k(w,d,i)]=obj;
-  S[`load_d${d}e${i}`]=obj.load;
+  S[`load_d${d}e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -2098,6 +2323,29 @@ function moveEx(di,ei,dir){
 
   save();render();
 }
+function reorderEx(di, fromEi, toEi) {
+  if (fromEi === toEi) return;
+  const ex = S.days[di].ex;
+  const [item] = ex.splice(fromEi, 1);
+  ex.splice(toEi, 0, item);
+  function shift(keyFn, from, to) {
+    const saved = S[keyFn(from)];
+    if (from < to) {
+      for (let i = from; i < to; i++) S[keyFn(i)] = S[keyFn(i + 1)];
+    } else {
+      for (let i = from; i > to; i--) S[keyFn(i)] = S[keyFn(i - 1)];
+    }
+    S[keyFn(to)] = saved;
+  }
+  for (let w = 1; w <= 9; w++) {
+    shift(i => k(w, di, i), fromEi, toEi);
+  }
+  shift(i => `reps_d${di}e${i}`, fromEi, toEi);
+  shift(i => `load_d${di}e${i}`, fromEi, toEi);
+  shift(i => `loadUnit_d${di}e${i}`, fromEi, toEi);
+  save();render();
+}
+let _dragSource = null;
 function addEx(di){S.days[di].ex.push({n:'Новое упражнение',d:'3 × 10',t:'aux'});save();render();}
 
 function addExtraDay(){
@@ -2174,7 +2422,8 @@ const EX_GROUPS = [
     'Жим лёжа', 'Жим гантелей лёжа', 'Разведение гантелей лёжа',
   ]},
   { label: 'Плечи', items: [
-    'Жим штанги стоя', 'Махи в стороны (средняя дельта)',
+    'Жим штанги стоя', 'Жим гантелей на плечи', 'Жим Арнольда',
+    'Махи в стороны (средняя дельта)',
     'Задняя дельта (махи в наклоне)', 'Выкруты с резиной',
   ]},
   { label: 'Руки', items: [
@@ -2218,9 +2467,9 @@ function renderExSuggest(di, ei, currentVal) {
       ${EX_GROUPS.map(g => `
         <div class="ex-suggest-group">${g.label}</div>
         ${g.items.map(item => `
-          <div class="ex-suggest-item"
-               onmousedown="pickSuggest(${di},${ei},'${uid}',${JSON.stringify(item)})"
-               ontouchstart="pickSuggest(${di},${ei},'${uid}',${JSON.stringify(item)})">
+           <div class="ex-suggest-item"
+               onmousedown="pickSuggest(${di},${ei},'${uid}','${esc(item)}')"
+               ontouchstart="pickSuggest(${di},${ei},'${uid}','${esc(item)}')">
             ${esc(item)}
           </div>`).join('')}
       `).join('')}
@@ -2273,7 +2522,7 @@ function pickSuggest(di, ei, uid, val) {
 
 function renderExItem(e,di,ei){
   if(editMode){
-    return `<div class="ex-item editing">
+    return `<div class="ex-item editing" draggable="true" data-di="${di}" data-ei="${ei}">
       <div class="edit-fields">
         ${renderExSuggest(di, ei, e.n)}
         <input class="edit-field detail-field" value="${esc(e.d)}" oninput="updateExField(${di},${ei},'d',this.value)" placeholder="Детали">
@@ -2298,8 +2547,7 @@ function renderExItem(e,di,ei){
         </div>
       </div>
       <div class="edit-actions">
-        <button class="ea-btn up" onclick="moveEx(${di},${ei},-1)">↑</button>
-        <button class="ea-btn dn" onclick="moveEx(${di},${ei},1)">↓</button>
+        <span class="drag-handle" title="Перетащить">⠿</span>
         <button class="ea-btn" onclick="deleteEx(${di},${ei})">✕</button>
       </div>
     </div>`;
@@ -2320,42 +2568,70 @@ function renderExItem(e,di,ei){
   // showSets: показываем если есть подходы в плане И не скрыто, ИЛИ если явно включено чекбоксом
   const showSets = e.showSets === true ? true : (!e.hideSets && total>1);
   const showRepsBlock = e.showReps === true ? true : (!e.hideReps && reps>0);
-  const setsHTML = showSets || showRepsBlock
-    ? `<div class="sets-row" onclick="event.stopPropagation()">
-        ${showSets ? `<div class="sets-pill">
-          ${Array.from({length:sets?sets.total:total},(_,s)=>`
-            <div class="set-dot ${sets&&s<sets.done?(sets.warmup&&sets.warmup.includes(s)?'done warmup':'done'):''}"
-              onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
-              data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>`).join('')}
-          ${(sets?sets.total:total)>1 ? `<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>` : ''}
-          <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
-        </div>` : ''}
-        ${showRepsBlock?`<div class="reps-pill">
-          <button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeRep(${W},${di},${ei})" title="Меньше повторений">−</button>
-          <input class="reps-input" type="number" min="1" max="999"
-            value="${reps}"
-            onclick="event.stopPropagation()"
-            onchange="event.stopPropagation();setRep(${W},${di},${ei},+this.value)"
-            oninput="event.stopPropagation()"
-          >
-          <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>
-        </div>`:''}
-        ${(()=>{const ld=getLoad(W,di,ei);return ld!=null?`<div class="load-pill" onclick="event.stopPropagation()">
-          <input class="reps-input" type="number" min="0" step="0.5"
-            value="${ld}"
-            onclick="event.stopPropagation()"
-            onchange="event.stopPropagation();setLoad(${W},${di},${ei},+this.value)"
-            oninput="event.stopPropagation()"
-            style="width:48px;"
-          >
-          <select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
-            <option value="кг"  ${getLoadUnit(W,di,ei)==='кг' ?'selected':''}>кг</option>
+  const showLoadFlag = e.showLoad === true;
+  const setCount = sets ? sets.total : total;
+  // per-set rows (when sets shown and at least reps or load active)
+  if (showSets && (showRepsBlock || showLoadFlag)) {
+    var setsHTML = `<div class="set-rows" onclick="event.stopPropagation()">
+      ${Array.from({length:setCount},(_,s)=>{
+        const done = sets && s<sets.done;
+        const warmup = done && sets.warmup && sets.warmup.includes(s);
+        const isLast = s === setCount-1;
+        const rv = getSetRep(W,di,ei,s);
+        const lv = showLoadFlag ? getSetLoad(W,di,ei,s) : null;
+        return `<div class="set-row${done?' done':''}">
+          <div class="set-dot ${done?(warmup?'done warmup':'done'):''}"
+            onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
+            data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>
+          ${showRepsBlock?`<button class="set-step-btn" onclick="event.stopPropagation();decSetRep(${W},${di},${ei},${s})">−</button>
+            <input class="set-reps" type="number" min="1" max="999" value="${rv}"
+              onclick="event.stopPropagation()"
+              onchange="event.stopPropagation();setSetRep(${W},${di},${ei},${s},+this.value)">
+            <button class="set-step-btn" onclick="event.stopPropagation();incSetRep(${W},${di},${ei},${s})">+</button>`:''}
+          ${showLoadFlag?`<button class="set-step-btn" onclick="event.stopPropagation();decSetLoad(${W},${di},${ei},${s})">−</button>
+            <input class="set-load" type="number" min="0" step="0.5" value="${lv}"
+              onclick="event.stopPropagation()"
+              onchange="event.stopPropagation();setSetLoad(${W},${di},${ei},${s},+this.value)">
+            <button class="set-step-btn" onclick="event.stopPropagation();incSetLoad(${W},${di},${ei},${s})">+</button>`:''}
+          ${showLoadFlag?`<select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
+            <option value="кг" ${getLoadUnit(W,di,ei)==='кг'?'selected':''}>кг</option>
             <option value="сек" ${getLoadUnit(W,di,ei)==='сек'?'selected':''}>сек</option>
-            <option value="см"  ${getLoadUnit(W,di,ei)==='см' ?'selected':''}>см</option>
-          </select>
-        </div>`:'';})()}
-      </div>`
-    : '';
+            <option value="см" ${getLoadUnit(W,di,ei)==='см'?'selected':''}>см</option>
+          </select>`:''}
+          ${isLast&&setCount>1?`<button class="set-step-btn set-step-rem" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">✕</button>`:''}
+        </div>`;
+      }).join('')}
+      <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+    </div>`;
+  } else {
+    var setsHTML = showSets||showRepsBlock
+      ? `<div class="sets-row" onclick="event.stopPropagation()">
+          ${showSets?`<div class="sets-pill">
+            ${Array.from({length:setCount},(_,s)=>`
+              <div class="set-dot ${sets&&s<sets.done?(sets.warmup&&sets.warmup.includes(s)?'done warmup':'done'):''}"
+                onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
+                data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>`).join('')}
+            ${setCount>1?`<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
+            <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+          </div>`:''}
+          ${showRepsBlock?`<div class="reps-pill">
+            <input class="reps-input" type="number" min="1" max="999"
+              value="${reps}" onclick="event.stopPropagation()"
+              onchange="event.stopPropagation();setRep(${W},${di},${ei},+this.value)">
+          </div>`:''}
+          ${showLoadFlag?`<div class="load-pill" onclick="event.stopPropagation()">
+            <input class="reps-input" type="number" min="0" step="0.5" value="${getLoad(W,di,ei)||0}"
+              onclick="event.stopPropagation()"
+              onchange="event.stopPropagation();setLoad(${W},${di},${ei},+this.value)">
+            <select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
+              <option value="кг" ${getLoadUnit(W,di,ei)==='кг'?'selected':''}>кг</option>
+              <option value="сек" ${getLoadUnit(W,di,ei)==='сек'?'selected':''}>сек</option>
+              <option value="см" ${getLoadUnit(W,di,ei)==='см'?'selected':''}>см</option>
+            </select>
+          </div>`:''}
+        </div>`
+      : '';
+  }
   return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
     <div class="chk-wrap">
       <span class="ex-num">${ei+1}</span>
@@ -2392,13 +2668,13 @@ function render(){
         <select class="d-tab-day-select" onchange="updateDayField(${i},'day',this.value);render()">
           ${DAYS_OF_WEEK.map(dw=>`<option${d.day===dw?' selected':''}>${dw}</option>`).join('')}
         </select>
-        <input class="d-tab-role-input" value="${esc(d.role)}" placeholder="Роль"
-          oninput="updateDayField(${i},'role',this.value)">
+    <div class="d-tab-role-wrap"><input class="d-tab-role-input" value="${esc(d.role)}" placeholder="Роль"
+      oninput="updateDayField(${i},'role',this.value)"></div>
       </div>`;
     }
     return `<div class="d-tab ${act?d.cls:''} ${full&&!act?'was-done':''}" onclick="selDay(${i})">
       <div class="d-tab-day">${d.day}${d.extra?'<span style="font-size:10px;opacity:.5"> ★</span>':''}</div>
-      <div class="d-tab-role">${d.role}</div>
+      <div class="d-tab-role" onclick="event.stopPropagation();editDayRole(${i},this)">${esc(d.role)}</div>
     </div>`;
   }).join('') + `<div class="d-tab-add" onclick="addExtraDay()" title="Добавить день">+</div>`;
 
@@ -2920,6 +3196,16 @@ const EX_DB = {
     tips: ['Не прогибай поясницу — напряги пресс', 'В верхней точке уши между руками', 'Локти чуть впереди грифа в начале', 'Ягодицы напряжены на протяжении всего движения'],
     alts: ['Жим гантелей лёжа', 'Махи в стороны (средняя дельта)', 'Шраги', 'Задняя дельта (махи в наклоне)']
   },
+  'Жим гантелей на плечи': {
+    how: 'Сядь на скамью с опорой спины 75–90°. Гантели в руках на уровне плеч ладонями вперёд. Выжми гантели вертикально вверх до полного выпрямления рук, слегка сводя их в верхней точке. Медленно опусти обратно до уровня плеч или чуть ниже.',
+    tips: ['Не выгибай поясницу — прижми спину к скамье', 'Локти под гантелями, а не разведены в стороны', 'Опускание медленнее подъёма', 'Вдох вниз, выдох на усилии'],
+    alts: ['Жим штанги стоя', 'Жим Арнольда', 'Махи в стороны (средняя дельта)', 'Жим гантелей лёжа']
+  },
+  'Жим Арнольда': {
+    how: 'Сядь на скамью, гантели перед собой на уровне верхней части груди, ладони повёрнуты к себе (супинированы). Начинай жим вверх, одновременно разворачивая ладони наружу. В верхней точке ладони смотрят вперёд, руки полностью выпрямлены. Обратным движением верни гантели в исходное положение с поворотом ладоней к себе.',
+    tips: ['Поворот кистей начинается сразу с движением вверх', 'Не останавливайся в нижней точке — плавный старт', 'Локти не уходят назад за корпус', 'Упражнение нагружает все три пучка дельты эффективнее классического жима'],
+    alts: ['Жим гантелей на плечи', 'Жим штанги стоя', 'Махи в стороны (средняя дельта)', 'Разведение гантелей лёжа']
+  },
   'Тяга штанги в наклоне': {
     how: 'Наклонись вперёд до ~45°, спина прямая, колени слегка согнуты. Возьми штангу прямым хватом. Тяни к поясу, ведя локти вдоль тела и назад. Лопатки сводятся в конечной точке.',
     tips: ['Не дёргай корпусом', 'Поясница нейтральная весь подход', 'Полное выпрямление рук внизу', 'Хват может быть прямым или обратным'],
@@ -3145,6 +3431,45 @@ function closeHelp() {
   document.addEventListener('click',      handleAlt, { capture: true });
 })();
 
+// ── Drag to reorder упражнений ──
+(function(){
+  function onDragStart(e) {
+    const item = e.target.closest('.ex-item.editing');
+    if (!item) return;
+    _dragSource = { di: +item.dataset.di, ei: +item.dataset.ei };
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', '');
+    item.classList.add('dragging');
+  }
+  function onDragEnd(e) {
+    const item = e.target.closest('.ex-item.editing');
+    if (item) item.classList.remove('dragging');
+    document.querySelectorAll('.ex-item.editing').forEach(el => el.classList.remove('drag-over'));
+    _dragSource = null;
+  }
+  function onDragOver(e) {
+    const target = e.target.closest('.ex-item.editing');
+    if (!target || !_dragSource || target.dataset.di !== String(_dragSource.di)) return;
+    e.preventDefault();
+    document.querySelectorAll('.ex-item.editing').forEach(el => el.classList.remove('drag-over'));
+    target.classList.add('drag-over');
+  }
+  function onDrop(e) {
+    e.preventDefault();
+    const target = e.target.closest('.ex-item.editing');
+    if (!target || !_dragSource || target.dataset.di !== String(_dragSource.di)) return;
+    const toEi = +target.dataset.ei;
+    if (toEi !== _dragSource.ei) {
+      reorderEx(_dragSource.di, _dragSource.ei, toEi);
+    }
+    onDragEnd(e);
+  }
+  document.addEventListener('dragstart', onDragStart);
+  document.addEventListener('dragend',   onDragEnd);
+  document.addEventListener('dragover',  onDragOver);
+  document.addEventListener('drop',      onDrop);
+})();
+
 // ══════════════════════════════════════
 // INLINE TIMER
 // ══════════════════════════════════════
@@ -3249,6 +3574,7 @@ async function iStart(){
   await askNotifPermission();
   if(iLeft<=0){ iLeft=iTotal; iBlock.classList.remove('finished'); }
   iRunning=true;
+  playStartBeep();
   iEndsAt = Date.now() + iLeft * 1000;
   iPPBtn.classList.add('running');
   document.getElementById('ipp-icon-play').style.display='none';
@@ -3269,6 +3595,18 @@ async function iStart(){
   }, 500);
 }
 
+function playStartBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 440; o.type = 'sine';
+    g.gain.setValueAtTime(0, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.01);
+    g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.15);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.2);
+  } catch(e) {}
+}
 function playBeep(freqs) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -3374,8 +3712,11 @@ function recordSession(w,d){
     if (!v) return null;
     const total = v===true ? parseSets(e.d) : v.total;
     const done  = v===true ? total : v.done;
-    const reps  = v!==true && v.reps!=null ? v.reps : parseReps(e.d);
-    return { name: e.n, done, total, reps };
+    let reps  = v!==true && v.reps!=null ? v.reps : parseReps(e.d);
+    let load = v!==true && v.load!=null ? v.load : null;
+    const repsArr = Array.isArray(reps) ? [...reps] : Array(total).fill(reps);
+    const loadArr = Array.isArray(load) ? [...load] : (load!=null ? Array(total).fill(load) : null);
+    return { name: e.n, done, total, reps: repsArr, load: loadArr };
   }).filter(Boolean);
 
   // Длительность тренировки из секундомера
@@ -3901,10 +4242,15 @@ function flashScreen() {
   flash.style.background = isDark
     ? 'radial-gradient(ellipse at center, rgba(42,170,114,0.9) 0%, rgba(42,170,114,0.5) 60%, transparent 100%)'
     : 'rgba(42,170,114,0.6)';
+  flash.style.display = 'block';
   flash.classList.remove('flash');
   void flash.offsetWidth;
   flash.classList.add('flash');
-  setTimeout(() => flash.classList.remove('flash'), 1700);
+  setTimeout(() => {
+    flash.classList.remove('flash');
+    flash.style.display = '';
+    flash.style.background = '';
+  }, 1700);
 }
 
 function beep() {
@@ -4089,16 +4435,10 @@ const MOTIVS = [
 function renderMotiv(){
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
   const m = MOTIVS[dayOfYear % MOTIVS.length];
-  // Старый блок (внизу страницы)
-  const eEl = document.getElementById('motiv-emoji');
-  const tEl = document.getElementById('motiv-text');
+  const eEl = document.getElementById('hero-motiv-emoji');
+  const tEl = document.getElementById('hero-motiv-text');
   if(eEl) eEl.textContent = m.e;
   if(tEl) tEl.textContent = m.t;
-  // Новый блок (под заголовком героя)
-  const heEl = document.getElementById('hero-motiv-emoji');
-  const htEl = document.getElementById('hero-motiv-text');
-  if(heEl) heEl.textContent = m.e;
-  if(htEl) htEl.textContent = m.t;
 }
 
 renderMotiv();
