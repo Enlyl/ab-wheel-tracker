@@ -473,6 +473,25 @@ body {
 }
 .add-ex-btn:hover { background: var(--goldbg); }
 .add-ex-btn.visible { display: block; }
+.catalog-add-btn {
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--gold); background: transparent;
+  color: var(--gold); cursor: pointer; font-size: 12px; font-family: inherit;
+  transition: all .15s; white-space: nowrap; flex-shrink: 0;
+}
+.catalog-add-btn:hover { background: var(--gold); color: #fff; }
+.catalog-edit-btn { border-color: var(--text3); color: var(--text3); }
+.catalog-edit-btn:hover { background: var(--surface3); color: var(--text); border-color: var(--text); }
+.cat-group-title { color: var(--gold) !important; }
+.catalog-ex-row { display:flex; align-items:center; padding:6px 0; border-bottom:1px solid var(--border2); }
+.catalog-ex-row.exists { opacity:.6; }
+.catalog-ex-view { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.catalog-ex-name { font-size:13px; color:var(--text2); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.catalog-ex-actions { flex-shrink:0; }
+.catalog-edit-form { display:flex; flex-direction:column; gap:8px; padding:8px 0; width:100%; }
+.catalog-edit-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; background:var(--surface2); color:var(--text); outline:none; }
+.catalog-edit-input:focus { border-color:var(--gold); }
+.catalog-edit-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.catalog-edit-select { border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:12px; background:var(--surface2); color:var(--text); outline:none; cursor:pointer; }
 
 .ex-head-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 .ex-head-title-edit {
@@ -1601,6 +1620,17 @@ body {
   <div class="help-body" id="history-body"></div>
 </div>
 
+<!-- CATALOG SHEET -->
+<div class="help-overlay" id="catalog-overlay" onclick="closeCatalog()"></div>
+<div class="help-sheet" id="catalog-sheet">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div><div class="help-name">Каталог упражнений</div></div>
+    <button class="help-close" onclick="closeCatalog()">✕</button>
+  </div>
+  <div class="help-body" id="catalog-body"></div>
+</div>
+
 <div class="help-overlay" id="settings-overlay" onclick="closeAppSettings()"></div>
 <div class="help-sheet" id="settings-sheet">
   <div class="help-handle"></div>
@@ -1649,6 +1679,7 @@ body {
     <div class="topbar-logo" id="app-topbar-title">Ab Wheel Program</div>
     <div class="topbar-right">
       <div class="topbar-week" id="topbar-wk">Неделя 1</div>
+      <button class="theme-toggle" onclick="openCatalog()" title="Каталог упражнений">☰</button>
       <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения">⚙︎</button>
       <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Сменить тему">☽</button>
     </div>
@@ -1926,7 +1957,12 @@ function _getRepObj(w,d,i){
   while(obj.reps.length<obj.total) obj.reps.push(baseRepsVal);
   while(obj.reps.length>obj.total) obj.reps.pop();
   // load as array
-  if(obj.load!=null && !Array.isArray(obj.load)){obj.load=Array(obj.total).fill(obj.load);}
+  if(obj.load==null){
+    const saved=S[`load_d${d}e${i}`];
+    if(saved!=null) obj.load=Array.isArray(saved)?[...saved]:Array(obj.total).fill(saved);
+  } else if(!Array.isArray(obj.load)){
+    obj.load=Array(obj.total).fill(obj.load);
+  }
   if(Array.isArray(obj.load)){
     while(obj.load.length<obj.total) obj.load.push(0);
     while(obj.load.length>obj.total) obj.load.pop();
@@ -1950,7 +1986,7 @@ function setSetRep(w,d,i,s,val){
   S[k(w,d,i)]=obj;
   S[`reps_d${d}e${i}`]=[...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]);
-  save();render();
+  save();
 }
 function getSetLoad(w,d,i,s){
   if(!S.days[d].ex[i].showLoad) return null;
@@ -1971,29 +2007,31 @@ function setSetLoad(w,d,i,s,val){
   S[k(w,d,i)]=obj;
   S[`load_d${d}e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]);
-  save();render();
+  save();
 }
-function incSetRep(w,d,i,s){
+function incSetRep(btn,w,d,i,s){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
   const cur=obj.reps[s]||0;
   obj.reps[s]=cur>=50?1:cur+1;
   S[k(w,d,i)]=obj;
   S[`reps_d${d}e${i}`]=[...obj.reps];
-  if(navigator.vibrate) navigator.vibrate([6]);
-  save();render();
+  if(navigator.vibrate) navigator.vibrate([6]); save();
+  const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
+  if(inp&&inp.tagName==='INPUT') inp.value=obj.reps[s];
 }
-function decSetRep(w,d,i,s){
+function decSetRep(btn,w,d,i,s){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
   const cur=obj.reps[s]||0;
   obj.reps[s]=cur<=1?50:cur-1;
   S[k(w,d,i)]=obj;
   S[`reps_d${d}e${i}`]=[...obj.reps];
-  if(navigator.vibrate) navigator.vibrate([6]);
-  save();render();
+  if(navigator.vibrate) navigator.vibrate([6]); save();
+  const inp=btn&&(btn.nextElementSibling||btn.previousElementSibling);
+  if(inp&&inp.tagName==='INPUT') inp.value=obj.reps[s];
 }
-function incSetLoad(w,d,i,s){
+function incSetLoad(btn,w,d,i,s){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
   obj.load=obj.load||Array(obj.total).fill(0);
@@ -2002,10 +2040,11 @@ function incSetLoad(w,d,i,s){
   obj.load[s]=Math.round((cur+0.5)*2)/2;
   S[k(w,d,i)]=obj;
   S[`load_d${d}e${i}`]=[...obj.load];
-  if(navigator.vibrate) navigator.vibrate([6]);
-  save();render();
+  if(navigator.vibrate) navigator.vibrate([6]); save();
+  const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
+  if(inp&&inp.tagName==='INPUT') inp.value=obj.load[s];
 }
-function decSetLoad(w,d,i,s){
+function decSetLoad(btn,w,d,i,s){
   if(editMode) return;
   const obj=_getRepObj(w,d,i);
   obj.load=obj.load||Array(obj.total).fill(0);
@@ -2014,8 +2053,9 @@ function decSetLoad(w,d,i,s){
   obj.load[s]=Math.max(0,Math.round((cur-0.5)*2)/2);
   S[k(w,d,i)]=obj;
   S[`load_d${d}e${i}`]=[...obj.load];
-  if(navigator.vibrate) navigator.vibrate([6]);
-  save();render();
+  if(navigator.vibrate) navigator.vibrate([6]); save();
+  const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
+  if(inp&&inp.tagName==='INPUT') inp.value=obj.load[s];
 }
 function setRep(w,d,i,val){
   if(editMode) return;
@@ -2082,6 +2122,15 @@ function tog(w,d,i){
   // Показываем плашку если что-то отмечено (не снято)
   lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate(S[k(w,d,i)]?[18]:[12,40,12]);
+  const finalObj = S[k(w,d,i)];
+  if(finalObj && finalObj !== true) {
+    if(finalObj.reps != null) S[`reps_d${d}e${i}`] = [...finalObj.reps];
+    if(finalObj.load != null) S[`load_d${d}e${i}`] = [...finalObj.load];
+  }
+  // Авто-замер времени тренировки: начало — первый подход первого упражнения
+  if (i === 0 && finalObj && !S[`ts_start_w${w}_d${d}`]) {
+    S[`ts_start_w${w}_d${d}`] = Date.now();
+  }
   save();
   const nowDone=dayDone(w,d)===S.days[d].ex.length;
   render();
@@ -2173,6 +2222,15 @@ function togSet(w,d,i,setIdx){
   }
   lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate([10]);
+  const finalObj = S[k(w,d,i)];
+  if(finalObj && finalObj !== true) {
+    if(finalObj.reps != null) S[`reps_d${d}e${i}`] = [...finalObj.reps];
+    if(finalObj.load != null) S[`load_d${d}e${i}`] = [...finalObj.load];
+  }
+  // Авто-замер времени тренировки: начало — первый подход первого упражнения
+  if (i === 0 && setIdx === 0 && newDone > doneBefore && !S[`ts_start_w${w}_d${d}`]) {
+    S[`ts_start_w${w}_d${d}`] = Date.now();
+  }
   save();
   const nowDone=dayDone(w,d)===S.days[d].ex.length;
   render();
@@ -2201,6 +2259,10 @@ function chWk(dir){
           }
           if (prevVal.load != null) {
             carried.load = Array.isArray(prevVal.load) ? [...prevVal.load] : prevVal.load;
+          }
+          if (carried.load == null) {
+            const globalLoad = S[`load_d${di}e${ei}`];
+            if (globalLoad != null) carried.load = Array.isArray(globalLoad) ? [...globalLoad] : globalLoad;
           }
           if (prevVal.loadUnit) carried.loadUnit = prevVal.loadUnit;
           // Не перезаписываем если уже есть данные на новой неделе
@@ -2346,7 +2408,15 @@ function reorderEx(di, fromEi, toEi) {
   save();render();
 }
 let _dragSource = null;
-function addEx(di){S.days[di].ex.push({n:'Новое упражнение',d:'3 × 10',t:'aux'});save();render();}
+function addEx(di){
+  S.days[di].ex.push({n:'Новое упражнение',d:'',t:'key'});
+  save(); render();
+  const ei = S.days[di].ex.length - 1;
+  setTimeout(() => {
+    const inp = document.getElementById(`exinput_${di}_${ei}`);
+    if(inp) { inp.focus(); inp.select(); }
+  }, 100);
+}
 
 function addExtraDay(){
   const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
@@ -2583,25 +2653,25 @@ function renderExItem(e,di,ei){
           <div class="set-dot ${done?(warmup?'done warmup':'done'):''}"
             onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
             data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>
-          ${showRepsBlock?`<button class="set-step-btn" onclick="event.stopPropagation();decSetRep(${W},${di},${ei},${s})">−</button>
+          ${showRepsBlock?`<button type="button" class="set-step-btn" onclick="event.stopPropagation();decSetRep(this,${W},${di},${ei},${s})">−</button>
             <input class="set-reps" type="number" min="1" max="999" value="${rv}"
               onclick="event.stopPropagation()"
               onchange="event.stopPropagation();setSetRep(${W},${di},${ei},${s},+this.value)">
-            <button class="set-step-btn" onclick="event.stopPropagation();incSetRep(${W},${di},${ei},${s})">+</button>`:''}
-          ${showLoadFlag?`<button class="set-step-btn" onclick="event.stopPropagation();decSetLoad(${W},${di},${ei},${s})">−</button>
+            <button type="button" class="set-step-btn" onclick="event.stopPropagation();incSetRep(this,${W},${di},${ei},${s})">+</button>`:''}
+          ${showLoadFlag?`<button type="button" class="set-step-btn" onclick="event.stopPropagation();decSetLoad(this,${W},${di},${ei},${s})">−</button>
             <input class="set-load" type="number" min="0" step="0.5" value="${lv}"
               onclick="event.stopPropagation()"
               onchange="event.stopPropagation();setSetLoad(${W},${di},${ei},${s},+this.value)">
-            <button class="set-step-btn" onclick="event.stopPropagation();incSetLoad(${W},${di},${ei},${s})">+</button>`:''}
+            <button type="button" class="set-step-btn" onclick="event.stopPropagation();incSetLoad(this,${W},${di},${ei},${s})">+</button>`:''}
           ${showLoadFlag?`<select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
             <option value="кг" ${getLoadUnit(W,di,ei)==='кг'?'selected':''}>кг</option>
             <option value="сек" ${getLoadUnit(W,di,ei)==='сек'?'selected':''}>сек</option>
             <option value="см" ${getLoadUnit(W,di,ei)==='см'?'selected':''}>см</option>
           </select>`:''}
-          ${isLast&&setCount>1?`<button class="set-step-btn set-step-rem" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">✕</button>`:''}
+          ${isLast&&setCount>1?`<button type="button" class="set-step-btn set-step-rem" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">✕</button>`:''}
         </div>`;
       }).join('')}
-      <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+      <button type="button" class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
     </div>`;
   } else {
     var setsHTML = showSets||showRepsBlock
@@ -2611,8 +2681,8 @@ function renderExItem(e,di,ei){
               <div class="set-dot ${sets&&s<sets.done?(sets.warmup&&sets.warmup.includes(s)?'done warmup':'done'):''}"
                 onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
                 data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>`).join('')}
-            ${setCount>1?`<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
-            <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+            ${setCount>1?`<button type="button" class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
+            <button type="button" class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
           </div>`:''}
           ${showRepsBlock?`<div class="reps-pill">
             <input class="reps-input" type="number" min="1" max="999"
@@ -3351,7 +3421,7 @@ function closeHelp() {
 
 // Закрытие свайпом вниз для всех панелей
 (function(){
-  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet'];
+  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet', 'catalog-sheet'];
   sheets.forEach(id => {
     const sheet = document.getElementById(id);
     if (!sheet) return;
@@ -3587,7 +3657,7 @@ async function iStart(){
     iLeft = left; iUpdateRing();
     metroTick(left);
     if(left<=0){
-      clearInterval(iInterval); iRunning=false;
+      clearInterval(iInterval);
       _metroLastSec = -1;
       dropWakeLock();
       if(!sent) onInlineFinishedUI();
@@ -3641,6 +3711,13 @@ function onInlineFinishedUI(){
   iUpdateRing();
   playBeep();
   flashScreen();
+  // Через 1.8 сек (после flash-анимации) автоматически сбрасываем для повторного запуска
+  setTimeout(() => {
+    if (iRunning) return; // не сбрасывать если уже перезапустили
+    iLeft=iTotal;
+    iBlock.classList.remove('finished');
+    iUpdateRing();
+  }, 1800);
 }
 
 function iStop(){
@@ -3719,9 +3796,18 @@ function recordSession(w,d){
     return { name: e.n, done, total, reps: repsArr, load: loadArr };
   }).filter(Boolean);
 
-  // Длительность тренировки из секундомера
-  const swElapsedNow = swRunning ? swElapsed + (Date.now() - swStarted) : swElapsed;
-  const duration = swElapsedNow > 5000 ? swElapsedNow : null; // игнорируем < 5 сек
+  // Авто-замер длительности: от первого подхода первого упражнения до последнего
+  let autoDuration = null;
+  if (S[`ts_start_w${w}_d${d}`]) {
+    if (S[`ts_end_w${w}_d${d}`] == null) {
+      S[`ts_end_w${w}_d${d}`] = Date.now();
+    }
+    const start = S[`ts_start_w${w}_d${d}`];
+    const end = S[`ts_end_w${w}_d${d}`];
+    // +5 минут на разминку/перерывы, округление до минут
+    autoDuration = Math.round((end - start + 300000) / 60000) * 60000;
+  }
+  const duration = autoDuration || null;
 
   const now = new Date();
   const isoDate = now.toISOString().slice(0,10); // "2025-05-26"
@@ -3800,8 +3886,162 @@ function closeHistorySheet() {
   document.getElementById('history-sheet').classList.remove('open');
 }
 
+function closeCatalog() {
+  document.getElementById('catalog-overlay').classList.remove('open');
+  document.getElementById('catalog-sheet').classList.remove('open');
+}
+
+function loadCatEdits() {
+  try { return JSON.parse(localStorage.getItem('catEdits')) || {}; } catch { return {}; }
+}
+function saveCatEdits(d) {
+  localStorage.setItem('catEdits', JSON.stringify(d));
+}
+
+function openCatalog() {
+  const overlay = document.getElementById('catalog-overlay');
+  const sheet   = document.getElementById('catalog-sheet');
+  const body    = document.getElementById('catalog-body');
+  const edits = loadCatEdits();
+  body.innerHTML = `
+    <div class="help-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
+        <span style="font-size:13px;color:var(--text2);">Своё упражнение</span>
+        <button class="catalog-add-btn" onclick="catalogShowCreateForm()">+ Создать</button>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>` +
+    EX_GROUPS.map(g => `
+    <div class="help-section">
+      <div class="help-section-title cat-group-title">${g.label}</div>
+      ${g.items.map(name => {
+        const ed = edits[name];
+        const displayName = ed ? ed.n : name;
+        const ei = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
+        const ri = `cat_${g.label}_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
+        return `<div class="catalog-ex-row${ei>=0?' exists':''}" data-name="${esc(name)}" data-rid="${ri}">
+          <div class="catalog-ex-view">
+            <span class="catalog-ex-name">${esc(displayName)}</span>
+            <div class="catalog-ex-actions">
+              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+}
+
+function catalogShowCreateForm() {
+  const body = document.getElementById('catalog-body');
+  body.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <button class="catalog-add-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">← Назад</button>
+    </div>
+    <div class="help-section">
+      <div class="help-section-title cat-group-title">Новое упражнение</div>
+      <div class="catalog-edit-form">
+        <input class="catalog-edit-input" id="cat_new_name" value="" placeholder="Название упражнения">
+        <input class="catalog-edit-input" id="cat_new_detail" value="" placeholder="Детали: 3 × 10, 30 с, ...">
+        <div class="catalog-edit-actions">
+          <select class="catalog-edit-select" id="cat_new_group">
+            ${EX_GROUPS.map(g => `<option value="${esc(g.label)}">${esc(g.label)}</option>`).join('')}
+            <option value="other">Другое</option>
+          </select>
+          <select class="catalog-edit-select" id="cat_new_tag">
+            <option value="key">Ключ</option>
+            <option value="aux">База</option>
+            <option value="mob">Мобил</option>
+          </select>
+        </div>
+        <div class="catalog-edit-actions" style="margin-top:4px;">
+          <button class="catalog-add-btn" onclick="catalogSaveNew()" style="border-color:var(--green);color:var(--green);">Сохранить</button>
+          <button class="catalog-add-btn catalog-edit-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">Отмена</button>
+        </div>
+      </div>
+    </div>`;
+  setTimeout(() => document.getElementById('cat_new_name')?.focus(), 50);
+}
+
+function catalogSaveNew() {
+  const di = D;
+  const n = (document.getElementById('cat_new_name')?.value||'').trim() || 'Новое упражнение';
+  const d = (document.getElementById('cat_new_detail')?.value||'').trim();
+  const g = document.getElementById('cat_new_group')?.value || 'other';
+  const t = document.getElementById('cat_new_tag')?.value || 'key';
+  const ei = S.days[di].ex.length;
+  S.days[di].ex.push({ n, d, t, g });
+  save();
+  closeCatalog();
+  if (!editMode) editMode = true;
+  render();
+  setTimeout(() => {
+    const inp = document.getElementById(`exinput_${di}_${ei}`);
+    if(inp) { inp.focus(); inp.select(); inp.closest('.ex-item')?.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }, 150);
+}
+
+function catalogEditRow(btn) {
+  const row = btn.closest('.catalog-ex-row');
+  const name = row.dataset.name;
+  const ri = row.dataset.rid;
+  const edits = loadCatEdits();
+  const ed = edits[name];
+  const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
+  const detail = ed ? ed.d : (ex ? ex.d||'' : '');
+  const tag = ed ? ed.t : (ex ? ex.t||'key' : 'key');
+  const dispName = ed ? ed.n : (ex ? ex.n : name);
+  const inDay = !!ex;
+  const di = D;
+  const ei = inDay ? S.days[di].ex.indexOf(ex) : -1;
+  row.innerHTML = `
+    <div class="catalog-edit-form">
+      <input class="catalog-edit-input" id="${ri}_name" value="${esc(dispName)}" placeholder="Название упражнения">
+      <input class="catalog-edit-input" id="${ri}_detail" value="${esc(detail)}" placeholder="Описание / детали">
+      <div class="catalog-edit-actions">
+        <select class="catalog-edit-select" id="${ri}_tag">
+          <option value="key"${tag==='key'?' selected':''}>Ключ</option>
+          <option value="aux"${tag==='aux'?' selected':''}>База</option>
+          <option value="mob"${tag==='mob'?' selected':''}>Мобил</option>
+        </select>
+        <button class="catalog-add-btn" onclick="catalogSaveEdit(this)" style="border-color:var(--green);color:var(--green);">Сохранить</button>
+        <button class="catalog-add-btn catalog-edit-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">Отмена</button>
+        ${inDay ? `<button class="catalog-add-btn" onclick="catalogDeleteEx(this,${di},${ei})" style="border-color:#e05a3a;color:#e05a3a;">Удалить</button>` : ''}
+      </div>
+    </div>`;
+  setTimeout(() => document.getElementById(`${ri}_name`)?.focus(), 50);
+}
+
+function catalogSaveEdit(btn) {
+  const row = btn.closest('.catalog-ex-row');
+  const name = row.dataset.name;
+  const ri = row.dataset.rid;
+  const edits = loadCatEdits();
+  const n = (document.getElementById(`${ri}_name`)?.value||'').trim() || name;
+  const d = (document.getElementById(`${ri}_detail`)?.value||'').trim();
+  const t = document.getElementById(`${ri}_tag`)?.value || 'key';
+  const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
+  if (ex) {
+    ex.n = n; ex.d = d; ex.t = t;
+    save();
+  } else {
+    edits[name] = { n, d, t };
+    saveCatEdits(edits);
+  }
+  openCatalog();
+}
+
+function catalogDeleteEx(btn, di, ei) {
+  if (!confirm(`Удалить "${S.days[di].ex[ei]?.n}"?`)) return;
+  deleteEx(di, ei);
+  openCatalog();
+}
+
 function openHistory(){
-  const h = loadHistory();
+  let h = loadHistory();
+  h.sort((a,b) => ((b.isoDate||'')>(a.isoDate||'')?1:(b.isoDate||'')<(a.isoDate||'')?-1:0)) || ((b.time||'')>(a.time||'')?1:(b.time||'')<(a.time||'')?-1:0);
   const overlay = document.getElementById('history-overlay');
   const sheet   = document.getElementById('history-sheet');
   const body = document.getElementById('history-body');
@@ -3893,7 +4133,7 @@ function openHistory(){
               </div>
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span style="font-size:12px;color:var(--text2);">${r.dayTitle}</span>
-                ${dur?`<span style="font-size:11px;color:var(--text3);">⏱ ${dur}</span>`:''}
+                ${dur?`<span id="hist-dur-${globalIdx}" style="font-size:11px;color:var(--text3);">⏱ ${dur}</span>`:`<span id="hist-dur-${globalIdx}" style="display:none;font-size:11px;color:var(--text3);"></span>`}
                 <span style="font-size:11px;font-weight:600;color:${r.done>=r.total?'var(--green)':'var(--gold)'};">${r.done}/${r.total} упр.</span>
               </div>
             </div>
@@ -3902,12 +4142,19 @@ function openHistory(){
           <div id="hist-body-${globalIdx}" style="display:none;padding-bottom:10px;">
             <div style="display:flex;flex-direction:column;gap:3px;">${exHTML}</div>
             ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
-            <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+              <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Дата:</span>
               <input type="date" value="${r.isoDate||''}"
                 style="flex:1;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
                        font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
                  onchange="histEditDate(${globalIdx}, this.value)">
+            </div>
+            <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Длит.:</span>
+              <input type="number" min="0" value="${r.duration?Math.floor(r.duration/60000):''}" placeholder="мин"
+                style="width:70px;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
+                       font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
+                 onchange="histEditDuration(${globalIdx}, this.value)">
             </div>
           </div>
         </div>`;
@@ -3981,6 +4228,21 @@ function histEditDate(globalIdx, isoDate){
   // Обновляем отображение даты в заголовке без полного перерендера
   const dateEl = document.getElementById(`hist-date-${globalIdx}`);
   if(dateEl) dateEl.textContent = h[globalIdx].date + (h[globalIdx].time ? ` · ${h[globalIdx].time}` : '');
+  if(navigator.vibrate) navigator.vibrate([8]);
+}
+
+function histEditDuration(globalIdx, val){
+  const h = loadHistory();
+  if(!h[globalIdx]) return;
+  const minutes = parseInt(val);
+  h[globalIdx].duration = (!isNaN(minutes) && minutes > 0) ? minutes * 60000 : null;
+  saveHistory(h);
+  const durEl = document.getElementById(`hist-dur-${globalIdx}`);
+  if(durEl){
+    const durText = h[globalIdx].duration ? fmtDuration(h[globalIdx].duration) : null;
+    durEl.textContent = durText ? `⏱ ${durText}` : '';
+    durEl.style.display = durText ? '' : 'none';
+  }
   if(navigator.vibrate) navigator.vibrate([8]);
 }
 
