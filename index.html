@@ -483,17 +483,22 @@ body {
 .catalog-edit-btn:hover { background: var(--surface3); color: var(--text); border-color: var(--text); }
 .cat-group-title { color: var(--gold) !important; }
 .catalog-ex-row { display:flex; align-items:center; padding:6px 0; border-bottom:1px solid var(--border2); }
-.catalog-ex-row.exists { opacity:.6; }
 .catalog-ex-view { display:flex; align-items:center; justify-content:space-between; width:100%; }
 .catalog-ex-name { font-size:13px; color:var(--text2); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .catalog-ex-actions { flex-shrink:0; }
-.catalog-edit-form { display:flex; flex-direction:column; gap:8px; padding:8px 0; width:100%; }
+.catalog-edit-form { display:flex; flex-direction:column; gap:10px; padding:8px 0; width:100%; }
 .catalog-edit-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; background:var(--surface2); color:var(--text); outline:none; }
 .catalog-edit-input:focus { border-color:var(--gold); }
 .catalog-edit-textarea { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; background:var(--surface2); color:var(--text); outline:none; min-height:80px; resize:vertical; font-family:inherit; line-height:1.5; }
 .catalog-edit-textarea:focus { border-color:var(--gold); }
 .catalog-edit-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .catalog-edit-select { border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:12px; background:var(--surface2); color:var(--text); outline:none; cursor:pointer; }
+.catalog-edit-multiselect { height:110px; font-size:12px; cursor:pointer; }
+.catalog-edit-label { font-size:12px; color:var(--text2); font-weight:600; margin-bottom:-4px; }
+.cat-tags-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:4px 0; }
+.cat-tag { display:inline-flex; align-items:center; gap:4px; background:var(--surface3); border:1px solid var(--border); border-radius:12px; padding:3px 8px; font-size:12px; color:var(--text); }
+.cat-tag-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:11px; padding:0; line-height:1; }
+.cat-tag-del:hover { color:#e05a3a; }
 
 .ex-head-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 .ex-head-title-edit {
@@ -2475,7 +2480,7 @@ const tagH=t=>({
   key:'<span class="tag t-key">ключ</span>',
   mob:'<span class="tag t-mob">мобил</span>',
   aux:'<span class="tag t-aux">база</span>',
-}[t]||'<span class="tag t-aux">база</span>');
+}[t]||'<span class="tag t-key">ключ</span>');
 
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -3390,15 +3395,11 @@ function showHelp(name, type, fromName) {
 
   const body = document.getElementById('help-body');
   const howText = ed && ed.how != null ? ed.how : (info ? info.how : null);
+  const tips = ed && ed.tips ? ed.tips : (info ? (info.tips||null) : null);
+  let alts = ed && ed.alts ? [...ed.alts] : (info ? (info.alts ? [...info.alts] : []) : []);
   if (!howText) {
     body.innerHTML = `<p class="help-no-info">Описание для этого упражнения пока не добавлено.</p>`;
   } else {
-    let alts = [];
-    let tips = null;
-    if (info) {
-      if (info.alts) alts = [...info.alts];
-      if (info.tips) tips = info.tips;
-    }
     if (fromName && fromName !== name && !alts.includes(fromName)) {
       alts = [fromName, ...alts];
     }
@@ -3928,31 +3929,68 @@ function openCatalog() {
       </div>
     </div>
     <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>` +
-    EX_GROUPS.map(g => `
+    EX_GROUPS.map(g => {
+      const customInGroup = Object.keys(edits).filter(k => !EX_ALL_FLAT.includes(k) && edits[k].g === g.label);
+      return `
     <div class="help-section">
       <div class="help-section-title cat-group-title">${g.label}</div>
       ${g.items.map(name => {
         const ed = edits[name];
         const displayName = ed ? ed.n : name;
-        const ei = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
+        const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
         const ri = `cat_${g.label}_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
-        return `<div class="catalog-ex-row${ei>=0?' exists':''}" data-name="${esc(name)}" data-rid="${ri}">
+        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}">
           <div class="catalog-ex-view">
             <span class="catalog-ex-name">${esc(displayName)}</span>
             <div class="catalog-ex-actions">
               <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
+              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
             </div>
           </div>
         </div>`;
       }).join('')}
-    </div>
-  `).join('');
+      ${customInGroup.map(name => {
+        const ed = edits[name];
+        const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
+        const ri = `cat_custom_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
+        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}">
+          <div class="catalog-ex-view">
+            <span class="catalog-ex-name">${esc(ed.n||name)}</span>
+            <div class="catalog-ex-actions">
+              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
+              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+    }).join('') +
+  (() => {
+    const otherCustom = Object.keys(edits).filter(k => !EX_ALL_FLAT.includes(k) && (!edits[k].g || edits[k].g === 'other'));
+    if (!otherCustom.length) return '';
+    return `<div class="help-section">
+      <div class="help-section-title cat-group-title" style="color:var(--text2);">Другое</div>
+      ${otherCustom.map(name => {
+        const ed = edits[name];
+        return `<div class="catalog-ex-row" data-name="${esc(name)}" data-rid="cat_other_${name.replace(/[^a-zа-яё0-9]/gi,'_')}">
+          <div class="catalog-ex-view">
+            <span class="catalog-ex-name">${esc(ed.n||name)}</span>
+            <div class="catalog-ex-actions">
+              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
+              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  })();
   overlay.classList.add('open');
   sheet.classList.add('open');
 }
 
 function catalogShowCreateForm() {
   const body = document.getElementById('catalog-body');
+  const ri = 'cat_new';
   body.innerHTML = `
     <div style="margin-bottom:12px;">
       <button class="catalog-add-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">← Назад</button>
@@ -3960,14 +3998,28 @@ function catalogShowCreateForm() {
     <div class="help-section">
       <div class="help-section-title cat-group-title">Новое упражнение</div>
       <div class="catalog-edit-form">
-        <input class="catalog-edit-input" id="cat_new_name" value="" placeholder="Название упражнения">
-        <input class="catalog-edit-input" id="cat_new_detail" value="" placeholder="Детали: 3 × 10, 30 с, ...">
+        <label class="catalog-edit-label">Название</label>
+        <input class="catalog-edit-input" id="${ri}_name" value="" placeholder="Название упражнения">
+        <label class="catalog-edit-label">Техника выполнения</label>
+        <textarea class="catalog-edit-textarea" id="${ri}_how" placeholder="Описание техники"></textarea>
+        <label class="catalog-edit-label">На что обратить внимание</label>
+        <textarea class="catalog-edit-textarea" id="${ri}_tips" placeholder="По одному пункту на строку" style="min-height:60px"></textarea>
+        <label class="catalog-edit-label">Упражнения на тему</label>
+        <div class="cat-tags-wrap" id="${ri}_alts_wrap"></div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <select class="catalog-edit-select" id="${ri}_alts_add" style="flex:1;">
+            <option value="">— Выбрать —</option>
+            ${EX_ALL_FLAT.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
+          </select>
+          <button type="button" class="catalog-add-btn" onclick="catalogAddAlt('${ri}')">+</button>
+        </div>
+        <input type="hidden" id="${ri}_alts_data" value="">
         <div class="catalog-edit-actions">
-          <select class="catalog-edit-select" id="cat_new_group">
+          <select class="catalog-edit-select" id="${ri}_group">
             ${EX_GROUPS.map(g => `<option value="${esc(g.label)}">${esc(g.label)}</option>`).join('')}
             <option value="other">Другое</option>
           </select>
-          <select class="catalog-edit-select" id="cat_new_tag">
+          <select class="catalog-edit-select" id="${ri}_tag">
             <option value="key">Ключ</option>
             <option value="aux">База</option>
             <option value="mob">Мобил</option>
@@ -3979,25 +4031,24 @@ function catalogShowCreateForm() {
         </div>
       </div>
     </div>`;
-  setTimeout(() => document.getElementById('cat_new_name')?.focus(), 50);
+  setTimeout(() => document.getElementById(`${ri}_name`)?.focus(), 50);
 }
 
 function catalogSaveNew() {
   const di = D;
-  const n = (document.getElementById('cat_new_name')?.value||'').trim() || 'Новое упражнение';
-  const d = (document.getElementById('cat_new_detail')?.value||'').trim();
-  const g = document.getElementById('cat_new_group')?.value || 'other';
-  const t = document.getElementById('cat_new_tag')?.value || 'key';
-  const ei = S.days[di].ex.length;
-  S.days[di].ex.push({ n, d, t, g });
-  save();
-  closeCatalog();
-  if (!editMode) editMode = true;
-  render();
-  setTimeout(() => {
-    const inp = document.getElementById(`exinput_${di}_${ei}`);
-    if(inp) { inp.focus(); inp.select(); inp.closest('.ex-item')?.scrollIntoView({behavior:'smooth',block:'center'}); }
-  }, 150);
+  const ri = 'cat_new';
+  const n = (document.getElementById(`${ri}_name`)?.value||'').trim() || 'Новое упражнение';
+  const how = document.getElementById(`${ri}_how`)?.value||'';
+  const g = document.getElementById(`${ri}_group`)?.value || 'other';
+  const t = document.getElementById(`${ri}_tag`)?.value || 'key';
+  const tipsRaw = document.getElementById(`${ri}_tips`)?.value||'';
+  const tips = tipsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const altsData = document.getElementById(`${ri}_alts_data`);
+  const alts = altsData ? altsData.value.split('\n').filter(Boolean) : [];
+  const edits = loadCatEdits();
+  edits[n] = { n, how, tips, alts, t, g };
+  saveCatEdits(edits);
+  openCatalog();
 }
 
 function catalogEditRow(btn) {
@@ -4008,6 +4059,8 @@ function catalogEditRow(btn) {
   const ed = edits[name];
   const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
   const how = ed && ed.how != null ? ed.how : (EX_DB[name] ? EX_DB[name].how : '');
+  const tips = ed && ed.tips ? ed.tips : (EX_DB[name] ? (EX_DB[name].tips||[]) : []);
+  const alts = ed && ed.alts ? ed.alts : (EX_DB[name] ? (EX_DB[name].alts||[]) : []);
   const tag = ed ? ed.t : (ex ? ex.t||'key' : 'key');
   const dispName = ed ? ed.n : name;
   const inDay = !!ex;
@@ -4015,8 +4068,24 @@ function catalogEditRow(btn) {
   const ei = inDay ? S.days[di].ex.indexOf(ex) : -1;
   row.innerHTML = `
     <div class="catalog-edit-form">
+      <label class="catalog-edit-label">Название</label>
       <input class="catalog-edit-input" id="${ri}_name" value="${esc(dispName)}" placeholder="Название упражнения">
+      <label class="catalog-edit-label">Техника выполнения</label>
       <textarea class="catalog-edit-textarea" id="${ri}_how" placeholder="Описание техники">${esc(how)}</textarea>
+      <label class="catalog-edit-label">На что обратить внимание</label>
+      <textarea class="catalog-edit-textarea" id="${ri}_tips" placeholder="По одному пункту на строку" style="min-height:60px">${esc(tips.join('\n'))}</textarea>
+      <label class="catalog-edit-label">Упражнения на тему</label>
+      <div class="cat-tags-wrap" id="${ri}_alts_wrap">
+        ${alts.map(a => `<span class="cat-tag" data-val="${esc(a)}">${esc(a)} <button type="button" class="cat-tag-del" onclick="catalogRemoveAlt('${ri}','${esc(a.replace(/'/g,"\\'"))}')">✕</button></span>`).join('')}
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <select class="catalog-edit-select" id="${ri}_alts_add" style="flex:1;">
+          <option value="">— Выбрать —</option>
+          ${EX_ALL_FLAT.filter(a => !alts.includes(a)).map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
+        </select>
+        <button type="button" class="catalog-add-btn" onclick="catalogAddAlt('${ri}')">+</button>
+      </div>
+      <input type="hidden" id="${ri}_alts_data" value="${esc(alts.join('\n'))}">
       <div class="catalog-edit-actions">
         <select class="catalog-edit-select" id="${ri}_tag">
           <option value="key"${tag==='key'?' selected':''}>Ключ</option>
@@ -4025,7 +4094,7 @@ function catalogEditRow(btn) {
         </select>
         <button class="catalog-add-btn" onclick="catalogSaveEdit(this)" style="border-color:var(--green);color:var(--green);">Сохранить</button>
         <button class="catalog-add-btn catalog-edit-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">Отмена</button>
-        ${inDay ? `<button class="catalog-add-btn" onclick="catalogDeleteEx(this,${di},${ei})" style="border-color:#e05a3a;color:#e05a3a;">Удалить</button>` : ''}
+        ${inDay ? `<button class="catalog-add-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;">Удалить</button>` : ''}
       </div>
     </div>`;
   setTimeout(() => document.getElementById(`${ri}_name`)?.focus(), 50);
@@ -4038,18 +4107,76 @@ function catalogSaveEdit(btn) {
   const edits = loadCatEdits();
   const n = (document.getElementById(`${ri}_name`)?.value||'').trim() || name;
   const how = document.getElementById(`${ri}_how`)?.value||'';
+  const tipsRaw = document.getElementById(`${ri}_tips`)?.value||'';
   const t = document.getElementById(`${ri}_tag`)?.value || 'key';
+  const tips = tipsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+  const altsData = document.getElementById(`${ri}_alts_data`);
+  const alts = altsData ? altsData.value.split('\n').filter(Boolean) : [];
   const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
-  edits[name] = { n, how, t };
+  edits[name] = { n, how, tips, alts, t };
   saveCatEdits(edits);
   if (ex) { ex.n = n; ex.t = t; save(); }
   openCatalog();
 }
 
-function catalogDeleteEx(btn, di, ei) {
-  if (!confirm(`Удалить "${S.days[di].ex[ei]?.n}"?`)) return;
-  deleteEx(di, ei);
+function catalogDeleteEx(btn) {
+  const row = btn.closest('.catalog-ex-row');
+  const name = row.dataset.name;
+  const edits = loadCatEdits();
+  const ed = edits[name];
+  const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
+  const parts = [];
+  if (ed) parts.push('правки');
+  if (ex) parts.push('упражнение из дня');
+  if (!parts.length) return;
+  if (!confirm(`Удалить ${parts.join(' и ')} для "${name}"?`)) return;
+  if (ex) { const ei = S.days[D].ex.indexOf(ex); if(ei>=0) deleteEx(D, ei); }
+  if (ed) { delete edits[name]; saveCatEdits(edits); }
   openCatalog();
+}
+
+function catalogAddAlt(ri) {
+  const sel = document.getElementById(`${ri}_alts_add`);
+  const val = sel.value;
+  if (!val) return;
+  const data = document.getElementById(`${ri}_alts_data`);
+  const wrap = document.getElementById(`${ri}_alts_wrap`);
+  const arr = data.value.split('\n').filter(Boolean);
+  if (arr.includes(val)) return;
+  arr.push(val);
+  data.value = arr.join('\n');
+  const span = document.createElement('span');
+  span.className = 'cat-tag';
+  span.dataset.val = val;
+  span.innerHTML = `${esc(val)} <button type="button" class="cat-tag-del" onclick="catalogRemoveAlt('${ri}','${esc(val.replace(/'/g,"\\'"))}')">✕</button>`;
+  wrap.appendChild(span);
+  sel.value = '';
+  const opts = sel.options;
+  for (let i = 0; i < opts.length; i++) {
+    if (opts[i].value === val) { sel.removeChild(opts[i]); break; }
+  }
+}
+
+function catalogRemoveAlt(ri, val) {
+  const data = document.getElementById(`${ri}_alts_data`);
+  const wrap = document.getElementById(`${ri}_alts_wrap`);
+  const arr = data.value.split('\n').filter(Boolean);
+  const idx = arr.indexOf(val);
+  if (idx >= 0) {
+    arr.splice(idx, 1);
+    data.value = arr.join('\n');
+  }
+  const tags = wrap.querySelectorAll('.cat-tag');
+  for (const t of tags) {
+    if (t.dataset.val === val) { t.remove(); break; }
+  }
+  const add = document.getElementById(`${ri}_alts_add`);
+  if (add) {
+    const opt = document.createElement('option');
+    opt.value = val;
+    opt.textContent = val;
+    add.appendChild(opt);
+  }
 }
 
 function openHistory(){
