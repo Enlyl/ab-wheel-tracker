@@ -452,6 +452,23 @@ body {
   border-radius: 20px;
   padding: 4px 8px;
 }
+.load-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(74,159,212,0.08);
+  border: 1px solid rgba(74,159,212,0.2);
+  border-radius: 20px;
+  padding: 4px 8px;
+}
+.load-unit-select {
+  border: none; background: transparent;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--text2);
+  cursor: pointer; outline: none;
+  padding: 0 2px;
+  -webkit-appearance: none;
+  appearance: none;
+}
 .set-dot {
   width: 22px; height: 22px; border-radius: 50%;
   border: 1.5px solid var(--border);
@@ -539,6 +556,22 @@ body {
   margin-bottom: 5px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.edit-checkboxes {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  padding: 4px 2px;
+}
+.edit-chk-label {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 12px; color: var(--text2);
+  cursor: pointer; user-select: none;
+}
+.edit-chk-label input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--green);
+  cursor: pointer; flex-shrink: 0;
 }
 
 /* ── EX HELP BUTTON ── */
@@ -1889,6 +1922,52 @@ function toggleEditMode(){editMode=!editMode;render();}
 
 function updateExField(di,ei,field,val){S.days[di].ex[ei][field]=val;save();}
 function updateDayField(di,field,val){S.days[di][field]=val;save();}
+
+function getLoad(w,d,i){
+  if(!S.days[d].ex[i].showLoad) return null;
+  const v=S[k(w,d,i)];
+  if(v&&v!==true&&v.load!=null) return v.load;
+  return S[`load_d${d}e${i}`]||0;
+}
+function getLoadUnit(w,d,i){
+  const v=S[k(w,d,i)];
+  if(v&&v!==true&&v.loadUnit) return v.loadUnit;
+  return S[`loadUnit_d${d}e${i}`]||'кг';
+}
+function setLoad(w,d,i,val){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  obj.load=Math.max(0,val);
+  S[k(w,d,i)]=obj;
+  S[`load_d${d}e${i}`]=obj.load;
+  if(navigator.vibrate) navigator.vibrate([6]);
+  save(); render();
+}
+function setLoadUnit(w,d,i,unit){
+  if(editMode) return;
+  const obj=_getRepObj(w,d,i);
+  obj.loadUnit=unit;
+  S[k(w,d,i)]=obj;
+  S[`loadUnit_d${d}e${i}`]=unit;
+  save(); render();
+}
+
+function toggleExBlock(di, ei, type, show) {
+  const ex = S.days[di].ex[ei];
+  if (type === 'sets') {
+    const hasNatural = parseSets(ex.d) > 1;
+    if (show) { delete ex.hideSets; if(!hasNatural) ex.showSets = true; else delete ex.showSets; }
+    else       { ex.hideSets = true; delete ex.showSets; }
+  } else if (type === 'reps') {
+    const hasNatural = parseReps(ex.d) > 0;
+    if (show) { delete ex.hideReps; if(!hasNatural) ex.showReps = true; else delete ex.showReps; }
+    else       { ex.hideReps = true; delete ex.showReps; }
+  } else if (type === 'load') {
+    if (show) ex.showLoad = true;
+    else      delete ex.showLoad;
+  }
+  save();
+}
 function deleteEx(di,ei){
   delete S[k(W,di,ei)];
   const len=S.days[di].ex.length;
@@ -2061,6 +2140,20 @@ function renderExItem(e,di,ei){
           <option value="key"${e.t==='key'?' selected':''}>Ключ</option>
           <option value="mob"${e.t==='mob'?' selected':''}>Мобил</option>
         </select>
+        <div class="edit-checkboxes">
+          <label class="edit-chk-label">
+            <input type="checkbox" ${(e.showSets||(!e.hideSets&&parseSets(e.d)>1))?'checked':''} onchange="toggleExBlock(${di},${ei},'sets',this.checked);render()">
+            <span>Блок подходов</span>
+          </label>
+          <label class="edit-chk-label">
+            <input type="checkbox" ${(e.showReps||(!e.hideReps&&parseReps(e.d)>0))?'checked':''} onchange="toggleExBlock(${di},${ei},'reps',this.checked);render()">
+            <span>Блок повторений</span>
+          </label>
+          <label class="edit-chk-label">
+            <input type="checkbox" ${e.showLoad?'checked':''} onchange="toggleExBlock(${di},${ei},'load',this.checked);render()">
+            <span>Нагрузка (кг/сек/см)</span>
+          </label>
+        </div>
       </div>
       <div class="edit-actions">
         <button class="ea-btn up" onclick="moveEx(${di},${ei},-1)">↑</button>
@@ -2081,9 +2174,11 @@ function renderExItem(e,di,ei){
        </div>`
     : '';
   const planReps = parseReps(e.d);
-  const reps = planReps > 0 ? getReps(W,di,ei) : 0;
-  const showSets = total>1;
-  const setsHTML = showSets || reps>0
+  const reps = planReps > 0 ? getReps(W,di,ei) : (e.showReps ? getBaseReps(di,ei)||10 : 0);
+  // showSets: показываем если есть подходы в плане И не скрыто, ИЛИ если явно включено чекбоксом
+  const showSets = e.showSets === true ? true : (!e.hideSets && total>1);
+  const showRepsBlock = e.showReps === true ? true : (!e.hideReps && reps>0);
+  const setsHTML = showSets || showRepsBlock
     ? `<div class="sets-row" onclick="event.stopPropagation()">
         ${showSets ? `<div class="sets-pill">
           ${Array.from({length:sets?sets.total:total},(_,s)=>`
@@ -2093,7 +2188,7 @@ function renderExItem(e,di,ei){
           ${(sets?sets.total:total)>1 ? `<button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>` : ''}
           <button class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
         </div>` : ''}
-        ${reps>0?`<div class="reps-pill">
+        ${showRepsBlock?`<div class="reps-pill">
           <button class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeRep(${W},${di},${ei})" title="Меньше повторений">−</button>
           <input class="reps-input" type="number" min="1" max="999"
             value="${reps}"
@@ -2103,6 +2198,20 @@ function renderExItem(e,di,ei){
           >
           <button class="set-add-btn" onclick="event.stopPropagation();addRep(${W},${di},${ei})" title="Больше повторений">+</button>
         </div>`:''}
+        ${(()=>{const ld=getLoad(W,di,ei);return ld!=null?`<div class="load-pill" onclick="event.stopPropagation()">
+          <input class="reps-input" type="number" min="0" step="0.5"
+            value="${ld}"
+            onclick="event.stopPropagation()"
+            onchange="event.stopPropagation();setLoad(${W},${di},${ei},+this.value)"
+            oninput="event.stopPropagation()"
+            style="width:48px;"
+          >
+          <select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
+            <option value="кг"  ${getLoadUnit(W,di,ei)==='кг' ?'selected':''}>кг</option>
+            <option value="сек" ${getLoadUnit(W,di,ei)==='сек'?'selected':''}>сек</option>
+            <option value="см"  ${getLoadUnit(W,di,ei)==='см' ?'selected':''}>см</option>
+          </select>
+        </div>`:'';})()}
       </div>`
     : '';
   return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
