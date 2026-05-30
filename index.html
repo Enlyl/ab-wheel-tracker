@@ -229,26 +229,29 @@ body {
 
 /* ── DAY TABS ── */
 .day-tabs {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
-  margin: 0 24px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 24px 16px;
   border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
 }
 .d-tab {
-  padding: 14px 8px; text-align: center; cursor: pointer;
+  flex: 1; min-width: 0;
+  padding: 12px 6px; text-align: center; cursor: pointer;
   border-right: 1px solid var(--border);
   background: var(--surface); transition: all .18s;
+  position: relative;
 }
 .d-tab:last-child { border-right: none; }
 .d-tab:hover { background: var(--surface2); }
 .d-tab-day {
-  font-family: 'Italiana', serif; font-size: 26px; color: var(--text3);
+  font-family: 'Italiana', serif; font-size: 22px; color: var(--text3);
   line-height: 1; transition: color .18s;
 }
 .d-tab-role {
-  font-family: 'Archivo Narrow', sans-serif; font-size: 9px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--text4); margin-top: 4px; transition: color .18s;
+  font-family: 'Archivo Narrow', sans-serif; font-size: 8px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text4); margin-top: 3px; transition: color .18s;
 }
 .d-tab.on-a { background: var(--greenbg); border-color: var(--greenborder); }
 .d-tab.on-a .d-tab-day { color: var(--green); }
@@ -260,6 +263,43 @@ body {
 .d-tab.on-c .d-tab-day { color: var(--gold); }
 .d-tab.on-c .d-tab-role { color: rgba(200,169,110,0.5); }
 .d-tab.was-done .d-tab-day::after { content: '·'; color: var(--green); margin-left: 2px; }
+
+/* Edit mode tab */
+.d-tab.editing {
+  padding: 8px 4px;
+  cursor: default;
+  background: var(--surface2);
+}
+.d-tab-day-select {
+  font-family: 'Italiana', serif; font-size: 18px;
+  background: transparent; border: none; outline: none;
+  color: inherit; text-align: center; width: 100%;
+  cursor: pointer; padding: 0;
+}
+.d-tab-role-input {
+  font-family: 'Archivo Narrow', sans-serif; font-size: 8px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  background: transparent; border: none; outline: none;
+  color: var(--text3); text-align: center; width: 100%;
+  padding: 0; margin-top: 3px;
+}
+.d-tab-del {
+  position: absolute; top: 3px; right: 3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(224,90,58,0.15); border: none;
+  color: #e05a3a; font-size: 9px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.d-tab-add {
+  flex: 1; min-width: 40px; max-width: 52px;
+  padding: 12px 4px; text-align: center; cursor: pointer;
+  border-right: none; border-left: 1px solid var(--border);
+  background: var(--surface); transition: all .18s;
+  font-size: 18px; color: var(--text3);
+  display: flex; align-items: center; justify-content: center;
+}
+.d-tab-add:active { background: var(--surface2); color: var(--gold); }
 
 /* ── EXERCISE BLOCK ── */
 .ex-block {
@@ -1279,6 +1319,33 @@ body {
 }
 .sw-popup-btn.finish:active { opacity: 0.85; }
 
+.add-extra-day-btn {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em;
+  background: none; border: 1px dashed var(--border);
+  border-radius: 8px; padding: 3px 10px;
+  color: var(--text3); cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.add-extra-day-btn:active { border-color: var(--gold); color: var(--gold); }
+
+.weekday-select {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 12px; font-weight: 600;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 4px 8px;
+  color: var(--text); cursor: pointer; outline: none;
+}
+.extra-day-remove {
+  font-size: 11px; color: var(--text3);
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 2px 6px; cursor: pointer;
+  transition: all .15s;
+}
+.extra-day-remove:active { border-color: #e05a3a; color: #e05a3a; }
+
 /* ── STOPWATCH ── */
 .sw-block {
   margin: 0 24px 16px;
@@ -1473,6 +1540,17 @@ body {
   </div>
   <div class="help-body" id="weeks-body"></div>
 </div>
+<!-- HISTORY SHEET -->
+<div class="help-overlay" id="history-overlay" onclick="closeHistorySheet()"></div>
+<div class="help-sheet" id="history-sheet">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div><div class="help-name">История тренировок</div></div>
+    <button class="help-close" onclick="closeHistorySheet()">✕</button>
+  </div>
+  <div class="help-body" id="history-body"></div>
+</div>
+
 <div class="help-overlay" id="settings-overlay" onclick="closeAppSettings()"></div>
 <div class="help-sheet" id="settings-sheet">
   <div class="help-handle"></div>
@@ -1500,6 +1578,14 @@ body {
     <div class="help-section">
       <div class="help-section-title">Футер</div>
       <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
+    </div>
+    <div class="help-section">
+      <div class="help-section-title">Резервное копирование данных</div>
+      <div style="display: flex; gap: 10px;">
+        <button class="ipreset" style="flex: 1; padding: 10px;" onclick="exportData()">Экспорт JSON</button>
+        <button class="ipreset" style="flex: 1; padding: 10px;" onclick="importData()">Импорт JSON</button>
+      </div>
+      <input type="file" id="import-file" style="display: none;" accept=".json" onchange="handleImportFile(event)">
     </div>
     <div class="help-section">
       <div class="help-section-title">Сброс данных</div>
@@ -1969,10 +2055,25 @@ function toggleExBlock(di, ei, type, show) {
   save();
 }
 function deleteEx(di,ei){
-  delete S[k(W,di,ei)];
   const len=S.days[di].ex.length;
-  for(let i=ei;i<len-1;i++){S[k(W,di,i)]=S[k(W,di,i+1)];}
-  delete S[k(W,di,len-1)];
+  for(let w=1;w<=9;w++){
+    delete S[k(w,di,ei)];
+    for(let i=ei;i<len-1;i++){
+      S[k(w,di,i)]=S[k(w,di,i+1)];
+    }
+    delete S[k(w,di,len-1)];
+  }
+  delete S[`reps_d${di}e${ei}`];
+  delete S[`load_d${di}e${ei}`];
+  delete S[`loadUnit_d${di}e${ei}`];
+  for(let i=ei;i<len-1;i++){
+    S[`reps_d${di}e${i}`]=S[`reps_d${di}e${i+1}`];
+    S[`load_d${di}e${i}`]=S[`load_d${di}e${i+1}`];
+    S[`loadUnit_d${di}e${i}`]=S[`loadUnit_d${di}e${i+1}`];
+  }
+  delete S[`reps_d${di}e${len-1}`];
+  delete S[`load_d${di}e${len-1}`];
+  delete S[`loadUnit_d${di}e${len-1}`];
   S.days[di].ex.splice(ei,1);
   save();render();
 }
@@ -1980,21 +2081,62 @@ function moveEx(di,ei,dir){
   const ex=S.days[di].ex; const ni=ei+dir;
   if(ni<0||ni>=ex.length)return;
   [ex[ei],ex[ni]]=[ex[ni],ex[ei]];
-  const tmp=S[k(W,di,ei)];S[k(W,di,ei)]=S[k(W,di,ni)];S[k(W,di,ni)]=tmp;
+  for(let w=1;w<=9;w++){
+    const tmp=S[k(w,di,ei)];S[k(w,di,ei)]=S[k(w,di,ni)];S[k(w,di,ni)]=tmp;
+  }
+  const tmpReps=S[`reps_d${di}e${ei}`];
+  S[`reps_d${di}e${ei}`]=S[`reps_d${di}e${ni}`];
+  S[`reps_d${di}e${ni}`]=tmpReps;
+  
+  const tmpLoad=S[`load_d${di}e${ei}`];
+  S[`load_d${di}e${ei}`]=S[`load_d${di}e${ni}`];
+  S[`load_d${di}e${ni}`]=tmpLoad;
+
+  const tmpLoadUnit=S[`loadUnit_d${di}e${ei}`];
+  S[`loadUnit_d${di}e${ei}`]=S[`loadUnit_d${di}e${ni}`];
+  S[`loadUnit_d${di}e${ni}`]=tmpLoadUnit;
+
   save();render();
 }
 function addEx(di){S.days[di].ex.push({n:'Новое упражнение',d:'3 × 10',t:'aux'});save();render();}
 
+function addExtraDay(){
+  const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const free = weekdays[new Date().getDay()];
+  // Копируем первый день как шаблон
+  const template = JSON.parse(JSON.stringify(S.days[0]));
+  template.id    = '★';
+  template.day   = free;
+  template.role  = 'Extra';
+  template.cls   = 'on-a';
+  template.title = 'Внеплановая';
+  template.sub   = 'Дополнительная тренировка';
+  template.extra = true;
+  S.days.push(template);
+  D = S.days.length - 1;
+  editMode = true;
+  save(); render();
+  if(navigator.vibrate) navigator.vibrate([8]);
+}
+
+function removeExtraDay(di){
+  if(!confirm('Удалить этот день?')) return;
+  // Удаляем данные подходов этого дня
+  for(let w=1;w<=9;w++) for(let i=0;i<S.days[di].ex.length;i++) delete S[k(w,di,i)];
+  S.days.splice(di, 1);
+  D = Math.min(D, S.days.length-1);
+  editMode = false;
+  save(); render();
+}
 const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)).length;
-const allEx=()=>{let t=0;for(let w=1;w<=9;w++)for(let d=0;d<3;d++)t+=dayDone(w,d);return t;};
-const allSess=()=>{let t=0;for(let w=1;w<=9;w++)for(let d=0;d<3;d++)if(dayDone(w,d)===S.days[d].ex.length)t++;return t;};
+const allEx=()=>{let t=0;for(let w=1;w<=9;w++)for(let d=0;d<S.days.length;d++)t+=dayDone(w,d);return t;};
+const allSess=()=>{let t=0;for(let w=1;w<=9;w++)for(let d=0;d<S.days.length;d++)if(dayDone(w,d)===S.days[d].ex.length)t++;return t;};
 const calcStreak=()=>{
   // Строим плоский список всех дней до текущего включительно
   // и считаем непрерывную серию с конца
   let streak=0;
-  // Идём от текущей позиции назад
   outer: for(let w=W;w>=1;w--){
-    const dMax = w===W ? D : 2;
+    const dMax = w===W ? D : S.days.length-1;
     for(let d=dMax;d>=0;d--){
       if(dayDone(w,d)===S.days[d].ex.length && S.days[d].ex.length>0){
         streak++;
@@ -2241,13 +2383,24 @@ function render(){
   document.getElementById('s-sess').textContent=allSess();
   document.getElementById('s-str').textContent=calcStreak();
 
-  document.getElementById('day-tabs').innerHTML=S.days.map((d,i)=>{
+  const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  document.getElementById('day-tabs').innerHTML = S.days.map((d,i)=>{
     const full=dayDone(W,i)===d.ex.length, act=i===D;
+    if(editMode && act){
+      return `<div class="d-tab editing ${d.cls}" onclick="event.stopPropagation()">
+        ${d.extra?`<button class="d-tab-del" onclick="removeExtraDay(${i})" title="Удалить">✕</button>`:''}
+        <select class="d-tab-day-select" onchange="updateDayField(${i},'day',this.value);render()">
+          ${DAYS_OF_WEEK.map(dw=>`<option${d.day===dw?' selected':''}>${dw}</option>`).join('')}
+        </select>
+        <input class="d-tab-role-input" value="${esc(d.role)}" placeholder="Роль"
+          oninput="updateDayField(${i},'role',this.value)">
+      </div>`;
+    }
     return `<div class="d-tab ${act?d.cls:''} ${full&&!act?'was-done':''}" onclick="selDay(${i})">
-      <div class="d-tab-day">${d.day}</div>
+      <div class="d-tab-day">${d.day}${d.extra?'<span style="font-size:10px;opacity:.5"> ★</span>':''}</div>
       <div class="d-tab-role">${d.role}</div>
     </div>`;
-  }).join('');
+  }).join('') + `<div class="d-tab-add" onclick="addExtraDay()" title="Добавить день">+</div>`;
 
   const day=S.days[D], done=dayDone(W,D), tot=day.ex.length;
   document.getElementById('done-banner').className='done-banner'+((!editMode&&done===tot)?' on':'');
@@ -2560,13 +2713,20 @@ let _swReg = null;
 async function initSW() {
   if (!('serviceWorker' in navigator)) return;
   try {
-    const blob = new Blob([SW_CODE], { type: 'application/javascript' });
-    const url  = URL.createObjectURL(blob);
-    _swReg = await navigator.serviceWorker.register(url, { scope: './' });
+    // Try registering sw.js from server first
+    _swReg = await navigator.serviceWorker.register('sw.js');
+  } catch(e) {
+    try {
+      const blob = new Blob([SW_CODE], { type: 'application/javascript' });
+      const url  = URL.createObjectURL(blob);
+      _swReg = await navigator.serviceWorker.register(url);
+    } catch(err) {}
+  }
+  if (_swReg) {
     navigator.serviceWorker.addEventListener('message', e => {
       if (e.data && e.data.type === 'TIMER_DONE') onInlineFinishedUI();
     });
-  } catch(e) {}
+  }
 }
 
 function swPost(msg) {
@@ -2903,21 +3063,30 @@ function closeHelp() {
   document.getElementById('help-sheet').classList.remove('open');
 }
 
-// Закрытие свайпом вниз
+// Закрытие свайпом вниз для всех панелей
 (function(){
-  const sheet = document.getElementById('help-sheet');
-  let startY = 0, dragging = false;
-  sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; dragging = true; }, {passive:true});
-  sheet.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const dy = e.touches[0].clientY - startY;
-    if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
-  }, {passive:true});
-  sheet.addEventListener('touchend', e => {
-    dragging = false;
-    const dy = e.changedTouches[0].clientY - startY;
-    if (dy > 80) { closeHelp(); }
-    sheet.style.transform = '';
+  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet'];
+  sheets.forEach(id => {
+    const sheet = document.getElementById(id);
+    if (!sheet) return;
+    let startY = 0, dragging = false;
+    sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; dragging = true; }, {passive:true});
+    sheet.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy > 0) sheet.style.transform = `translateY(${dy}px)`;
+    }, {passive:true});
+    sheet.addEventListener('touchend', e => {
+      dragging = false;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (dy > 80) {
+        if (id === 'help-sheet') closeHelp();
+        else if (id === 'settings-sheet') closeAppSettings();
+        else if (id === 'weeks-sheet') closeWeeksEditor();
+        else if (id === 'history-sheet') closeHistorySheet();
+      }
+      sheet.style.transform = '';
+    });
   });
 })();
 
@@ -3100,8 +3269,29 @@ async function iStart(){
   }, 500);
 }
 
+function playBeep(freqs) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = freqs || [
+      [880, 0, 0.12],
+      [880, 0.16, 0.12],
+      [1320, 0.33, 0.3]
+    ];
+    notes.forEach(([f, t, d]) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f; o.type = 'sine';
+      g.gain.setValueAtTime(0, ctx.currentTime + t);
+      g.gain.linearRampToValueAtTime(0.7, ctx.currentTime + t + 0.01);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + t + d);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + d + 0.05);
+    });
+    if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 120, 60, 180, 80, 180, 80, 300]);
+  } catch(e) {}
+}
+
 function onInlineFinishedUI(){
-  if(iLeft > 0 && !iRunning) return; // защита от двойного вызова
+  if(!iRunning) return; // защита от двойного вызова
   clearInterval(iInterval);
   iRunning=false;
   iLeft=0;
@@ -3111,7 +3301,7 @@ function onInlineFinishedUI(){
   iBlock.classList.add('finished');
   dropWakeLock();
   iUpdateRing();
-  iBeep();
+  playBeep();
   flashScreen();
 }
 
@@ -3139,22 +3329,6 @@ function iAddTime(s){
     swPost({ type: 'START_TIMER', endsAt: iEndsAt });
   }
   iUpdateRing();
-}
-
-function iBeep(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [[880,0,0.12],[880,0.16,0.12],[1320,0.33,0.3]].forEach(([f,t,d])=>{
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value=f; o.type='sine';
-      g.gain.setValueAtTime(0,ctx.currentTime+t);
-      g.gain.linearRampToValueAtTime(0.7,ctx.currentTime+t+0.01);
-      g.gain.linearRampToValueAtTime(0,ctx.currentTime+t+d);
-      o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+d+0.05);
-    });
-    if(navigator.vibrate) navigator.vibrate([120,60,120,60,120,60,180,80,180,80,300]);
-  }catch(e){}
 }
 
 iUpdateRing();
@@ -3223,7 +3397,7 @@ function recordSession(w,d){
   if(h.length>100) h.length=100;
   saveHistory(h);
 
-  const allDaysDone = [0,1,2].every(di => dayDone(w,di) === S.days[di].ex.length);
+  const allDaysDone = S.days.every((_, di) => dayDone(w,di) === S.days[di].ex.length);
   if (allDaysDone) setTimeout(() => triggerWeekComplete(w), 800);
 }
 
@@ -3238,12 +3412,58 @@ function fmtDuration(ms){
   return `${ss}с`;
 }
 
+function exportData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    data[key] = localStorage.getItem(key);
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ab_wheel_data_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData() {
+  document.getElementById('import-file').click();
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (confirm('Импортировать данные? Это перезапишет текущий прогресс.')) {
+        localStorage.clear();
+        for (const key in data) {
+          localStorage.setItem(key, data[key]);
+        }
+        location.reload();
+      }
+    } catch (err) {
+      alert('Ошибка при чтении файла JSON. Убедитесь, что файл корректен.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function closeHistorySheet() {
+  document.getElementById('history-overlay').classList.remove('open');
+  document.getElementById('history-sheet').classList.remove('open');
+}
+
 function openHistory(){
   const h = loadHistory();
-  const overlay = document.getElementById('settings-overlay');
-  const sheet   = document.getElementById('settings-sheet');
-  document.querySelector('#settings-sheet .help-name').textContent = 'История тренировок';
-  const body = document.querySelector('#settings-sheet .help-body');
+  const overlay = document.getElementById('history-overlay');
+  const sheet   = document.getElementById('history-sheet');
+  const body = document.getElementById('history-body');
 
   if(!h.length){
     body.innerHTML = `<p class="help-no-info">Тренировок пока нет. Завершите первый день целиком.</p>`;
@@ -3261,6 +3481,10 @@ function openHistory(){
   let calMonth = now.getMonth(); // 0-based
 
   function renderCalendar(){
+    return `<div class="cal-wrap" id="cal-wrap">${renderCalendarInner()}</div>`;
+  }
+
+  function renderCalendarInner(){
     const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь',
                         'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
     const dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -3283,7 +3507,6 @@ function openHistory(){
     }
 
     return `
-      <div class="cal-wrap" id="cal-wrap">
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="calPrev()">‹</button>
           <span class="cal-month-label">${monthNames[calMonth]} ${calYear}</span>
@@ -3292,13 +3515,23 @@ function openHistory(){
         <div class="cal-grid">
           ${dayNames.map(d=>`<div class="cal-head">${d}</div>`).join('')}
           ${cells}
-        </div>
-      </div>`;
+        </div>`;
   }
 
-  function renderList(filterDate){
-    const filtered = filterDate ? h.filter(r=>r.isoDate===filterDate) : h;
-    if(!filtered.length) return `<p class="help-no-info" style="margin-top:8px;">Нет тренировок${filterDate?' в этот день':''}.</p>`;
+  function renderList(filterDate, filterWeek){
+    let filtered = h;
+    if (filterDate) {
+      filtered = filtered.filter(r => r.isoDate === filterDate);
+    }
+    if (filterWeek && filterWeek !== 'all') {
+      const wkVal = parseInt(filterWeek);
+      if (wkVal === 9) {
+        filtered = filtered.filter(r => r.week >= 9);
+      } else {
+        filtered = filtered.filter(r => r.week === wkVal);
+      }
+    }
+    if(!filtered.length) return `<p class="help-no-info" style="margin-top:8px;">Нет тренировок${filterDate || (filterWeek && filterWeek !== 'all') ?' по выбранным фильтрам':''}.</p>`;
     return filtered.map((r,idx)=>{
       const globalIdx = h.indexOf(r);
       const dur = r.duration ? fmtDuration(r.duration) : null;
@@ -3333,7 +3566,7 @@ function openHistory(){
               <input type="date" value="${r.isoDate||''}"
                 style="flex:1;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
                        font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
-                onchange="histEditDate(${globalIdx}, this.value)">
+                 onchange="histEditDate(${globalIdx}, this.value)">
             </div>
           </div>
         </div>`;
@@ -3342,6 +3575,7 @@ function openHistory(){
 
   // Глобальные для calDayClick/calPrev/calNext
   window._calFilterDate = null;
+  window._histWeekFilter = 'all';
   window.calPrev = ()=>{ if(calMonth===0){calMonth=11;calYear--;}else calMonth--; refreshCal(); };
   window.calNext = ()=>{ if(calMonth===11){calMonth=0;calYear++;}else calMonth++; refreshCal(); };
   window.calDayClick = (iso)=>{
@@ -3349,14 +3583,16 @@ function openHistory(){
     else { window._calFilterDate=iso; }
     refreshCal();
   };
+  window.changeHistWeekFilter = (val)=>{
+    window._histWeekFilter = val;
+    refreshCal();
+  };
 
   function refreshCal(){
     const cw = document.getElementById('cal-wrap');
-    if(cw) cw.outerHTML = renderCalendar();
-    // Re-attach since outerHTML replaces element
-    const newCw = document.getElementById('cal-wrap');
+    if(cw) cw.innerHTML = renderCalendarInner();
     const listEl = document.getElementById('hist-list');
-    if(listEl) listEl.innerHTML = renderList(window._calFilterDate) +
+    if(listEl) listEl.innerHTML = renderList(window._calFilterDate, window._histWeekFilter) +
       `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>`;
     // Подсветить выбранный день
     document.querySelectorAll('.cal-cell.selected').forEach(el=>el.classList.remove('selected'));
@@ -3369,8 +3605,15 @@ function openHistory(){
   }
 
   body.innerHTML = renderCalendar() +
+    `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <span style="font-size:12px;color:var(--text2);">Фильтр по неделе:</span>
+      <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)">
+        <option value="all">Все недели</option>
+        ${Array.from({length: 9}, (_, idx) => `<option value="${idx+1}">${idx === 8 ? 'Неделя 9+' : `Неделя ${idx+1}`}</option>`).join('')}
+      </select>
+    </div>` +
     `<div id="hist-list" style="margin-top:8px;">` +
-    renderList(null) +
+    renderList(null, 'all') +
     `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button></div>`;
 
   overlay.classList.add('open'); sheet.classList.add('open');
@@ -3665,29 +3908,7 @@ function flashScreen() {
 }
 
 function beep() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const play = (freq, start, dur) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq;
-      o.type = 'sine';
-      g.gain.setValueAtTime(0, ctx.currentTime + start);
-      g.gain.linearRampToValueAtTime(0.7, ctx.currentTime + start + 0.01);
-      g.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
-      o.start(ctx.currentTime + start);
-      o.stop(ctx.currentTime + start + dur + 0.05);
-    };
-    play(880,  0,    0.12);
-    play(880,  0.15, 0.12);
-    play(1320, 0.32, 0.28);
-    if (navigator.vibrate) navigator.vibrate([
-      120, 60, 120, 60, 120, 60,
-      180, 80, 180, 80,
-      300
-    ]);
-  } catch(e) {}
+  playBeep();
 }
 
 // ══════════════════════════════════════
@@ -3728,7 +3949,7 @@ function beep() {
 
 function swipeDay(dir){
   const next = D + dir;
-  if(next < 0 || next >= 3) return;
+  if(next < 0 || next >= S.days.length) return;
 
   const dayEl   = document.getElementById('day-content');
   const notesEl = document.getElementById('notes-block');
