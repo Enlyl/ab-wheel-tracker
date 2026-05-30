@@ -766,7 +766,28 @@ body {
   position: relative; z-index: 2;
   touch-action: manipulation;
 }
-.ex-help-btn:active { background: var(--goldbg); border-color: var(--gold); color: var(--gold); }
+.ex-help-btn:active {
+  background: var(--goldbg); border-color: var(--gold); color: var(--gold);
+}
+.ex-actions-col {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.ex-note-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text3);
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative; z-index: 2;
+  touch-action: manipulation;
+}
+.ex-note-btn:active { background: var(--greenbg); border-color: var(--green); color: var(--green); }
 
 /* ── HELP SHEET ── */
 .help-overlay {
@@ -1364,12 +1385,6 @@ body {
 
 #day-content.swipe-out-left  { opacity: 0; transform: translateX(-28px); }
 #day-content.swipe-out-right { opacity: 0; transform: translateX(28px); }
-#notes-block {
-  transition: opacity .18s ease, transform .18s cubic-bezier(.4,0,.2,1), background .3s ease, border-color .3s ease, box-shadow .3s ease;
-}
-#notes-block.swipe-out-left  { opacity: 0; transform: translateX(-28px); }
-#notes-block.swipe-out-right { opacity: 0; transform: translateX(28px); }
-
 /* ── STOPWATCH STOP POPUP ── */
 .sw-popup-overlay {
   position: fixed; inset: 0; z-index: 300;
@@ -1512,55 +1527,6 @@ body {
 }
 .sw-btn.reset:active { opacity: 0.75; }
 
-/* ── NOTES ── */
-.notes-block {
-  margin: 0 24px 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  transition: var(--transition);
-  box-shadow: var(--shadow-md);
-}
-[data-theme="dark"] .notes-block { border-top-color: rgba(255,255,255,0.09); }
-
-.notes-head {
-  display: flex; align-items: center; gap: 8px;
-  padding: 12px 18px 10px;
-  border-bottom: 1px solid var(--border2);
-}
-
-.notes-icon {
-  font-size: 13px; opacity: 0.5;
-}
-
-.notes-label {
-  font-family: 'Archivo Narrow', sans-serif;
-  font-size: 9px; font-weight: 600;
-  letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--text3); flex: 1;
-}
-
-.notes-saved {
-  font-family: 'Archivo Narrow', sans-serif;
-  font-size: 9px; letter-spacing: 0.08em;
-  color: var(--green); opacity: 0;
-  transition: opacity .3s ease;
-}
-.notes-saved.show { opacity: 1; }
-
-.notes-textarea {
-  width: 100%; padding: 14px 18px;
-  background: transparent;
-  border: none; outline: none; resize: none;
-  font-family: 'Archivo', sans-serif;
-  font-size: 13px; font-weight: 300;
-  color: var(--text); line-height: 1.65;
-  min-height: 72px;
-  transition: color .3s ease;
-}
-.notes-textarea::placeholder { color: var(--text3); font-style: italic; }
-
 /* ── FOOTER ── */
 .footer { text-align: center; padding: 32px 0 0; }
 .footer-txt {
@@ -1639,6 +1605,25 @@ body {
     <button class="help-close" onclick="closeCatalog()">✕</button>
   </div>
   <div class="help-body" id="catalog-body"></div>
+</div>
+
+<!-- EXERCISE NOTE SHEET -->
+<div class="help-overlay" id="exnote-overlay" onclick="closeExNote()"></div>
+<div class="help-sheet" id="exnote-sheet">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div>
+      <div class="help-name" id="exnote-name">Заметка</div>
+      <div class="help-tag" id="exnote-tag"></div>
+    </div>
+    <button class="help-close" onclick="closeExNote()">✕</button>
+  </div>
+  <div class="help-body">
+    <textarea class="notes-textarea" id="exnote-textarea" placeholder="Ваша заметка к упражнению…" style="min-height:150px;"></textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+      <span class="notes-saved" id="exnote-saved">Сохранено</span>
+    </div>
+  </div>
 </div>
 
 <div class="help-overlay" id="settings-overlay" onclick="closeAppSettings()"></div>
@@ -1779,21 +1764,6 @@ body {
         <button class="ictrl plus" onclick="iAddTime(30)" title="+30 сек">+30</button>
       </div>
     </div>
-  </div>
-
-  <div class="notes-block" id="notes-block">
-    <div class="notes-head">
-      <span class="notes-icon">✏️</span>
-      <span class="notes-label">Заметки к тренировке</span>
-      <span class="notes-saved" id="notes-saved">Сохранено</span>
-    </div>
-    <textarea
-      class="notes-textarea"
-      id="notes-textarea"
-      rows="3"
-      placeholder="Сегодня негатив пошёл лучше…"
-      oninput="saveNote(this.value)"
-    ></textarea>
   </div>
 
   <!-- Сброс дня — внизу, подальше от рабочей зоны -->
@@ -2730,7 +2700,10 @@ function renderExItem(e,di,ei){
       ${setsHTML}
       ${toastHTML}
     </div>
-    <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
+    <div class="ex-actions-col">
+      <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
+      <button class="ex-note-btn" onclick="event.stopPropagation();editExNote(${W},${di},${ei})" title="Заметка">✎</button>
+    </div>
   </div>`;
 }
 
@@ -2799,7 +2772,7 @@ function render(){
       <div class="pi-desc">${w.d}</div>
     </div>`;
   }).join('');
-  loadNote();
+
   renderHistoryBtn();
 }
 
@@ -3439,7 +3412,7 @@ function closeHelp() {
 
 // Закрытие свайпом вниз для всех панелей
 (function(){
-  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet', 'catalog-sheet'];
+  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet', 'catalog-sheet', 'exnote-sheet'];
   sheets.forEach(id => {
     const sheet = document.getElementById(id);
     if (!sheet) return;
@@ -3767,25 +3740,75 @@ function iAddTime(s){
 iUpdateRing();
 initMetroBtn();
 
-// ══════════════════════════════════════
-// NOTES
-// ══════════════════════════════════════
-function noteKey(w,d){ return 'note_w'+w+'_d'+d; }
+// ── Exercise notes ────────────────────
+function exNoteKey(w,d,i){ return 'exnote_w'+w+'_d'+d+'_e'+i; }
 
-let _noteSaveTimer = null;
-
-function saveNote(val){
-  S[noteKey(W,D)] = val;
-  save();
-  clearTimeout(_noteSaveTimer);
-  const el = document.getElementById('notes-saved');
-  if(el){ el.classList.add('show'); _noteSaveTimer = setTimeout(()=>el.classList.remove('show'), 1500); }
+function editExNote(w,d,i) {
+  const ex = S.days[d].ex[i];
+  if (!ex) return;
+  const overlay = document.getElementById('exnote-overlay');
+  const sheet   = document.getElementById('exnote-sheet');
+  document.getElementById('exnote-name').textContent = ex.n;
+  document.getElementById('exnote-tag').innerHTML = tagH(ex.t||'key');
+  const ta = document.getElementById('exnote-textarea');
+  ta.value = S[exNoteKey(w,d,i)] || '';
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+  sheet.scrollTop = 0;
+  setTimeout(() => ta.focus(), 100);
 }
 
-function loadNote(){
-  const ta = document.getElementById('notes-textarea');
-  if(ta) ta.value = S[noteKey(W,D)] || '';
+function closeExNote() {
+  // Save on close
+  const overlay = document.getElementById('exnote-overlay');
+  const sheet   = document.getElementById('exnote-sheet');
+  if (overlay.classList.contains('open')) {
+    const ta = document.getElementById('exnote-textarea');
+    const name = document.getElementById('exnote-name').textContent;
+    // Find the exercise to get w,d,i — scan all days in current week
+    for (let d = 0; d < S.days.length; d++) {
+      for (let i = 0; i < S.days[d].ex.length; i++) {
+        if (S.days[d].ex[i].n === name) {
+          const val = ta.value;
+          const key = exNoteKey(W, d, i);
+          if (val.trim()) { S[key] = val; } else { delete S[key]; }
+          save();
+          const el = document.getElementById('exnote-saved');
+          if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
+          break;
+        }
+      }
+    }
+  }
+  overlay.classList.remove('open');
+  sheet.classList.remove('open');
 }
+
+// Auto-save on input
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('exnote-textarea');
+  if (ta) {
+    let timer;
+    ta.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const name = document.getElementById('exnote-name').textContent;
+        for (let d = 0; d < S.days.length; d++) {
+          for (let i = 0; i < S.days[d].ex.length; i++) {
+            if (S.days[d].ex[i].n === name) {
+              const val = ta.value;
+              S[exNoteKey(W, d, i)] = val.trim() ? val : undefined;
+              save();
+              const el = document.getElementById('exnote-saved');
+              if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
+              break;
+            }
+          }
+        }
+      }, 500);
+    });
+  }
+});
 
 
 // ══════════════════════════════════════
@@ -3811,7 +3834,8 @@ function recordSession(w,d){
     let load = v!==true && v.load!=null ? v.load : null;
     const repsArr = Array.isArray(reps) ? [...reps] : Array(total).fill(reps);
     const loadArr = Array.isArray(load) ? [...load] : (load!=null ? Array(total).fill(load) : null);
-    return { name: e.n, done, total, reps: repsArr, load: loadArr };
+    const exNote = S[exNoteKey(w,d,i)] || '';
+    return { name: e.n, done, total, reps: repsArr, load: loadArr, note: exNote };
   }).filter(Boolean);
 
   // Авто-замер длительности: от первого подхода первого упражнения до последнего
@@ -3939,7 +3963,7 @@ function openCatalog() {
         const displayName = ed ? ed.n : name;
         const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
         const ri = `cat_${g.label}_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
-        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}">
+        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}" data-group="${esc(g.label)}">
           <div class="catalog-ex-view">
             <span class="catalog-ex-name">${esc(displayName)}</span>
             <div class="catalog-ex-actions">
@@ -3953,7 +3977,7 @@ function openCatalog() {
         const ed = edits[name];
         const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
         const ri = `cat_custom_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
-        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}">
+        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}" data-group="${esc(g.label)}">
           <div class="catalog-ex-view">
             <span class="catalog-ex-name">${esc(ed.n||name)}</span>
             <div class="catalog-ex-actions">
@@ -3972,7 +3996,7 @@ function openCatalog() {
       <div class="help-section-title cat-group-title" style="color:var(--text2);">Другое</div>
       ${otherCustom.map(name => {
         const ed = edits[name];
-        return `<div class="catalog-ex-row" data-name="${esc(name)}" data-rid="cat_other_${name.replace(/[^a-zа-яё0-9]/gi,'_')}">
+        return `<div class="catalog-ex-row" data-name="${esc(name)}" data-rid="cat_other_${name.replace(/[^a-zа-яё0-9]/gi,'_')}" data-group="other">
           <div class="catalog-ex-view">
             <span class="catalog-ex-name">${esc(ed.n||name)}</span>
             <div class="catalog-ex-actions">
@@ -4055,6 +4079,7 @@ function catalogEditRow(btn) {
   const row = btn.closest('.catalog-ex-row');
   const name = row.dataset.name;
   const ri = row.dataset.rid;
+  const curGroup = row.dataset.group || 'other';
   const edits = loadCatEdits();
   const ed = edits[name];
   const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
@@ -4062,10 +4087,9 @@ function catalogEditRow(btn) {
   const tips = ed && ed.tips ? ed.tips : (EX_DB[name] ? (EX_DB[name].tips||[]) : []);
   const alts = ed && ed.alts ? ed.alts : (EX_DB[name] ? (EX_DB[name].alts||[]) : []);
   const tag = ed ? ed.t : (ex ? ex.t||'key' : 'key');
+  const group = ed && ed.g ? ed.g : curGroup;
   const dispName = ed ? ed.n : name;
   const inDay = !!ex;
-  const di = D;
-  const ei = inDay ? S.days[di].ex.indexOf(ex) : -1;
   row.innerHTML = `
     <div class="catalog-edit-form">
       <label class="catalog-edit-label">Название</label>
@@ -4087,11 +4111,17 @@ function catalogEditRow(btn) {
       </div>
       <input type="hidden" id="${ri}_alts_data" value="${esc(alts.join('\n'))}">
       <div class="catalog-edit-actions">
+        <select class="catalog-edit-select" id="${ri}_group">
+          ${EX_GROUPS.map(g => `<option value="${esc(g.label)}" ${group===g.label?'selected':''}>${esc(g.label)}</option>`).join('')}
+          <option value="other" ${group==='other'?'selected':''}>Другое</option>
+        </select>
         <select class="catalog-edit-select" id="${ri}_tag">
           <option value="key"${tag==='key'?' selected':''}>Ключ</option>
           <option value="aux"${tag==='aux'?' selected':''}>База</option>
           <option value="mob"${tag==='mob'?' selected':''}>Мобил</option>
         </select>
+      </div>
+      <div class="catalog-edit-actions" style="margin-top:4px;">
         <button class="catalog-add-btn" onclick="catalogSaveEdit(this)" style="border-color:var(--green);color:var(--green);">Сохранить</button>
         <button class="catalog-add-btn catalog-edit-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">Отмена</button>
         ${inDay ? `<button class="catalog-add-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;">Удалить</button>` : ''}
@@ -4112,8 +4142,9 @@ function catalogSaveEdit(btn) {
   const tips = tipsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
   const altsData = document.getElementById(`${ri}_alts_data`);
   const alts = altsData ? altsData.value.split('\n').filter(Boolean) : [];
+  const g = document.getElementById(`${ri}_group`)?.value || 'other';
   const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
-  edits[name] = { n, how, tips, alts, t };
+  edits[name] = { n, how, tips, alts, t, g };
   saveCatEdits(edits);
   if (ex) { ex.n = n; ex.t = t; save(); }
   openCatalog();
@@ -4258,9 +4289,12 @@ function openHistory(){
       const dur = r.duration ? fmtDuration(r.duration) : null;
       const exHTML = r.exList && r.exList.length
         ? r.exList.map(e=>`
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
-              <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
-              <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}${e.reps?` × ${e.reps}`:''}</span>
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
+                <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
+                <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}${e.reps?` × ${e.reps}`:''}</span>
+              </div>
+              ${e.note?`<div style="margin:2px 8px 4px;font-size:11px;color:var(--text3);font-style:italic;">✎ ${e.note}</div>`:''}
             </div>`).join('')
         : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">Нет данных</div>';
       return `
@@ -4699,30 +4733,22 @@ function swipeDay(dir){
   const next = D + dir;
   if(next < 0 || next >= S.days.length) return;
 
-  const dayEl   = document.getElementById('day-content');
-  const notesEl = document.getElementById('notes-block');
-  const cls     = dir > 0 ? 'swipe-out-left' : 'swipe-out-right';
+  const dayEl = document.getElementById('day-content');
+  const cls   = dir > 0 ? 'swipe-out-left' : 'swipe-out-right';
 
-  // animate out
-  if(dayEl)   dayEl.classList.add(cls);
-  if(notesEl) notesEl.classList.add(cls);
+  if(dayEl) dayEl.classList.add(cls);
 
   setTimeout(()=>{
-    // remove classes before render so they don't persist
-    if(dayEl)   dayEl.classList.remove(cls);
-    if(notesEl) notesEl.classList.remove(cls);
+    if(dayEl) dayEl.classList.remove(cls);
 
     D = next; editMode = false; save(); render();
 
     // quick fade-in from opposite side
     const inCls = dir > 0 ? 'swipe-out-right' : 'swipe-out-left';
-    if(dayEl)   dayEl.classList.add(inCls);
-    if(notesEl) notesEl.classList.add(inCls);
-    // force reflow
+    if(dayEl) dayEl.classList.add(inCls);
     dayEl && dayEl.getBoundingClientRect();
     requestAnimationFrame(()=>{
-      if(dayEl)   dayEl.classList.remove(inCls);
-      if(notesEl) notesEl.classList.remove(inCls);
+      if(dayEl) dayEl.classList.remove(inCls);
     });
   }, 170);
 }
