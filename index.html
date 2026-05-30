@@ -490,6 +490,8 @@ body {
 .catalog-edit-form { display:flex; flex-direction:column; gap:8px; padding:8px 0; width:100%; }
 .catalog-edit-input { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; background:var(--surface2); color:var(--text); outline:none; }
 .catalog-edit-input:focus { border-color:var(--gold); }
+.catalog-edit-textarea { width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; background:var(--surface2); color:var(--text); outline:none; min-height:80px; resize:vertical; font-family:inherit; line-height:1.5; }
+.catalog-edit-textarea:focus { border-color:var(--gold); }
 .catalog-edit-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .catalog-edit-select { border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:12px; background:var(--surface2); color:var(--text); outline:none; cursor:pointer; }
 
@@ -565,6 +567,7 @@ body {
 .set-step-btn:active { background: var(--surface3); }
 .set-step-rem { font-size: 10px; color: #e05a3a; }
 .set-step-rem:active { background: rgba(224,90,58,0.1); }
+.set-spacer { width: 24px; flex-shrink: 0; }
 .set-reps {
   width: 34px; height: 22px; min-width:0; border:1px solid var(--border);
   border-radius:5px; background:var(--bg); color:var(--text);
@@ -614,9 +617,11 @@ body {
 
 /* ── SETS COUNTER ── */
 .sets-row {
-  display: flex; align-items: center; gap: 4px;
+  display: flex; align-items: center; justify-content: space-between;
   margin-top: 7px; flex-wrap: wrap;
 }
+.sets-left { display: flex; align-items: center; }
+.sets-right { display: flex; align-items: center; gap: 8px; }
 .sets-pill {
   display: flex; align-items: center; gap: 4px;
   background: rgba(128,128,128,0.08);
@@ -2658,6 +2663,7 @@ function renderExItem(e,di,ei){
               onclick="event.stopPropagation()"
               onchange="event.stopPropagation();setSetRep(${W},${di},${ei},${s},+this.value)">
             <button type="button" class="set-step-btn" onclick="event.stopPropagation();incSetRep(this,${W},${di},${ei},${s})">+</button>`:''}
+          ${showRepsBlock&&showLoadFlag?`<span class="set-spacer"></span>`:''}
           ${showLoadFlag?`<button type="button" class="set-step-btn" onclick="event.stopPropagation();decSetLoad(this,${W},${di},${ei},${s})">−</button>
             <input class="set-load" type="number" min="0" step="0.5" value="${lv}"
               onclick="event.stopPropagation()"
@@ -2676,29 +2682,33 @@ function renderExItem(e,di,ei){
   } else {
     var setsHTML = showSets||showRepsBlock
       ? `<div class="sets-row" onclick="event.stopPropagation()">
-          ${showSets?`<div class="sets-pill">
-            ${Array.from({length:setCount},(_,s)=>`
-              <div class="set-dot ${sets&&s<sets.done?(sets.warmup&&sets.warmup.includes(s)?'done warmup':'done'):''}"
-                onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
-                data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>`).join('')}
-            ${setCount>1?`<button type="button" class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
-            <button type="button" class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
-          </div>`:''}
-          ${showRepsBlock?`<div class="reps-pill">
-            <input class="reps-input" type="number" min="1" max="999"
-              value="${reps}" onclick="event.stopPropagation()"
-              onchange="event.stopPropagation();setRep(${W},${di},${ei},+this.value)">
-          </div>`:''}
-          ${showLoadFlag?`<div class="load-pill" onclick="event.stopPropagation()">
-            <input class="reps-input" type="number" min="0" step="0.5" value="${getLoad(W,di,ei)||0}"
-              onclick="event.stopPropagation()"
-              onchange="event.stopPropagation();setLoad(${W},${di},${ei},+this.value)">
-            <select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
-              <option value="кг" ${getLoadUnit(W,di,ei)==='кг'?'selected':''}>кг</option>
-              <option value="сек" ${getLoadUnit(W,di,ei)==='сек'?'selected':''}>сек</option>
-              <option value="см" ${getLoadUnit(W,di,ei)==='см'?'selected':''}>см</option>
-            </select>
-          </div>`:''}
+          <div class="sets-left">
+           ${showSets?`<div class="sets-pill">
+             ${Array.from({length:setCount},(_,s)=>`
+               <div class="set-dot ${sets&&s<sets.done?(sets.warmup&&sets.warmup.includes(s)?'done warmup':'done'):''}"
+                 onclick="event.stopPropagation();togSet(${W},${di},${ei},${s})"
+                 data-w="${W}" data-d="${di}" data-i="${ei}" data-s="${s}"></div>`).join('')}
+             ${setCount>1?`<button type="button" class="set-add-btn set-rem-btn" onclick="event.stopPropagation();removeSet(${W},${di},${ei})" title="Убрать подход">−</button>`:''}
+             <button type="button" class="set-add-btn" onclick="event.stopPropagation();addSet(${W},${di},${ei})" title="Добавить подход">+</button>
+           </div>`:''}
+          </div>
+          <div class="sets-right">
+           ${showRepsBlock?`<div class="reps-pill">
+             <input class="reps-input" type="number" min="1" max="999"
+               value="${reps}" onclick="event.stopPropagation()"
+               onchange="event.stopPropagation();setRep(${W},${di},${ei},+this.value)">
+           </div>`:''}
+           ${showLoadFlag?`<div class="load-pill" onclick="event.stopPropagation()">
+             <input class="reps-input" type="number" min="0" step="0.5" value="${getLoad(W,di,ei)||0}"
+               onclick="event.stopPropagation()"
+               onchange="event.stopPropagation();setLoad(${W},${di},${ei},+this.value)">
+             <select class="load-unit-select" onclick="event.stopPropagation()" onchange="event.stopPropagation();setLoadUnit(${W},${di},${ei},this.value)">
+               <option value="кг" ${getLoadUnit(W,di,ei)==='кг'?'selected':''}>кг</option>
+               <option value="сек" ${getLoadUnit(W,di,ei)==='сек'?'selected':''}>сек</option>
+               <option value="см" ${getLoadUnit(W,di,ei)==='см'?'selected':''}>см</option>
+             </select>
+           </div>`:''}
+          </div>
         </div>`
       : '';
   }
@@ -2744,7 +2754,7 @@ function render(){
     }
     return `<div class="d-tab ${act?d.cls:''} ${full&&!act?'was-done':''}" onclick="selDay(${i})">
       <div class="d-tab-day">${d.day}${d.extra?'<span style="font-size:10px;opacity:.5"> ★</span>':''}</div>
-      <div class="d-tab-role" onclick="event.stopPropagation();editDayRole(${i},this)">${esc(d.role)}</div>
+      <div class="d-tab-role">${esc(d.role)}</div>
     </div>`;
   }).join('') + `<div class="d-tab-add" onclick="addExtraDay()" title="Добавить день">+</div>`;
 
@@ -3369,19 +3379,26 @@ const EX_DB = {
 };
 
 function showHelp(name, type, fromName) {
+  const edits = loadCatEdits();
+  const ed = edits[name];
   const info = EX_DB[name];
   const overlay = document.getElementById('help-overlay');
   const sheet   = document.getElementById('help-sheet');
 
-  document.getElementById('help-name').textContent = name;
+  document.getElementById('help-name').textContent = ed && ed.n ? ed.n : name;
   document.getElementById('help-tag').innerHTML = tagH(type || 'aux');
 
   const body = document.getElementById('help-body');
-  if (!info) {
+  const howText = ed && ed.how != null ? ed.how : (info ? info.how : null);
+  if (!howText) {
     body.innerHTML = `<p class="help-no-info">Описание для этого упражнения пока не добавлено.</p>`;
   } else {
-    // Если пришли из другого упражнения — добавляем его в список если там нет
-    let alts = info.alts ? [...info.alts] : [];
+    let alts = [];
+    let tips = null;
+    if (info) {
+      if (info.alts) alts = [...info.alts];
+      if (info.tips) tips = info.tips;
+    }
     if (fromName && fromName !== name && !alts.includes(fromName)) {
       alts = [fromName, ...alts];
     }
@@ -3397,12 +3414,12 @@ function showHelp(name, type, fromName) {
     body.innerHTML = `
       <div class="help-section">
         <div class="help-section-title">Техника</div>
-        <div class="help-section-text">${info.how}</div>
+        <div class="help-section-text">${esc(howText)}</div>
       </div>
-      ${info.tips && info.tips.length ? `
+      ${tips && tips.length ? `
       <div class="help-section">
         <div class="help-section-title">На что обратить внимание</div>
-        <ul class="help-tips">${info.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+        <ul class="help-tips">${tips.map(t => `<li>${t}</li>`).join('')}</ul>
       </div>` : ''}
       ${altsHTML}
     `;
@@ -3990,16 +4007,16 @@ function catalogEditRow(btn) {
   const edits = loadCatEdits();
   const ed = edits[name];
   const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
-  const detail = ed ? ed.d : (ex ? ex.d||'' : '');
+  const how = ed && ed.how != null ? ed.how : (EX_DB[name] ? EX_DB[name].how : '');
   const tag = ed ? ed.t : (ex ? ex.t||'key' : 'key');
-  const dispName = ed ? ed.n : (ex ? ex.n : name);
+  const dispName = ed ? ed.n : name;
   const inDay = !!ex;
   const di = D;
   const ei = inDay ? S.days[di].ex.indexOf(ex) : -1;
   row.innerHTML = `
     <div class="catalog-edit-form">
       <input class="catalog-edit-input" id="${ri}_name" value="${esc(dispName)}" placeholder="Название упражнения">
-      <input class="catalog-edit-input" id="${ri}_detail" value="${esc(detail)}" placeholder="Описание / детали">
+      <textarea class="catalog-edit-textarea" id="${ri}_how" placeholder="Описание техники">${esc(how)}</textarea>
       <div class="catalog-edit-actions">
         <select class="catalog-edit-select" id="${ri}_tag">
           <option value="key"${tag==='key'?' selected':''}>Ключ</option>
@@ -4020,16 +4037,12 @@ function catalogSaveEdit(btn) {
   const ri = row.dataset.rid;
   const edits = loadCatEdits();
   const n = (document.getElementById(`${ri}_name`)?.value||'').trim() || name;
-  const d = (document.getElementById(`${ri}_detail`)?.value||'').trim();
+  const how = document.getElementById(`${ri}_how`)?.value||'';
   const t = document.getElementById(`${ri}_tag`)?.value || 'key';
   const ex = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
-  if (ex) {
-    ex.n = n; ex.d = d; ex.t = t;
-    save();
-  } else {
-    edits[name] = { n, d, t };
-    saveCatEdits(edits);
-  }
+  edits[name] = { n, how, t };
+  saveCatEdits(edits);
+  if (ex) { ex.n = n; ex.t = t; save(); }
   openCatalog();
 }
 
