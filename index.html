@@ -493,7 +493,6 @@ body {
 .catalog-edit-textarea:focus { border-color:var(--gold); }
 .catalog-edit-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .catalog-edit-select { border:1px solid var(--border); border-radius:8px; padding:6px 8px; font-size:12px; background:var(--surface2); color:var(--text); outline:none; cursor:pointer; }
-.catalog-edit-multiselect { height:110px; font-size:12px; cursor:pointer; }
 .catalog-edit-label { font-size:12px; color:var(--text2); font-weight:600; margin-bottom:-4px; }
 .cat-tags-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:4px 0; }
 .cat-tag { display:inline-flex; align-items:center; gap:4px; background:var(--surface3); border:1px solid var(--border); border-radius:12px; padding:3px 8px; font-size:12px; color:var(--text); }
@@ -696,12 +695,6 @@ body {
 .ex-item.partial .set-dot.done {
   background: var(--gold);
   border-color: var(--gold);
-}
-.sets-divider {
-  width: 1px; height: 20px;
-  background: var(--border);
-  margin: 0 3px;
-  flex-shrink: 0;
 }
 .reps-input {
   width: 42px; height: 32px;
@@ -925,8 +918,7 @@ body {
   transition: background .12s;
   -webkit-tap-highlight-color: transparent;
 }
-.ex-suggest-item:active,
-.ex-suggest-item.focused {
+.ex-suggest-item:active {
   background: var(--goldbg);
   color: var(--gold);
 }
@@ -1527,6 +1519,25 @@ body {
 }
 .sw-btn.reset:active { opacity: 0.75; }
 
+/* ── EXERCISE NOTE ── */
+#exnote-sheet .notes-textarea {
+  width: 100%; padding: 14px 18px;
+  background: transparent;
+  border: none; outline: none; resize: none;
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px; font-weight: 300;
+  color: var(--text); line-height: 1.65;
+  min-height: 72px;
+}
+#exnote-sheet .notes-textarea::placeholder { color: var(--text3); font-style: italic; }
+#exnote-sheet .notes-saved {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 9px; letter-spacing: 0.08em;
+  color: var(--green); opacity: 0;
+  transition: opacity .3s ease;
+}
+#exnote-sheet .notes-saved.show { opacity: 1; }
+
 /* ── FOOTER ── */
 .footer { text-align: center; padding: 32px 0 0; }
 .footer-txt {
@@ -1683,7 +1694,7 @@ body {
   <div class="hero">
     <div class="hero-title" id="app-hero-title">Standing<br><span class="accent">Rollout</span></div>
     <div class="hero-rule"></div>
-    <div class="hero-desc" id="app-hero-desc" style="display:none">Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.</div>
+    <div class="hero-desc" id="app-hero-desc"></div>
     <div class="hero-motiv">
       <span class="hero-motiv-emoji" id="hero-motiv-emoji"></span>
       <span class="hero-motiv-text" id="hero-motiv-text"></span>
@@ -1852,8 +1863,11 @@ DEFAULT_DAYS.forEach((day, di) => {
     // Если название совпадает но детали устарели — обновляем
     if (curEx.n === defEx.n && curEx.d !== defEx.d) {
       curEx.d = defEx.d;
-    }
-  });
+  }
+});
+
+// Запрашиваем сразу при загрузке
+grabWakeLock();
 });
 
 let W=S.W, D=S.D, editMode=false;
@@ -2047,30 +2061,6 @@ function setRep(w,d,i,val){
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
-
-function addRep(w,d,i){
-  if(editMode) return;
-  const obj=_getRepObj(w,d,i);
-  const v = Array.isArray(obj.reps) ? obj.reps[0] : obj.reps;
-  const n = v>=50 ? 1 : v+1;
-  obj.reps = Array(obj.total).fill(n);
-  S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`] = [...obj.reps];
-  if(navigator.vibrate) navigator.vibrate([6]);
-  save(); render();
-}
-
-function removeRep(w,d,i){
-  if(editMode) return;
-  const obj=_getRepObj(w,d,i);
-  const v = Array.isArray(obj.reps) ? obj.reps[0] : obj.reps;
-  const n = v<=1 ? 50 : v-1;
-  obj.reps = Array(obj.total).fill(n);
-  S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`] = [...obj.reps];
-  if(navigator.vibrate) navigator.vibrate([6]);
-  save(); render();
-}
 const got=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return true;return v.done>=v.total;};
 const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return false;return v.done>0&&v.done<v.total;};
 
@@ -2256,20 +2246,6 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
-function editDayRole(di, el) {
-  const current = S.days[di].role;
-  el.innerHTML = `<input class="d-tab-role-input" value="${esc(current)}" 
-    onblur="finishEditDayRole(${di},this.value)" 
-    onkeydown="if(event.key==='Enter')this.blur();if(event.key==='Escape')render();">`;
-  const input = el.querySelector('input');
-  if (input) { input.focus(); input.select(); }
-}
-function finishEditDayRole(di, val) {
-  const role = val.trim() || 'Роль';
-  updateDayField(di, 'role', role);
-  render();
-}
-
 function updateExField(di,ei,field,val){S.days[di].ex[ei][field]=val;save();}
 function updateDayField(di,field,val){S.days[di][field]=val;save();}
 
@@ -2768,7 +2744,7 @@ function render(){
         <span class="pi-name">${w.l}${cur?'<span class="now-pill">сейчас</span>':''}</span>
         <span class="pi-status${past?' ok':''}">${past?'✓ Готово':cur?'В процессе':'Впереди'}</span>
       </div>
-      <div class="bar-bg style-${w.barStyle||'default'}" style="height:${w.barH||3}px;border-radius:${(w.barStyle||'default')==='rounded'?'999px':'2px'}"><div class="bar-fill style-${w.barStyle||'default'}" style="width:${i<=wi?w.p:0}%;background:${w.c}"></div></div>
+      <div class="bar-bg ${w.barStyle?'style-'+w.barStyle:''}" style="height:${w.barH||3}px;border-radius:${w.barStyle==='rounded'?'999px':'2px'}"><div class="bar-fill ${w.barStyle?'style-'+w.barStyle:''}" style="width:${i<=wi?w.p:0}%;background:${w.c}"></div></div>
       <div class="pi-desc">${w.d}</div>
     </div>`;
   }).join('');
@@ -2784,7 +2760,7 @@ const APP_CFG_KEY = 'abw_app_cfg';
 const APP_DEFAULTS = {
   topbar:    'Ab Wheel Program',
   heroTitle: 'Standing\nRollout',
-  heroDesc:  'Программа 9+ недель. Три дня в неделю. От колен — до полного выхода стоя.',
+  heroDesc:  '',
   progTitle: 'Standing Rollout',
   progSub:   'Дорожная карта к полному выходу стоя',
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
@@ -2809,7 +2785,7 @@ function renderAppCfg(cfg) {
 
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
   if (ht) ht.innerHTML   = (cfg.heroTitle || APP_DEFAULTS.heroTitle).replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>');
-  if (hd) hd.textContent = cfg.heroDesc  || APP_DEFAULTS.heroDesc;
+  if (hd) { hd.textContent = ''; hd.style.display = 'none'; }
   if (pt) pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle;
   if (ps) ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;
   if (ft) ft.textContent = cfg.footer    || APP_DEFAULTS.footer;
@@ -3095,21 +3071,17 @@ function dropWakeLock() {
   if (_wakeLock) { _wakeLock.release().catch(()=>{}); _wakeLock = null; }
 }
 
-// Держим экран активным пока страница видима
+// Держим экран активным пока страница видима + пересчёт таймера
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') grabWakeLock();
-  else dropWakeLock();
-});
-
-// Запрашиваем сразу при загрузке
-grabWakeLock();
-
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && iRunning) {
-    // пересчитываем остаток по реальному времени
-    const left = Math.max(0, Math.round((iEndsAt - Date.now()) / 1000));
-    iLeft = left; iUpdateRing();
-    if (left <= 0) onInlineFinishedUI();
+  if (document.visibilityState === 'visible') {
+    grabWakeLock();
+    if (iRunning) {
+      const left = Math.max(0, Math.round((iEndsAt - Date.now()) / 1000));
+      iLeft = left; iUpdateRing();
+      if (left <= 0) onInlineFinishedUI();
+    }
+  } else {
+    dropWakeLock();
   }
 });
 
@@ -3785,7 +3757,7 @@ function closeExNote() {
 }
 
 // Auto-save on input
-document.addEventListener('DOMContentLoaded', () => {
+(function(){
   const ta = document.getElementById('exnote-textarea');
   if (ta) {
     let timer;
@@ -3808,7 +3780,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 500);
     });
   }
-});
+})();
 
 
 // ══════════════════════════════════════
@@ -4689,10 +4661,6 @@ function flashScreen() {
   }, 1700);
 }
 
-function beep() {
-  playBeep();
-}
-
 // ══════════════════════════════════════
 // SWIPE BETWEEN DAYS
 // ══════════════════════════════════════
@@ -4765,11 +4733,9 @@ function swipeDay(dir){
   const SELECTORS = [
     'button',
     '.d-tab',
-    '.preset-btn',
     '.ipreset',
     '.wn-btn',
     '.theme-toggle',
-    '.nav-btn',
     '.reset-btn',
     '.ictrl',
     '.ea-btn',
