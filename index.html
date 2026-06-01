@@ -80,6 +80,74 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --transition:  background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
 }
 
+/* ── TECHNICAL THEMES ── */
+
+[data-theme="cyberpunk"] {
+  --bg: #0a0a14; --surface: #12101f; --surface2: #1a1830; --surface3: #222040;
+  --border: rgba(255,45,120,0.18); --border2: rgba(255,45,120,0.09);
+  --text: #e8e0f0; --text2: #8870b0; --text3: #504870; --text4: #403860;
+  --gold: #ff2d78; --gold2: #ff5a9a; --goldbg: rgba(255,45,120,0.08);
+  --goldborder: rgba(255,45,120,0.25); --goldpill: rgba(255,45,120,0.15);
+  --green: #00f0ff; --green2: #55f5ff; --greenbg: rgba(0,240,255,0.07);
+  --greenbg2: rgba(0,240,255,0.04); --greenborder: rgba(0,240,255,0.2); --green-soft: rgba(0,240,255,0.5);
+  --blue: #7a4aff; --bluebg: rgba(122,74,255,0.1); --blueborder: rgba(122,74,255,0.25);
+  --shadow-sm: 0 1px 3px rgba(255,45,120,0.15); --shadow-md: 0 4px 24px rgba(255,45,120,0.1);
+  --shadow-hero: 0 0 80px rgba(255,45,120,0.06);
+  --theme-icon: '⚡';
+}
+[data-theme="matrix"] {
+  --bg: #000603; --surface: #030a05; --surface2: #061208; --surface3: #0a1a0e;
+  --border: rgba(0,204,65,0.15); --border2: rgba(0,204,65,0.07);
+  --text: #b3ffc0; --text2: #2a8840; --text3: #145020; --text4: #0d3015;
+  --gold: #00cc41; --gold2: #33dd66; --goldbg: rgba(0,204,65,0.06);
+  --goldborder: rgba(0,204,65,0.2); --goldpill: rgba(0,204,65,0.12);
+  --green: #00ff55; --green2: #33ff77; --greenbg: rgba(0,255,85,0.06);
+  --greenbg2: rgba(0,255,85,0.03); --greenborder: rgba(0,255,85,0.18); --green-soft: rgba(0,255,85,0.4);
+  --blue: #00cc41; --bluebg: rgba(0,204,65,0.06); --blueborder: rgba(0,204,65,0.18);
+  --shadow-sm: 0 1px 3px rgba(0,204,65,0.1); --shadow-md: 0 4px 24px rgba(0,204,65,0.06);
+  --shadow-hero: 0 0 80px rgba(0,204,65,0.04);
+  --theme-icon: '⎔';
+  font-family: 'Courier New', monospace;
+}
+[data-theme="synthwave"] {
+  --bg: #0d0515; --surface: #150a25; --surface2: #1d1035; --surface3: #251845;
+  --border: rgba(200,0,255,0.18); --border2: rgba(200,0,255,0.09);
+  --text: #f0e0ff; --text2: #9070c0; --text3: #503870; --text4: #382850;
+  --gold: #ff00aa; --gold2: #ff44cc; --goldbg: rgba(255,0,170,0.08);
+  --goldborder: rgba(255,0,170,0.22); --goldpill: rgba(255,0,170,0.14);
+  --green: #00ffff; --green2: #66ffff; --greenbg: rgba(0,255,255,0.06);
+  --greenbg2: rgba(0,255,255,0.03); --greenborder: rgba(0,255,255,0.18); --green-soft: rgba(0,255,255,0.4);
+  --blue: #8844ff; --bluebg: rgba(136,68,255,0.08); --blueborder: rgba(136,68,255,0.22);
+  --shadow-sm: 0 1px 3px rgba(200,0,255,0.15); --shadow-md: 0 4px 24px rgba(200,0,255,0.1);
+  --shadow-hero: 0 0 80px rgba(200,0,255,0.05);
+  --theme-icon: '◈';
+}
+[data-theme="terminal"] {
+  --bg: #0c0800; --surface: #141002; --surface2: #1c1806; --surface3: #24200a;
+  --border: rgba(255,176,0,0.15); --border2: rgba(255,176,0,0.07);
+  --text: #ffe0a0; --text2: #a08030; --text3: #604818; --text4: #403010;
+  --gold: #ffb000; --gold2: #ffc844; --goldbg: rgba(255,176,0,0.06);
+  --goldborder: rgba(255,176,0,0.2); --goldpill: rgba(255,176,0,0.12);
+  --green: #ffb000; --green2: #ffc844; --greenbg: rgba(255,176,0,0.06);
+  --greenbg2: rgba(255,176,0,0.03); --greenborder: rgba(255,176,0,0.18); --green-soft: rgba(255,176,0,0.4);
+  --blue: #ffb000; --bluebg: rgba(255,176,0,0.06); --blueborder: rgba(255,176,0,0.18);
+  --shadow-sm: none; --shadow-md: none; --shadow-hero: none;
+  --theme-icon: '⌨';
+}
+[data-theme="holo"] {
+  --bg: #e8ecf5; --surface: rgba(255,255,255,0.5); --surface2: rgba(255,255,255,0.7); --surface3: #f0f2fa;
+  --border: rgba(100,140,255,0.15); --border2: rgba(100,140,255,0.08);
+  --text: #1a1a3a; --text2: #6068a0; --text3: #9098c0; --text4: #b0b8d0;
+  --gold: #6688ff; --gold2: #88aaff; --goldbg: rgba(102,136,255,0.06);
+  --goldborder: rgba(102,136,255,0.18); --goldpill: rgba(102,136,255,0.1);
+  --green: #44aa88; --green2: #66ccaa; --greenbg: rgba(68,170,136,0.06);
+  --greenbg2: rgba(68,170,136,0.03); --greenborder: rgba(68,170,136,0.18); --green-soft: rgba(68,170,136,0.4);
+  --blue: #4466ee; --bluebg: rgba(68,102,238,0.06); --blueborder: rgba(68,102,238,0.18);
+  --shadow-sm: 0 1px 3px rgba(68,102,238,0.08); --shadow-md: 0 4px 24px rgba(68,102,238,0.05);
+  --shadow-hero: none;
+  --theme-icon: '◌';
+}
+
 /* ══════════════════════════════════════
    NOISE OVERLAY (dark only)
 ══════════════════════════════════════ */
@@ -825,6 +893,21 @@ body {
   background: rgba(0,0,0,0.45);
   pointer-events: all;
 }
+
+/* ── THEME PICKER ── */
+#theme-overlay { background: rgba(0,0,0,0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); transition: background .25s ease, backdrop-filter .25s ease; }
+#theme-overlay.open { background: rgba(0,0,0,0.25); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.theme-opt {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px;
+  cursor: pointer; background: var(--surface); transition: all .12s;
+}
+.theme-opt:hover { border-color: var(--gold); background: var(--goldbg); }
+.theme-opt.sel { border-color: var(--gold); background: var(--goldbg); }
+.theme-icon { font-size: 22px; line-height: 1; width: 28px; text-align: center; }
+.theme-label { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
+.theme-check { color: var(--gold); font-weight: 700; font-size: 16px; }
+
 .help-sheet {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
   background: var(--surface);
@@ -1686,6 +1769,18 @@ body {
       <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
     </div>
     <div class="help-section">
+      <div class="help-section-title">Тема оформления</div>
+      <select class="tag-select" id="cfg-theme" onchange="setTheme(this.value)">
+        <option value="light">Светлая</option>
+        <option value="dark">Тёмная</option>
+        <option value="cyberpunk">Cyberpunk</option>
+        <option value="matrix">Matrix</option>
+        <option value="synthwave">Synthwave</option>
+        <option value="terminal">Terminal</option>
+        <option value="holo">Holo</option>
+      </select>
+    </div>
+    <div class="help-section">
       <div class="help-section-title">Футер</div>
       <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
     </div>
@@ -1707,6 +1802,18 @@ body {
     </div>
   </div>
 </div>
+
+<!-- THEME PICKER -->
+<div class="help-overlay" id="theme-overlay" onclick="closeThemePicker()"></div>
+<div class="help-sheet" id="theme-picker">
+  <div class="help-handle"></div>
+  <div class="help-head">
+    <div><div class="help-name">Тема оформления</div></div>
+    <button class="help-close" onclick="closeThemePicker()">✕</button>
+  </div>
+  <div class="help-body" id="theme-picker-body"></div>
+</div>
+
 <div class="app">
 
   <div class="topbar">
@@ -1715,7 +1822,7 @@ body {
       <div class="topbar-week" id="topbar-wk">Неделя 1</div>
       <button class="theme-toggle" onclick="openCatalog()" title="Каталог упражнений">☰</button>
       <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения">⚙︎</button>
-      <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Сменить тему">☽</button>
+      <button class="theme-toggle" id="theme-btn" onclick="openThemePicker()" title="Сменить тему">☽</button>
     </div>
   </div>
 
@@ -1916,15 +2023,47 @@ grabWakeLock();
 
 let W=S.W, D=S.D, editMode=false;
 
+const THEME_ICONS = {light:'☀', dark:'☽', cyberpunk:'⚡', matrix:'⎔', synthwave:'◈', terminal:'⌨', holo:'◌'};
+const THEME_ORDER = ['light','dark','cyberpunk','matrix','synthwave','terminal','holo'];
+
 // Apply saved theme immediately
 document.documentElement.setAttribute('data-theme', S.theme);
-document.getElementById('theme-btn').textContent = S.theme==='dark' ? '☀' : '☽';
+document.getElementById('theme-btn').textContent = THEME_ICONS[S.theme] || '☽';
+
+function setTheme(name){
+  S.theme = name;
+  document.documentElement.setAttribute('data-theme', name);
+  document.getElementById('theme-btn').textContent = THEME_ICONS[name] || '☽';
+  const sel = document.getElementById('cfg-theme');
+  if (sel) sel.value = name;
+  save();
+}
 
 function toggleTheme(){
-  S.theme = S.theme==='dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', S.theme);
-  document.getElementById('theme-btn').textContent = S.theme==='dark' ? '☀' : '☽';
-  save();
+  const idx = THEME_ORDER.indexOf(S.theme);
+  const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
+  setTheme(next);
+}
+
+const THEME_LABELS = {light:'Светлая', dark:'Тёмная', cyberpunk:'Cyberpunk', matrix:'Matrix', synthwave:'Synthwave', terminal:'Terminal', holo:'Holo'};
+
+function openThemePicker(){
+  const body = document.getElementById('theme-picker-body');
+  body.innerHTML = THEME_ORDER.map(t => `
+    <div class="theme-opt${S.theme===t?' sel':''}" onclick="setTheme('${t}');closeThemePicker()">
+      <span class="theme-icon">${THEME_ICONS[t]}</span>
+      <span class="theme-label">${THEME_LABELS[t]}</span>
+      ${S.theme===t?'<span class="theme-check">✓</span>':''}
+    </div>
+  `).join('');
+  document.getElementById('theme-overlay').classList.add('open');
+  document.getElementById('theme-picker').classList.add('open');
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+
+function closeThemePicker(){
+  document.getElementById('theme-overlay').classList.remove('open');
+  document.getElementById('theme-picker').classList.remove('open');
 }
 
 const save=()=>{S.W=W;S.D=D;try{localStorage.setItem('abw8',JSON.stringify(S));}catch(e){}};
@@ -2900,6 +3039,8 @@ function openAppSettings() {
   document.getElementById('cfg-topbar').value     = cfg.topbar;
   document.getElementById('cfg-hero-title').value = cfg.heroTitle.replace('\n', ' / ');
   document.getElementById('cfg-footer').value     = cfg.footer;
+  const themeSel = document.getElementById('cfg-theme');
+  if (themeSel) themeSel.value = S.theme || 'light';
   document.getElementById('settings-overlay').classList.add('open');
   document.getElementById('settings-sheet').classList.add('open');
   if (navigator.vibrate) navigator.vibrate(8);
@@ -3560,7 +3701,7 @@ function closeHelp() {
 
 // Закрытие свайпом вниз для всех панелей
 (function(){
-  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet', 'catalog-sheet', 'exnote-sheet'];
+  const sheets = ['help-sheet', 'settings-sheet', 'weeks-sheet', 'history-sheet', 'catalog-sheet', 'exnote-sheet', 'theme-picker'];
   sheets.forEach(id => {
     const sheet = document.getElementById(id);
     if (!sheet) return;
@@ -3579,6 +3720,7 @@ function closeHelp() {
         else if (id === 'settings-sheet') closeAppSettings();
         else if (id === 'weeks-sheet') closeWeeksEditor();
         else if (id === 'history-sheet') closeHistorySheet();
+        else if (id === 'theme-picker') closeThemePicker();
       }
       sheet.style.transform = '';
     });
