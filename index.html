@@ -4017,7 +4017,7 @@ function recordSession(w,d){
   const duration = autoDuration || null;
 
   const now = new Date();
-  const isoDate = now.toISOString().slice(0,10); // "2025-05-26"
+  const isoDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   h.unshift({
     date: now.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}),
     time: now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
@@ -4403,6 +4403,21 @@ function openHistory(){
     return;
   }
 
+  // Миграция: исправляем isoDate в старых записях (была UTC, стала локальная)
+  if (!localStorage.getItem('abw_v4_iso_migrated')) {
+    const mn = {'января':0,'февраля':1,'марта':2,'апреля':3,'мая':4,'июня':5,'июля':6,'августа':7,'сентября':8,'октября':9,'ноября':10,'декабря':11};
+    let dirty = false;
+    h.forEach(r => {
+      const m = r.date && r.date.match(/^(\d{1,2})\s+(\S+)\s+(\d{4})/);
+      if (m && mn[m[2]] !== undefined) {
+        const correct = `${m[3]}-${String(mn[m[2]]+1).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+        if (r.isoDate !== correct) { r.isoDate = correct; dirty = true; }
+      }
+    });
+    if (dirty) saveHistory(h);
+    localStorage.setItem('abw_v4_iso_migrated','1');
+  }
+
   // Строим Set дат тренировок для подсветки
   const trainDates = {};
   h.forEach(r => { if(r.isoDate) trainDates[r.isoDate] = (trainDates[r.isoDate]||0)+1; });
@@ -4576,15 +4591,19 @@ function toggleHistoryRow(idx){
 }
 
 function histEditDate(inputEl, globalIdx){
-  const h = loadHistory();
+  let h = loadHistory();
+  h.sort((a,b) => (window._histSortAsc ? -1 : 1) * (
+    ((b.isoDate||'')>(a.isoDate||'')?1:(b.isoDate||'')<(a.isoDate||'')?-1:0) ||
+    ((b.time||'')>(a.time||'')?1:(b.time||'')<(a.time||'')?-1:0)
+  ));
   if(!h[globalIdx]) return;
   const val = inputEl.value;
   if (!val) return;
-  const d = new Date(val + 'T00:00:00');
-  if (isNaN(d.getTime())) return;
-  const isoDate = d.toISOString().slice(0,10);
+  const isoDate = val;
   h[globalIdx].isoDate = isoDate;
-  h[globalIdx].date = d.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
+  const parts = val.split('-');
+  const d2 = new Date(+parts[0], +parts[1]-1, +parts[2]);
+  h[globalIdx].date = d2.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
   saveHistory(h);
   openHistory();
 }
