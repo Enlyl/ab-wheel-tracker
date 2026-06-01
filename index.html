@@ -489,6 +489,12 @@ body {
 .add-ex-btn:hover { background: var(--goldbg); }
 .add-ex-btn.visible { display: block; }
 .day-actions { display: flex; gap: 10px; padding: 8px 14px 4px; }
+.day-actions.open { display: flex !important; }
+.day-actions-toggle { font-size: 10px; color: var(--text3); cursor: pointer; padding: 8px 14px 8px; user-select: none; opacity: 0.5; transition: opacity .15s; letter-spacing: 0.05em; }
+.day-actions-toggle:hover { opacity: 1; }
+.day-actions-toggle.exp { opacity: 1; }
+.day-actions-toggle .arr { display: inline-block; transition: transform .2s; }
+.day-actions-toggle.exp .arr { transform: rotate(90deg); }
 .day-action-btn { flex: 1; padding: 9px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: 'Archivo Narrow', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); text-align: center; transition: all .15s; box-shadow: var(--shadow-sm); }
 .day-action-btn:hover { transform: translateY(-1px); }
 .day-action-btn.reset:hover { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.06); }
@@ -2824,7 +2830,8 @@ function render(){
       </div>
       ${day.ex.length ? day.ex.map((e,i)=>renderExItem(e,D,i)).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
       ${editMode?'':`
-      <div class="day-actions">
+      <div class="day-actions-toggle" onclick="this.classList.toggle('exp');this.nextElementSibling.classList.toggle('open')"><span class="arr">▶</span> дополнительно</div>
+      <div class="day-actions" style="display:none;">
         <button class="day-action-btn reset" onclick="resetDayProgress()">Сбросить</button>
         <button class="day-action-btn complete" onclick="completeDay()">Заполнить</button>
       </div>`}
