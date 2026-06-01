@@ -1873,8 +1873,27 @@ let WEEKS = loadWeeks();
 let S={};
 try{S=JSON.parse(localStorage.getItem('abw8')||'{}');}catch(e){}
 if(!S.days) S.days=JSON.parse(JSON.stringify(DEFAULT_DAYS));
+S.days.forEach(d => { if (!d.uid) d.uid = crypto.randomUUID(); });
 if(!S.W) S.W=1;
 if(!S.D) S.D=0;
+
+// Миграция: старые ключи → UUID-формат
+(function migrateKeys() {
+  if (localStorage.getItem('abw8_migrated_v2')) return;
+  S.days.forEach(d => { if (!d.uid) d.uid = crypto.randomUUID(); });
+  const uuid = i => S.days[i] ? S.days[i].uid : 'unknown';
+  Object.keys(localStorage).forEach(k => {
+    let nk;
+    const m1 = k.match(/^c_w(\d+)d(\d+)e(\d+)$/);
+    if (m1) nk = `c_${m1[1]}_${uuid(+m1[2])}_e${m1[3]}`;
+    const m2 = k.match(/^(reps|load|loadUnit)_d(\d+)e(\d+)$/);
+    if (m2) nk = `${m2[1]}_${uuid(+m2[2])}_e${m2[3]}`;
+    const m3 = k.match(/^exnote_w(\d+)_d(\d+)_e(\d+)$/);
+    if (m3) nk = `exnote_${m3[1]}_${uuid(+m3[2])}_e${m3[3]}`;
+    if (nk) { localStorage.setItem(nk, localStorage.getItem(k)); localStorage.removeItem(k); }
+  });
+  localStorage.setItem('abw8_migrated_v2', '1');
+})();
 if(!S.theme) S.theme='light';
 
 const maxWks = () => Math.max(W, ...S.days.filter(d=>d.week).map(d=>d.week));
@@ -1910,7 +1929,7 @@ function toggleTheme(){
 }
 
 const save=()=>{S.W=W;S.D=D;try{localStorage.setItem('abw8',JSON.stringify(S));}catch(e){}};
-const k=(w,d,i)=>`c_w${w}d${d}e${i}`;
+const k=(w,d,i)=>S.days[d]?`c_${w}_${S.days[d].uid}_e${i}`:'';
 
 // ── Работа с подходами ─────────────────
 // S[k] теперь: false | true (legacy) | { done: N, total: N }
@@ -1949,7 +1968,7 @@ function togWarmup(w,d,i,setIdx){
 
 // Базовые повторения — берём кастомное если есть, иначе из плана
 function getBaseReps(d,i){
-  const saved = S[`reps_d${d}e${i}`];
+  const saved = S[`reps_${S.days[d].uid}_e${i}`];
   if(saved!=null) return Array.isArray(saved)?saved[0]:saved;
   return parseReps(S.days[d].ex[i].d);
 }
@@ -1968,7 +1987,7 @@ function _getRepObj(w,d,i){
   const obj=(!cur||cur===true)?{...base,...(cur===true?{done:base.total}:{})}:{...cur};
   // reps as array
   if(obj.reps==null){
-    const saved=S[`reps_d${d}e${i}`];
+    const saved=S[`reps_${S.days[d].uid}_e${i}`];
     if(saved!=null){obj.reps=Array.isArray(saved)?[...saved]:Array(obj.total).fill(saved);}
     else {obj.reps=Array(obj.total).fill(baseRepsVal);}
   } else if(!Array.isArray(obj.reps)){
@@ -1978,7 +1997,7 @@ function _getRepObj(w,d,i){
   while(obj.reps.length>obj.total) obj.reps.pop();
   // load as array
   if(obj.load==null){
-    const saved=S[`load_d${d}e${i}`];
+    const saved=S[`load_${S.days[d].uid}_e${i}`];
     if(saved!=null) obj.load=Array.isArray(saved)?[...saved]:Array(obj.total).fill(saved);
   } else if(!Array.isArray(obj.load)){
     obj.load=Array(obj.total).fill(obj.load);
@@ -1994,7 +2013,7 @@ function getSetRep(w,d,i,s){
   const v=S[k(w,d,i)];
   if(v&&v!==true&&Array.isArray(v.reps)&&v.reps[s]!=null) return v.reps[s];
   if(v&&v!==true&&v.reps!=null) return v.reps;
-  const saved=S[`reps_d${d}e${i}`];
+  const saved=S[`reps_${S.days[d].uid}_e${i}`];
   if(saved!=null) return Array.isArray(saved)?(saved[s]!=null?saved[s]:0):saved;
   return parseReps(S.days[d].ex[i].d);
 }
@@ -2004,7 +2023,7 @@ function setSetRep(w,d,i,s,val){
   const obj=_getRepObj(w,d,i);
   obj.reps[s]=n;
   S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`]=[...obj.reps];
+  S[`reps_${S.days[d].uid}_e${i}`]=[...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]);
   save();
 }
@@ -2013,7 +2032,7 @@ function getSetLoad(w,d,i,s){
   const v=S[k(w,d,i)];
   if(v&&v!==true&&Array.isArray(v.load)&&v.load[s]!=null) return v.load[s];
   if(v&&v!==true&&v.load!=null) return v.load;
-  const saved=S[`load_d${d}e${i}`];
+  const saved=S[`load_${S.days[d].uid}_e${i}`];
   if(saved!=null) return Array.isArray(saved)?(saved[s]!=null?saved[s]:0):saved;
   return 0;
 }
@@ -2025,7 +2044,7 @@ function setSetLoad(w,d,i,s,val){
   if(!Array.isArray(obj.load)) obj.load=Array(obj.total).fill(obj.load);
   obj.load[s]=n;
   S[k(w,d,i)]=obj;
-  S[`load_d${d}e${i}`]=[...obj.load];
+  S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]);
   save();
 }
@@ -2035,7 +2054,7 @@ function incSetRep(btn,w,d,i,s){
   const cur=obj.reps[s]||0;
   obj.reps[s]=cur>=50?1:cur+1;
   S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`]=[...obj.reps];
+  S[`reps_${S.days[d].uid}_e${i}`]=[...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]); save();
   const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
   if(inp&&inp.tagName==='INPUT') inp.value=obj.reps[s];
@@ -2046,7 +2065,7 @@ function decSetRep(btn,w,d,i,s){
   const cur=obj.reps[s]||0;
   obj.reps[s]=cur<=1?50:cur-1;
   S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`]=[...obj.reps];
+  S[`reps_${S.days[d].uid}_e${i}`]=[...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]); save();
   const inp=btn&&(btn.nextElementSibling||btn.previousElementSibling);
   if(inp&&inp.tagName==='INPUT') inp.value=obj.reps[s];
@@ -2059,7 +2078,7 @@ function incSetLoad(btn,w,d,i,s){
   const cur=obj.load[s]||0;
   obj.load[s]=Math.round((cur+0.5)*2)/2;
   S[k(w,d,i)]=obj;
-  S[`load_d${d}e${i}`]=[...obj.load];
+  S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]); save();
   const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
   if(inp&&inp.tagName==='INPUT') inp.value=obj.load[s];
@@ -2072,7 +2091,7 @@ function decSetLoad(btn,w,d,i,s){
   const cur=obj.load[s]||0;
   obj.load[s]=Math.max(0,Math.round((cur-0.5)*2)/2);
   S[k(w,d,i)]=obj;
-  S[`load_d${d}e${i}`]=[...obj.load];
+  S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]); save();
   const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
   if(inp&&inp.tagName==='INPUT') inp.value=obj.load[s];
@@ -2083,7 +2102,7 @@ function setRep(w,d,i,val){
   const obj=_getRepObj(w,d,i);
   obj.reps = Array(obj.total).fill(n);
   S[k(w,d,i)]=obj;
-  S[`reps_d${d}e${i}`] = [...obj.reps];
+  S[`reps_${S.days[d].uid}_e${i}`] = [...obj.reps];
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -2120,8 +2139,8 @@ function tog(w,d,i){
   if(navigator.vibrate) navigator.vibrate(S[k(w,d,i)]?[18]:[12,40,12]);
   const finalObj = S[k(w,d,i)];
   if(finalObj && finalObj !== true) {
-    if(finalObj.reps != null) S[`reps_d${d}e${i}`] = [...finalObj.reps];
-    if(finalObj.load != null) S[`load_d${d}e${i}`] = [...finalObj.load];
+    if(finalObj.reps != null) S[`reps_${S.days[d].uid}_e${i}`] = [...finalObj.reps];
+    if(finalObj.load != null) S[`load_${S.days[d].uid}_e${i}`] = [...finalObj.load];
   }
   // Авто-замер времени тренировки: начало — первый подход первого упражнения
   if (i === 0 && finalObj && !S[`ts_start_w${w}_d${d}`]) {
@@ -2183,7 +2202,7 @@ function removeSet(w,d,i){
     const obj=newTotal===1?true:{done:newTotal,total:newTotal};
     if(obj!==true){
       obj.reps=Array(newTotal).fill(parseReps(S.days[d].ex[i].d));
-      const saved=S[`reps_d${d}e${i}`];
+      const saved=S[`reps_${S.days[d].uid}_e${i}`];
       if(Array.isArray(saved)){obj.reps=saved.slice(0,newTotal);}
     }
     S[k(w,d,i)]=obj;
@@ -2220,8 +2239,8 @@ function togSet(w,d,i,setIdx){
   if(navigator.vibrate) navigator.vibrate([10]);
   const finalObj = S[k(w,d,i)];
   if(finalObj && finalObj !== true) {
-    if(finalObj.reps != null) S[`reps_d${d}e${i}`] = [...finalObj.reps];
-    if(finalObj.load != null) S[`load_d${d}e${i}`] = [...finalObj.load];
+    if(finalObj.reps != null) S[`reps_${S.days[d].uid}_e${i}`] = [...finalObj.reps];
+    if(finalObj.load != null) S[`load_${S.days[d].uid}_e${i}`] = [...finalObj.load];
   }
   // Авто-замер времени тренировки: начало — первый подход первого упражнения
   if (i === 0 && setIdx === 0 && newDone > doneBefore && !S[`ts_start_w${w}_d${d}`]) {
@@ -2258,7 +2277,7 @@ function chWk(dir){
             carried.load = Array.isArray(prevVal.load) ? [...prevVal.load] : prevVal.load;
           }
           if (carried.load == null) {
-            const globalLoad = S[`load_d${di}e${ei}`];
+            const globalLoad = S[`load_${S.days[di].uid}_e${ei}`];
             if (globalLoad != null) carried.load = Array.isArray(globalLoad) ? [...globalLoad] : globalLoad;
           }
           if (prevVal.loadUnit) carried.loadUnit = prevVal.loadUnit;
@@ -2287,14 +2306,14 @@ function getLoad(w,d,i){
   if(!S.days[d].ex[i].showLoad) return null;
   const v=S[k(w,d,i)];
   if(v&&v!==true&&v.load!=null) return Array.isArray(v.load)?v.load[0]:v.load;
-  const saved=S[`load_d${d}e${i}`];
+  const saved=S[`load_${S.days[d].uid}_e${i}`];
   if(saved!=null) return Array.isArray(saved)?saved[0]:saved;
   return 0;
 }
 function getLoadUnit(w,d,i){
   const v=S[k(w,d,i)];
   if(v&&v!==true&&v.loadUnit) return v.loadUnit;
-  return S[`loadUnit_d${d}e${i}`]||'кг';
+  return S[`loadUnit_${S.days[d].uid}_e${i}`]||'кг';
 }
 function setLoad(w,d,i,val){
   if(editMode) return;
@@ -2302,7 +2321,7 @@ function setLoad(w,d,i,val){
   const n=Math.max(0,val);
   obj.load=Array(obj.total).fill(n);
   S[k(w,d,i)]=obj;
-  S[`load_d${d}e${i}`]=[...obj.load];
+  S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
@@ -2311,7 +2330,7 @@ function setLoadUnit(w,d,i,unit){
   const obj=_getRepObj(w,d,i);
   obj.loadUnit=unit;
   S[k(w,d,i)]=obj;
-  S[`loadUnit_d${d}e${i}`]=unit;
+  S[`loadUnit_${S.days[d].uid}_e${i}`]=unit;
   save(); render();
 }
 
@@ -2340,17 +2359,17 @@ function deleteEx(di,ei){
     }
     delete S[k(w,di,len-1)];
   }
-  delete S[`reps_d${di}e${ei}`];
-  delete S[`load_d${di}e${ei}`];
-  delete S[`loadUnit_d${di}e${ei}`];
+  delete S[`reps_${S.days[di].uid}_e${ei}`];
+  delete S[`load_${S.days[di].uid}_e${ei}`];
+  delete S[`loadUnit_${S.days[di].uid}_e${ei}`];
   for(let i=ei;i<len-1;i++){
-    S[`reps_d${di}e${i}`]=S[`reps_d${di}e${i+1}`];
-    S[`load_d${di}e${i}`]=S[`load_d${di}e${i+1}`];
-    S[`loadUnit_d${di}e${i}`]=S[`loadUnit_d${di}e${i+1}`];
+    S[`reps_${S.days[di].uid}_e${i}`]=S[`reps_${S.days[di].uid}_e${i+1}`];
+    S[`load_${S.days[di].uid}_e${i}`]=S[`load_${S.days[di].uid}_e${i+1}`];
+    S[`loadUnit_${S.days[di].uid}_e${i}`]=S[`loadUnit_${S.days[di].uid}_e${i+1}`];
   }
-  delete S[`reps_d${di}e${len-1}`];
-  delete S[`load_d${di}e${len-1}`];
-  delete S[`loadUnit_d${di}e${len-1}`];
+  delete S[`reps_${S.days[di].uid}_e${len-1}`];
+  delete S[`load_${S.days[di].uid}_e${len-1}`];
+  delete S[`loadUnit_${S.days[di].uid}_e${len-1}`];
   S.days[di].ex.splice(ei,1);
   save();render();
 }
@@ -2361,17 +2380,17 @@ function moveEx(di,ei,dir){
   for(let w=1;w<=maxWks();w++){
     const tmp=S[k(w,di,ei)];S[k(w,di,ei)]=S[k(w,di,ni)];S[k(w,di,ni)]=tmp;
   }
-  const tmpReps=S[`reps_d${di}e${ei}`];
-  S[`reps_d${di}e${ei}`]=S[`reps_d${di}e${ni}`];
-  S[`reps_d${di}e${ni}`]=tmpReps;
+  const tmpReps=S[`reps_${S.days[di].uid}_e${ei}`];
+  S[`reps_${S.days[di].uid}_e${ei}`]=S[`reps_${S.days[di].uid}_e${ni}`];
+  S[`reps_${S.days[di].uid}_e${ni}`]=tmpReps;
   
-  const tmpLoad=S[`load_d${di}e${ei}`];
-  S[`load_d${di}e${ei}`]=S[`load_d${di}e${ni}`];
-  S[`load_d${di}e${ni}`]=tmpLoad;
+  const tmpLoad=S[`load_${S.days[di].uid}_e${ei}`];
+  S[`load_${S.days[di].uid}_e${ei}`]=S[`load_${S.days[di].uid}_e${ni}`];
+  S[`load_${S.days[di].uid}_e${ni}`]=tmpLoad;
 
-  const tmpLoadUnit=S[`loadUnit_d${di}e${ei}`];
-  S[`loadUnit_d${di}e${ei}`]=S[`loadUnit_d${di}e${ni}`];
-  S[`loadUnit_d${di}e${ni}`]=tmpLoadUnit;
+  const tmpLoadUnit=S[`loadUnit_${S.days[di].uid}_e${ei}`];
+  S[`loadUnit_${S.days[di].uid}_e${ei}`]=S[`loadUnit_${S.days[di].uid}_e${ni}`];
+  S[`loadUnit_${S.days[di].uid}_e${ni}`]=tmpLoadUnit;
 
   save();render();
 }
@@ -2392,9 +2411,9 @@ function reorderEx(di, fromEi, toEi) {
   for (let w = 1; w <= maxWks(); w++) {
     shift(i => k(w, di, i), fromEi, toEi);
   }
-  shift(i => `reps_d${di}e${i}`, fromEi, toEi);
-  shift(i => `load_d${di}e${i}`, fromEi, toEi);
-  shift(i => `loadUnit_d${di}e${i}`, fromEi, toEi);
+  shift(i => `reps_${S.days[di].uid}_e${i}`, fromEi, toEi);
+  shift(i => `load_${S.days[di].uid}_e${i}`, fromEi, toEi);
+  shift(i => `loadUnit_${S.days[di].uid}_e${i}`, fromEi, toEi);
   save();render();
 }
 let _dragSource = null;
@@ -2415,6 +2434,7 @@ function addExtraDay(){
   // Копируем первый день как шаблон
   const template = JSON.parse(JSON.stringify(S.days[0]));
   template.id    = '★';
+  template.uid   = crypto.randomUUID();
   template.day   = free;
   template.role  = 'Extra';
   template.cls   = 'on-a';
@@ -2431,20 +2451,12 @@ function addExtraDay(){
 
 function removeExtraDay(di){
   if(!confirm('Удалить этот день?')) return;
-  // Удаляем данные подходов этого дня (только свою неделю)
-  for(let w=1;w<=maxWks();w++) for(let i=0;i<S.days[di].ex.length;i++) delete S[k(w,di,i)];
-  // Сдвигаем данные последующих дней вверх (чтобы индексы не разъехались)
-  for (let j = di + 1; j < S.days.length; j++) {
-    const day = S.days[j];
-    if (!day.extra) continue;
-    for (let w = 1; w <= maxWks(); w++) {
-      for (let ei = 0; ei < day.ex.length; ei++) {
-        S[k(w, j-1, ei)] = S[k(w, j, ei)];
-        S[exNoteKey(w, j-1, ei)] = S[exNoteKey(w, j, ei)];
-        delete S[k(w, j, ei)];
-        delete S[exNoteKey(w, j, ei)];
-      }
-    }
+  const uid = S.days[di].uid;
+  for(let w=1;w<=maxWks();w++) for(let i=0;i<S.days[di].ex.length;i++) {
+    delete S[k(w,di,i)];
+    delete S[`reps_${uid}_e${i}`];
+    delete S[`load_${uid}_e${i}`];
+    delete S[`loadUnit_${uid}_e${i}`];
   }
   S.days.splice(di, 1);
   D = Math.min(D, S.days.length-1);
@@ -2453,27 +2465,6 @@ function removeExtraDay(di){
 }
 function moveDay(fromIdx, toIdx) {
   if (fromIdx === toIdx) return;
-  const maxEx = Math.max(...S.days.map(d => d.ex ? d.ex.length : 0));
-  function shift(keyFn, from, to) {
-    const saved = keyFn(from);
-    if (from < to) {
-      for (let i = from; i < to; i++) keyFn(i, keyFn(i + 1));
-    } else {
-      for (let i = from; i > to; i--) keyFn(i, keyFn(i - 1));
-    }
-    keyFn(to, saved);
-  }
-  for (let w = 1; w <= maxWks(); w++) {
-    for (let ei = 0; ei < maxEx; ei++) {
-      shift(i => S[k(w, i, ei)], fromIdx, toIdx);
-      shift(i => S[exNoteKey(w, i, ei)], fromIdx, toIdx);
-    }
-  }
-  for (let ei = 0; ei < maxEx; ei++) {
-    shift(i => S[`reps_d${i}e${ei}`], fromIdx, toIdx);
-    shift(i => S[`load_d${i}e${ei}`], fromIdx, toIdx);
-    shift(i => S[`loadUnit_d${i}e${ei}`], fromIdx, toIdx);
-  }
   const [day] = S.days.splice(fromIdx, 1);
   S.days.splice(toIdx, 0, day);
   if (D === fromIdx) D = toIdx;
@@ -3919,7 +3910,7 @@ iUpdateRing();
 initMetroBtn();
 
 // ── Exercise notes ────────────────────
-function exNoteKey(w,d,i){ return 'exnote_w'+w+'_d'+d+'_e'+i; }
+function exNoteKey(w,d,i){ return 'exnote_'+w+'_'+S.days[d].uid+'_e'+i; }
 
 function editExNote(w,d,i) {
   const ex = S.days[d].ex[i];
