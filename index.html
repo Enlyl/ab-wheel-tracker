@@ -487,6 +487,12 @@ body {
 }
 .add-ex-btn:hover { background: var(--goldbg); }
 .add-ex-btn.visible { display: block; }
+.day-actions { display: flex; gap: 10px; padding: 8px 14px 4px; }
+.day-action-btn { flex: 1; padding: 9px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: 'Archivo Narrow', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); text-align: center; transition: all .15s; box-shadow: var(--shadow-sm); }
+.day-action-btn:hover { transform: translateY(-1px); }
+.day-action-btn.reset:hover { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.06); }
+.day-action-btn.complete { border-color: var(--green); color: var(--green); }
+.day-action-btn.complete:hover { background: var(--green); color: #fff; border-color: var(--green); }
 .empty-day { padding: 32px 16px; text-align: center; font-size: 13px; color: var(--text3); line-height: 1.5; }
 .catalog-add-btn {
   padding: 6px 14px; border-radius: 8px; border: 1px solid var(--gold); background: transparent;
@@ -972,7 +978,6 @@ body {
 .done-t span { font-size: 12px; font-weight: 300; color: var(--green-soft); }
 
 /* ── RESET ── */
-.reset-row { text-align: center; margin: 6px 0 28px; }
 .reset-btn {
   background: none; border: none; font-family: 'Archivo Narrow', sans-serif;
   font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text3);
@@ -1724,7 +1729,7 @@ body {
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-n" id="s-ex">0</div><div class="stat-l">Упражнений</div></div>
-      <div class="stat"><div class="stat-n" id="s-wk">0/0</div><div class="stat-l">Неделя</div></div>
+      <div class="stat"><div class="stat-n" id="s-wk">0/0</div><div class="stat-l">тренировок в неделю</div></div>
     </div>
   </div>
 
@@ -1798,12 +1803,6 @@ body {
       </div>
     </div>
   </div>
-
-  <!-- Сброс дня — внизу, подальше от рабочей зоны -->
-  <div class="reset-row">
-    <button class="reset-btn" onclick="confirmResetDay()">Сбросить день</button>
-  </div>
-
 
   <div class="divider"><span>Прогрессия навыка</span></div>
 
@@ -2254,7 +2253,16 @@ function togSet(w,d,i,setIdx){
 }
 
 function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();render();}
-function confirmResetDay(){if(confirm('Сбросить все отметки за сегодня?'))resetDay();}
+function resetDayProgress(){if(confirm('Сбросить все подходы за сегодня?'))resetDay();}
+function completeDay(){
+  if(!confirm('Закрыть все подходы за сегодня?')) return;
+  S.days[D].ex.forEach((_,i)=>{
+    const total=parseSets(S.days[D].ex[i].d);
+    if(total<=1) S[k(W,D,i)]=true;
+    else S[k(W,D,i)]={done:total,total:total};
+  });
+  save();render();
+}
 function chWk(dir){
   const prevW = W;
   W = Math.max(1, Math.min(9, W + dir));
@@ -2774,7 +2782,7 @@ function render(){
   document.getElementById('topbar-wk').style.color=WK_COLORS[W]||'var(--text2)';
   document.getElementById('wn-n').textContent=W;
   document.getElementById('wn-n').setAttribute('data-w', W);
-  document.getElementById('s-ex').textContent=allEx();
+  document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
   document.getElementById('s-wk').textContent=calcWeekProg();
 
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -2819,6 +2827,11 @@ function render(){
         </div>
       </div>
       ${day.ex.length ? day.ex.map((e,i)=>renderExItem(e,D,i)).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
+      ${editMode?'':`
+      <div class="day-actions">
+        <button class="day-action-btn reset" onclick="resetDayProgress()">Сбросить</button>
+        <button class="day-action-btn complete" onclick="completeDay()">Закрыть</button>
+      </div>`}
       <button class="add-ex-btn${editMode?' visible':''}" onclick="addEx(${D})">+ Добавить упражнение</button>
     </div>`;
 
