@@ -1676,16 +1676,8 @@ body {
       <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()">
     </div>
     <div class="help-section">
-      <div class="help-section-title">Заголовок героя</div>
+      <div class="help-section-title">Главный заголовок</div>
       <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
-    </div>
-    <div class="help-section">
-      <div class="help-section-title">Название программы (прогресс)</div>
-      <input class="edit-field" id="cfg-prog-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
-    </div>
-    <div class="help-section">
-      <div class="help-section-title">Подзаголовок программы</div>
-      <input class="edit-field" id="cfg-prog-sub" placeholder="Дорожная карта..." oninput="applyAppSettings()">
     </div>
     <div class="help-section">
       <div class="help-section-title">Футер</div>
@@ -2865,6 +2857,10 @@ const APP_DEFAULTS = {
   heroTitle: 'Выход\nСтоя',
   progTitle: 'Выход стоя',
   progSub:   'Дорожная карта к полному выходу стоя',
+  progTitleWeight: '500',
+  progTitleColor: '',
+  progSubWeight: '300',
+  progSubColor: '',
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
 };
 
@@ -2886,8 +2882,8 @@ function renderAppCfg(cfg) {
 
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
   if (ht) { const _t=esc(cfg.heroTitle || APP_DEFAULTS.heroTitle); ht.innerHTML = _t.replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>'); }
-  if (pt) pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle;
-  if (ps) ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;
+  if (pt) { pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle; pt.style.fontWeight = cfg.progTitleWeight || APP_DEFAULTS.progTitleWeight; if (cfg.progTitleColor) pt.style.color = cfg.progTitleColor; else pt.style.color = ''; }
+  if (ps) { ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;   ps.style.fontWeight = cfg.progSubWeight   || APP_DEFAULTS.progSubWeight;   if (cfg.progSubColor) ps.style.color = cfg.progSubColor;     else ps.style.color = ''; }
   if (ft) ft.textContent = cfg.footer    || APP_DEFAULTS.footer;
   document.title = cfg.topbar || APP_DEFAULTS.topbar;
 }
@@ -2896,8 +2892,6 @@ function openAppSettings() {
   const cfg = loadAppCfg();
   document.getElementById('cfg-topbar').value     = cfg.topbar;
   document.getElementById('cfg-hero-title').value = cfg.heroTitle.replace('\n', ' / ');
-  document.getElementById('cfg-prog-title').value = cfg.progTitle;
-  document.getElementById('cfg-prog-sub').value   = cfg.progSub;
   document.getElementById('cfg-footer').value     = cfg.footer;
   document.getElementById('settings-overlay').classList.add('open');
   document.getElementById('settings-sheet').classList.add('open');
@@ -2933,13 +2927,33 @@ function closeAppSettings() {
 function applyAppSettings() {
   const heroRaw  = document.getElementById('cfg-hero-title').value;
   const heroTitle = heroRaw.includes(' / ') ? heroRaw.replace(' / ', '\n') : heroRaw;
+  const cur = loadAppCfg();
   const cfg = {
     topbar:    document.getElementById('cfg-topbar').value     || APP_DEFAULTS.topbar,
     heroTitle: heroTitle                                        || APP_DEFAULTS.heroTitle,
-    progTitle: document.getElementById('cfg-prog-title').value || APP_DEFAULTS.progTitle,
-    progSub:   document.getElementById('cfg-prog-sub').value   || APP_DEFAULTS.progSub,
+    progTitle: cur.progTitle                                    || APP_DEFAULTS.progTitle,
+    progSub:   cur.progSub                                     || APP_DEFAULTS.progSub,
+    progTitleWeight: cur.progTitleWeight                        || APP_DEFAULTS.progTitleWeight,
+    progTitleColor:  cur.progTitleColor                         || APP_DEFAULTS.progTitleColor,
+    progSubWeight:   cur.progSubWeight                          || APP_DEFAULTS.progSubWeight,
+    progSubColor:    cur.progSubColor                           || APP_DEFAULTS.progSubColor,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
   };
+  saveAppCfg(cfg);
+  renderAppCfg(cfg);
+}
+
+function updateAppField(field, rawVal) {
+  const cfg = loadAppCfg();
+  if (field === 'heroTitle') {
+    cfg.heroTitle = rawVal.includes(' / ') ? rawVal.replace(' / ', '\n') : rawVal || APP_DEFAULTS.heroTitle;
+  } else if (field === 'progTitle') {
+    cfg.progTitle = rawVal || APP_DEFAULTS.progTitle;
+  } else if (field === 'progSub') {
+    cfg.progSub = rawVal || APP_DEFAULTS.progSub;
+  } else {
+    cfg[field] = rawVal;
+  }
   saveAppCfg(cfg);
   renderAppCfg(cfg);
 }
@@ -2949,7 +2963,48 @@ function applyAppSettings() {
 // ══════════════════════════════════════
 function renderWeeksBody() {
   const body = document.getElementById('weeks-body');
-  body.innerHTML = WEEKS.map((w, i) => `
+  const cfg = loadAppCfg();
+  body.innerHTML = `
+    <div class="help-section" style="margin-bottom:14px;">
+      <div class="help-section-title">Название программы (прогресс)</div>
+      <input class="edit-field" value="${esc(cfg.progTitle)}"
+        oninput="updateAppField('progTitle',this.value)" placeholder="Выход стоя">
+      <div style="display:flex;gap:10px;margin-top:6px;align-items:center;">
+        <span style="font-size:11px;color:var(--text3);">Насыщенность</span>
+        <select class="tag-select" style="flex:1;" onchange="updateAppField('progTitleWeight',this.value)">
+          <option value="300" ${cfg.progTitleWeight==='300'?'selected':''}>Light 300</option>
+          <option value="400" ${cfg.progTitleWeight==='400'?'selected':''}>Normal 400</option>
+          <option value="500" ${cfg.progTitleWeight==='500'?'selected':''}>Medium 500</option>
+          <option value="600" ${cfg.progTitleWeight==='600'?'selected':''}>Semi Bold 600</option>
+          <option value="700" ${cfg.progTitleWeight==='700'?'selected':''}>Bold 700</option>
+          <option value="900" ${cfg.progTitleWeight==='900'?'selected':''}>Black 900</option>
+        </select>
+        <span style="font-size:11px;color:var(--text3);">Цвет</span>
+        <input type="color" value="${cfg.progTitleColor||'#ffffff'}"
+          style="width:32px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:1px;"
+          oninput="updateAppField('progTitleColor',this.value)">
+      </div>
+    </div>
+    <div class="help-section" style="margin-bottom:14px;">
+      <div class="help-section-title">Подзаголовок программы</div>
+      <input class="edit-field" value="${esc(cfg.progSub)}"
+        oninput="updateAppField('progSub',this.value)" placeholder="Дорожная карта...">
+      <div style="display:flex;gap:10px;margin-top:6px;align-items:center;">
+        <span style="font-size:11px;color:var(--text3);">Насыщенность</span>
+        <select class="tag-select" style="flex:1;" onchange="updateAppField('progSubWeight',this.value)">
+          <option value="100" ${cfg.progSubWeight==='100'?'selected':''}>Thin 100</option>
+          <option value="200" ${cfg.progSubWeight==='200'?'selected':''}>Extra Light 200</option>
+          <option value="300" ${cfg.progSubWeight==='300'?'selected':''}>Light 300</option>
+          <option value="400" ${cfg.progSubWeight==='400'?'selected':''}>Normal 400</option>
+          <option value="500" ${cfg.progSubWeight==='500'?'selected':''}>Medium 500</option>
+        </select>
+        <span style="font-size:11px;color:var(--text3);">Цвет</span>
+        <input type="color" value="${cfg.progSubColor||'#938f8c'}"
+          style="width:32px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:1px;"
+          oninput="updateAppField('progSubColor',this.value)">
+      </div>
+    </div>
+  ` + WEEKS.map((w, i) => `
     <div class="help-section" style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div class="help-section-title" style="margin:0;">Этап ${i+1}</div>
