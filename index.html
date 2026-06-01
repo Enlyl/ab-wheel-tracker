@@ -172,7 +172,7 @@ body {
   transition: var(--transition);
 }
 .stats {
-  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  display: grid; grid-template-columns: 1fr 1fr;
   border-top: 1px solid var(--border); margin-top: 28px;
   transition: var(--transition);
 }
@@ -1724,8 +1724,6 @@ body {
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-n" id="s-ex">0</div><div class="stat-l">Упражнений</div></div>
-      <div class="stat"><div class="stat-n" id="s-sess">0</div><div class="stat-l">Сессий</div></div>
-      <div class="stat"><div class="stat-n" id="s-str">0</div><div class="stat-l">Подряд</div></div>
       <div class="stat"><div class="stat-n" id="s-wk">0/0</div><div class="stat-l">Неделя</div></div>
     </div>
   </div>
@@ -1873,7 +1871,10 @@ let WEEKS = loadWeeks();
 let S={};
 try{S=JSON.parse(localStorage.getItem('abw8')||'{}');}catch(e){}
 if(!S.days) S.days=JSON.parse(JSON.stringify(DEFAULT_DAYS));
-S.days.forEach(d => { if (!d.uid) d.uid = crypto.randomUUID(); });
+S.days.forEach(d => {
+  if (!d.uid) d.uid = crypto.randomUUID();
+  if (d.extra === true && d.week == null) d.week = S.W || 1;
+});
 if(!S.W) S.W=1;
 if(!S.D) S.D=0;
 
@@ -2474,31 +2475,15 @@ function moveDay(fromIdx, toIdx) {
 }
 const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)).length;
 const allEx=()=>{let t=0;for(let w=1;w<=maxWks();w++)for(let d=0;d<S.days.length;d++)t+=dayDone(w,d);return t;};
-const allSess=()=>{let t=0;for(let w=1;w<=maxWks();w++)for(let d=0;d<S.days.length;d++)if(dayDone(w,d)===S.days[d].ex.length)t++;return t;};
-const calcStreak=()=>{
-  // Строим плоский список всех дней до текущего включительно
-  // и считаем непрерывную серию с конца
-  let streak=0;
-  outer: for(let w=W;w>=1;w--){
-    const dMax = w===W ? D : S.days.length-1;
-    for(let d=dMax;d>=0;d--){
-      if(dayDone(w,d)===S.days[d].ex.length && S.days[d].ex.length>0){
-        streak++;
-      } else {
-        break outer;
-      }
-    }
-  }
-  return streak;
-};
 const calcWeekProg = () => {
-  let total = 0, done = 0;
+  let base = 0, done = 0, extra = 0;
   S.days.forEach((day, di) => {
     if (day.week && day.week !== W) return;
-    total++;
+    if (day.extra === true) extra++;
+    else if (day.week == null) base++;
     if (dayDone(W, di) === day.ex.length) done++;
   });
-  return done + '/' + total;
+  return extra > 0 ? done + '/' + base + '+' + extra : done + '/' + base;
 };
 
 const tagH=t=>({
@@ -2790,13 +2775,11 @@ function render(){
   document.getElementById('wn-n').textContent=W;
   document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('s-ex').textContent=allEx();
-  document.getElementById('s-sess').textContent=allSess();
-  document.getElementById('s-str').textContent=calcStreak();
   document.getElementById('s-wk').textContent=calcWeekProg();
 
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
   document.getElementById('day-tabs').innerHTML = S.days.map((d,i)=>{
-    if (d.extra && d.week !== W) return '';
+    if (d.extra && d.week != null && d.week !== W) return '';
     const full=dayDone(W,i)===d.ex.length, act=i===D;
     if(editMode && act){
       return `<div class="d-tab editing ${d.cls}" data-di="${i}" draggable="true" onclick="event.stopPropagation()">
@@ -4590,12 +4573,7 @@ function histEditDate(inputEl, globalIdx){
   h[globalIdx].isoDate = isoDate;
   h[globalIdx].date = d.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
   saveHistory(h);
-  // Обновляем отображение даты в заголовке и видимом спане без полного перерендера
-  const dateEl = document.getElementById(`hist-date-${globalIdx}`);
-  if(dateEl) dateEl.textContent = h[globalIdx].date + (h[globalIdx].time ? ` · ${h[globalIdx].time}` : '');
-  const dateInputSpan = document.getElementById(`hist-date-input-${globalIdx}`);
-  if(dateInputSpan) dateInputSpan.textContent = h[globalIdx].date;
-  if(navigator.vibrate) navigator.vibrate([8]);
+  openHistory();
 }
 
 function histEditDuration(globalIdx, val){
