@@ -333,6 +333,17 @@ body {
   display: flex; align-items: center; justify-content: center;
   line-height: 1;
 }
+.d-tab-grip {
+  position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 4px;
+  background: rgba(200,169,110,0.12); border: none;
+  color: var(--gold2); font-size: 12px; cursor: grab;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; user-select: none; touch-action: none;
+}
+.d-tab-grip:active { cursor: grabbing; }
+.d-tab.editing.dragging { opacity: 0.5; }
+.d-tab.drag-over { border-left: 2px solid var(--gold); }
 .d-tab-add {
   flex: 1; min-width: 40px; max-width: 52px;
   padding: 12px 4px; text-align: center; cursor: pointer;
@@ -397,6 +408,7 @@ body {
 .ex-item.normal.chk { background: var(--greenbg2); }
 .ex-item.editing { background: var(--goldbg); cursor: default; }
 .ex-item.editing.dragging { opacity: 0.4; background: var(--surface3); }
+.d-tab.editing.dragging { opacity: 0.6; transform: scale(1.08); z-index: 10; box-shadow: var(--shadow-md); }
 .ex-item.editing.drag-over { border-top: 2px solid var(--gold); }
 
 .drag-handle {
@@ -473,12 +485,18 @@ body {
 }
 .add-ex-btn:hover { background: var(--goldbg); }
 .add-ex-btn.visible { display: block; }
+.empty-day { padding: 32px 16px; text-align: center; font-size: 13px; color: var(--text3); line-height: 1.5; }
 .catalog-add-btn {
   padding: 6px 14px; border-radius: 8px; border: 1px solid var(--gold); background: transparent;
   color: var(--gold); cursor: pointer; font-size: 12px; font-family: inherit;
   transition: all .15s; white-space: nowrap; flex-shrink: 0;
 }
 .catalog-add-btn:hover { background: var(--gold); color: #fff; }
+.catalog-search {
+  flex:1; min-width:0; padding:7px 10px; border-radius:8px; border:1px solid var(--border);
+  background:var(--surface2); color:var(--text); font-size:13px; font-family:inherit; outline:none;
+}
+.catalog-search:focus { border-color: var(--gold); }
 .catalog-edit-btn { border-color: var(--text3); color: var(--text3); }
 .catalog-edit-btn:hover { background: var(--surface3); color: var(--text); border-color: var(--text); }
 .cat-group-title { color: var(--gold) !important; }
@@ -1675,7 +1693,11 @@ body {
     </div>
     <div class="help-section">
       <div class="help-section-title">Сброс данных</div>
-      <button class="reset-btn" style="width:100%;" onclick="clearAllLocalStorage()">Очистить LocalStorage</button>
+      <div style="display:flex;gap:8px;">
+        <button class="ipreset" style="flex:1;padding:10px;border-color:var(--green);color:var(--green);" onclick="resetProgram()">Сбросить прогресс</button>
+        <button class="reset-btn" style="flex:1;" onclick="clearAllLocalStorage()">Очистить всё</button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4;">«Сбросить прогресс» — очищает недели и заметки, сохраняет историю и настройки. «Очистить всё» — удаляет все данные без возможности восстановления.</div>
     </div>
   </div>
 </div>
@@ -2217,6 +2239,7 @@ function chWk(dir){
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
   if (dir > 0 && W > prevW) {
     S.days.forEach((day, di) => {
+      if (day.extra) return; // не переносим экстра-дни на другие недели
       day.ex.forEach((ex, ei) => {
         const prevVal = S[k(prevW, di, ei)];
         const newVal  = S[k(W, di, ei)];
@@ -2364,6 +2387,7 @@ function reorderEx(di, fromEi, toEi) {
   save();render();
 }
 let _dragSource = null;
+let _dragDay = null;
 function addEx(di){
   S.days[di].ex.push({n:'Новое упражнение',d:'',t:'key'});
   save(); render();
@@ -2386,6 +2410,7 @@ function addExtraDay(){
   template.title = 'Внеплановая';
   template.sub   = 'Дополнительная тренировка';
   template.extra = true;
+  template.week = W;
   S.days.push(template);
   D = S.days.length - 1;
   editMode = true;
@@ -2395,11 +2420,54 @@ function addExtraDay(){
 
 function removeExtraDay(di){
   if(!confirm('Удалить этот день?')) return;
-  // Удаляем данные подходов этого дня
+  // Удаляем данные подходов этого дня (только свою неделю)
   for(let w=1;w<=9;w++) for(let i=0;i<S.days[di].ex.length;i++) delete S[k(w,di,i)];
+  // Сдвигаем данные последующих дней вверх (чтобы индексы не разъехались)
+  for (let j = di + 1; j < S.days.length; j++) {
+    const day = S.days[j];
+    if (!day.extra) continue;
+    for (let w = 1; w <= 9; w++) {
+      for (let ei = 0; ei < day.ex.length; ei++) {
+        S[k(w, j-1, ei)] = S[k(w, j, ei)];
+        S[exNoteKey(w, j-1, ei)] = S[exNoteKey(w, j, ei)];
+        delete S[k(w, j, ei)];
+        delete S[exNoteKey(w, j, ei)];
+      }
+    }
+  }
   S.days.splice(di, 1);
   D = Math.min(D, S.days.length-1);
   editMode = false;
+  save(); render();
+}
+function moveDay(fromIdx, toIdx) {
+  if (fromIdx === toIdx) return;
+  const maxEx = Math.max(...S.days.map(d => d.ex ? d.ex.length : 0));
+  function shift(keyFn, from, to) {
+    const saved = keyFn(from);
+    if (from < to) {
+      for (let i = from; i < to; i++) keyFn(i, keyFn(i + 1));
+    } else {
+      for (let i = from; i > to; i--) keyFn(i, keyFn(i - 1));
+    }
+    keyFn(to, saved);
+  }
+  for (let w = 1; w <= 9; w++) {
+    for (let ei = 0; ei < maxEx; ei++) {
+      shift(i => S[k(w, i, ei)], fromIdx, toIdx);
+      shift(i => S[exNoteKey(w, i, ei)], fromIdx, toIdx);
+    }
+  }
+  for (let ei = 0; ei < maxEx; ei++) {
+    shift(i => S[`reps_d${i}e${ei}`], fromIdx, toIdx);
+    shift(i => S[`load_d${i}e${ei}`], fromIdx, toIdx);
+    shift(i => S[`loadUnit_d${i}e${ei}`], fromIdx, toIdx);
+  }
+  const [day] = S.days.splice(fromIdx, 1);
+  S.days.splice(toIdx, 0, day);
+  if (D === fromIdx) D = toIdx;
+  else if (fromIdx < toIdx && D > fromIdx && D <= toIdx) D--;
+  else if (fromIdx > toIdx && D >= toIdx && D < fromIdx) D++;
   save(); render();
 }
 const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)).length;
@@ -2428,7 +2496,7 @@ const tagH=t=>({
   aux:'<span class="tag t-aux">база</span>',
 }[t]||'<span class="tag t-key">ключ</span>');
 
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 const EX_GROUPS = [
   { label: 'Кор', items: [
@@ -2695,9 +2763,11 @@ function render(){
 
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
   document.getElementById('day-tabs').innerHTML = S.days.map((d,i)=>{
+    if (d.extra && d.week !== W) return '';
     const full=dayDone(W,i)===d.ex.length, act=i===D;
     if(editMode && act){
-      return `<div class="d-tab editing ${d.cls}" onclick="event.stopPropagation()">
+      return `<div class="d-tab editing ${d.cls}" data-di="${i}" draggable="true" onclick="event.stopPropagation()">
+        <span class="d-tab-grip" draggable="true">≡</span>
         ${d.extra?`<button class="d-tab-del" onclick="removeExtraDay(${i})" title="Удалить">✕</button>`:''}
         <select class="d-tab-day-select" onchange="updateDayField(${i},'day',this.value);render()">
           ${DAYS_OF_WEEK.map(dw=>`<option${d.day===dw?' selected':''}>${dw}</option>`).join('')}
@@ -2706,7 +2776,7 @@ function render(){
       oninput="updateDayField(${i},'role',this.value)"></div>
       </div>`;
     }
-    return `<div class="d-tab ${act?d.cls:''} ${full&&!act?'was-done':''}" onclick="selDay(${i})">
+    return `<div class="d-tab ${act?d.cls:''} ${full&&!act?'was-done':''}" data-di="${i}" onclick="selDay(${i})">
       <div class="d-tab-day">${d.day}${d.extra?'<span style="font-size:10px;opacity:.5"> ★</span>':''}</div>
       <div class="d-tab-role">${esc(d.role)}</div>
     </div>`;
@@ -2732,7 +2802,7 @@ function render(){
           <button class="edit-toggle-btn${editMode?' active':''}" onclick="toggleEditMode()">${editMode?'✓':'✎'}</button>
         </div>
       </div>
-      ${day.ex.map((e,i)=>renderExItem(e,D,i)).join('')}
+      ${day.ex.length ? day.ex.map((e,i)=>renderExItem(e,D,i)).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
       <button class="add-ex-btn${editMode?' visible':''}" onclick="addEx(${D})">+ Добавить упражнение</button>
     </div>`;
 
@@ -2758,10 +2828,10 @@ function render(){
 const APP_CFG_KEY = 'abw_app_cfg';
 
 const APP_DEFAULTS = {
-  topbar:    'Ab Wheel Program',
-  heroTitle: 'Standing\nRollout',
+  topbar:    'Колёсико',
+  heroTitle: 'Выход\nСтоя',
   heroDesc:  '',
-  progTitle: 'Standing Rollout',
+  progTitle: 'Выход стоя',
   progSub:   'Дорожная карта к полному выходу стоя',
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
 };
@@ -2784,7 +2854,7 @@ function renderAppCfg(cfg) {
   const ft = document.getElementById('app-footer');
 
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
-  if (ht) ht.innerHTML   = (cfg.heroTitle || APP_DEFAULTS.heroTitle).replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>');
+  if (ht) { const _t=esc(cfg.heroTitle || APP_DEFAULTS.heroTitle); ht.innerHTML = _t.replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>'); }
   if (hd) { hd.textContent = ''; hd.style.display = 'none'; }
   if (pt) pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle;
   if (ps) ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;
@@ -2805,8 +2875,22 @@ function openAppSettings() {
 }
 
 function clearAllLocalStorage(){
-  if(!confirm('Удалить все данные приложения?\n\nЭто сотрёт прогресс, историю, заметки, настройки.\nДействие необратимо.')) return;
+  if(!confirm('Удалить все данные приложения?\n\nЭто сотрёт прогресс, историю, заметки, настройки.\nДействие необратимо.\n\nСовет: сначала сделайте экспорт JSON для резервной копии.')) return;
   localStorage.clear();
+  closeAppSettings();
+  location.reload();
+}
+
+function resetProgram(){
+  if(!confirm('Сбросить прогресс тренировок?\n\nИстория и настройки приложения сохранятся.\nТекущий прогресс недель и заметки к упражнениям будут удалены.')) return;
+  const savedCfg = localStorage.getItem(APP_CFG_KEY);
+  const savedHistory = loadHistory();
+  // Сбрасываем всё, кроме конфига и истории
+  const keys = Object.keys(localStorage);
+  for (const key of keys) {
+    if (key === APP_CFG_KEY || key === 'abw_history') continue;
+    localStorage.removeItem(key);
+  }
   closeAppSettings();
   location.reload();
 }
@@ -3353,7 +3437,7 @@ function showHelp(name, type, fromName) {
       ? `<div class="help-section">
            <div class="help-section-title">Упражнения на тему</div>
            <div class="help-alts">
-             ${alts.map(a => `<button class="help-alt-btn" data-name="${a.replace(/"/g,'&quot;')}" data-from="${name.replace(/"/g,'&quot;')}">${a}</button>`).join('')}
+              ${alts.map(a => `<button class="help-alt-btn" data-name="${esc(a)}" data-from="${esc(name)}">${a}</button>`).join('')}
            </div>
          </div>`
       : '';
@@ -3501,6 +3585,89 @@ function closeHelp() {
   document.addEventListener('dragend',   onDragEnd);
   document.addEventListener('dragover',  onDragOver);
   document.addEventListener('drop',      onDrop);
+})();
+
+// ── Drag to reorder дней ──
+(function(){
+  function getDayIdx(el) {
+    const tab = el.closest('.d-tab');
+    return tab ? parseInt(tab.dataset.di) : -1;
+  }
+  // HTML5 DnD (desktop)
+  document.addEventListener('dragstart', function(e) {
+    const tab = e.target.closest('.d-tab.editing');
+    if (!tab) return;
+    _dragDay = { from: getDayIdx(tab) };
+    tab.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', '');
+  });
+  document.addEventListener('dragend', function(e) {
+    document.querySelectorAll('.d-tab').forEach(el => el.classList.remove('dragging','drag-over'));
+    _dragDay = null;
+  });
+  document.addEventListener('dragover', function(e) {
+    const tab = e.target.closest('.d-tab:not(.dragging)');
+    if (!tab || !_dragDay) return;
+    e.preventDefault();
+    document.querySelectorAll('.d-tab').forEach(el => el.classList.remove('drag-over'));
+    tab.classList.add('drag-over');
+  });
+  document.addEventListener('drop', function(e) {
+    e.preventDefault();
+    const tab = e.target.closest('.d-tab:not(.dragging)');
+    if (!tab || !_dragDay) return;
+    const to = getDayIdx(tab);
+    if (to >= 0 && _dragDay.from !== to) moveDay(_dragDay.from, to);
+    document.querySelectorAll('.d-tab').forEach(el => el.classList.remove('dragging','drag-over'));
+    _dragDay = null;
+  });
+  // Touch drag (mobile)
+  let _td = null;
+  document.addEventListener('touchstart', function(e) {
+    if (!e.target.closest('.d-tab-grip')) return;
+    const tab = e.target.closest('.d-tab.editing');
+    if (!tab) return;
+    const t = e.touches[0];
+    _td = { el: tab, from: parseInt(tab.dataset.di), startX: t.clientX, startY: t.clientY, moved: false };
+    tab.classList.add('dragging');
+  }, { passive: true });
+  document.addEventListener('touchmove', function(e) {
+    if (!_td) return;
+    const t = e.touches[0];
+    const dx = t.clientX - _td.startX, dy = t.clientY - _td.startY;
+    if (!_td.moved && Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
+    if (!_td.moved && Math.abs(dy) > Math.abs(dx) * 1.4) { cleanupTD(); return; }
+    e.preventDefault();
+    _td.moved = true;
+    // highlight nearest tab
+    const tabs = [...document.querySelectorAll('#day-tabs .d-tab')];
+    const container = document.getElementById('day-tabs');
+    const rect = container.getBoundingClientRect();
+    const relX = t.clientX - rect.left;
+    let target = null;
+    for (const tab of tabs) {
+      if (tab === _td.el) continue;
+      const r = tab.getBoundingClientRect();
+      const mid = r.left + r.width/2 - rect.left;
+      if (relX <= mid) { target = tab; break; }
+    }
+    document.querySelectorAll('.d-tab').forEach(el => el.classList.remove('drag-over'));
+    if (target) target.classList.add('drag-over');
+  }, { passive: false });
+  function cleanupTD() {
+    if (_td) { document.querySelectorAll('.d-tab').forEach(el => el.classList.remove('dragging','drag-over')); _td = null; }
+  }
+  document.addEventListener('touchend', function(e) {
+    if (!_td) return;
+    const over = document.querySelector('.d-tab.drag-over');
+    if (over) {
+      const to = parseInt(over.dataset.di);
+      if (to >= 0 && _td.from !== to) moveDay(_td.from, to);
+    }
+    cleanupTD();
+  });
+  document.addEventListener('touchcancel', cleanupTD);
 })();
 
 // ══════════════════════════════════════
@@ -3788,7 +3955,7 @@ function closeExNote() {
 // ══════════════════════════════════════
 const HISTORY_KEY = 'abw_history';
 
-function loadHistory(){ try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return[];} }
+function loadHistory(){ try{const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');h.forEach(r=>{if(r.date)r.date=r.date.replace(/^[^,]+,\s*/,'');});return h;}catch(e){return[];} }
 function saveHistory(h){ try{localStorage.setItem(HISTORY_KEY,JSON.stringify(h));}catch(e){} }
 
 function recordSession(w,d){
@@ -3826,7 +3993,7 @@ function recordSession(w,d){
   const now = new Date();
   const isoDate = now.toISOString().slice(0,10); // "2025-05-26"
   h.unshift({
-    date: now.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+    date: now.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}),
     time: now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
     isoDate,
     week: w, dayId: day.id, dayTitle: day.title,
@@ -3881,6 +4048,11 @@ function handleImportFile(event) {
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
+      if (typeof data !== 'object' || data === null || Array.isArray(data)) throw new Error('invalid root type');
+      for (const key in data) {
+        if (typeof data[key] !== 'string') throw new Error('value not string');
+        if (key.length > 100) throw new Error('key too long');
+      }
       if (confirm('Импортировать данные? Это перезапишет текущий прогресс.')) {
         localStorage.clear();
         for (const key in data) {
@@ -3912,25 +4084,30 @@ function saveCatEdits(d) {
   localStorage.setItem('catEdits', JSON.stringify(d));
 }
 
-function openCatalog() {
+function openCatalog(filter) {
   const overlay = document.getElementById('catalog-overlay');
   const sheet   = document.getElementById('catalog-sheet');
   const body    = document.getElementById('catalog-body');
   const edits = loadCatEdits();
+  const q = (filter||'').trim().toLowerCase();
   body.innerHTML = `
     <div class="help-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
-        <span style="font-size:13px;color:var(--text2);">Своё упражнение</span>
-        <button class="catalog-add-btn" onclick="catalogShowCreateForm()">+ Создать</button>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 0 6px;">
+        <input class="catalog-search" id="cat-search" type="text" placeholder="Поиск упражнений..." value="${esc(filter||'')}" oninput="openCatalog(this.value)">
+        <span style="font-size:13px;color:var(--text2);white-space:nowrap;">Своё</span>
+        <button class="catalog-add-btn" onclick="catalogShowCreateForm()">+</button>
       </div>
     </div>
     <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>` +
     EX_GROUPS.map(g => {
       const customInGroup = Object.keys(edits).filter(k => !EX_ALL_FLAT.includes(k) && edits[k].g === g.label);
+      const groupItems = g.items.filter(name => !q || name.toLowerCase().includes(q) || (edits[name]&&edits[name].n.toLowerCase().includes(q)));
+      const groupCustom = customInGroup.filter(name => !q || name.toLowerCase().includes(q) || (edits[name]&&edits[name].n.toLowerCase().includes(q)));
+      if (!groupItems.length && !groupCustom.length) return '';
       return `
     <div class="help-section">
       <div class="help-section-title cat-group-title">${g.label}</div>
-      ${g.items.map(name => {
+      ${groupItems.map(name => {
         const ed = edits[name];
         const displayName = ed ? ed.n : name;
         const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
@@ -3945,7 +4122,7 @@ function openCatalog() {
           </div>
         </div>`;
       }).join('')}
-      ${customInGroup.map(name => {
+      ${groupCustom.map(name => {
         const ed = edits[name];
         const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
         const ri = `cat_custom_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
@@ -3963,10 +4140,11 @@ function openCatalog() {
     }).join('') +
   (() => {
     const otherCustom = Object.keys(edits).filter(k => !EX_ALL_FLAT.includes(k) && (!edits[k].g || edits[k].g === 'other'));
-    if (!otherCustom.length) return '';
+    const filteredOther = otherCustom.filter(name => !q || name.toLowerCase().includes(q) || (edits[name]&&edits[name].n.toLowerCase().includes(q)));
+    if (!filteredOther.length) return '';
     return `<div class="help-section">
       <div class="help-section-title cat-group-title" style="color:var(--text2);">Другое</div>
-      ${otherCustom.map(name => {
+      ${filteredOther.map(name => {
         const ed = edits[name];
         return `<div class="catalog-ex-row" data-name="${esc(name)}" data-rid="cat_other_${name.replace(/[^a-zа-яё0-9]/gi,'_')}" data-group="other">
           <div class="catalog-ex-view">
@@ -4183,8 +4361,12 @@ function catalogRemoveAlt(ri, val) {
 }
 
 function openHistory(){
+  if (window._histSortAsc === undefined) window._histSortAsc = false;
   let h = loadHistory();
-  h.sort((a,b) => ((b.isoDate||'')>(a.isoDate||'')?1:(b.isoDate||'')<(a.isoDate||'')?-1:0)) || ((b.time||'')>(a.time||'')?1:(b.time||'')<(a.time||'')?-1:0);
+  h.sort((a,b) => (window._histSortAsc ? -1 : 1) * (
+    ((b.isoDate||'')>(a.isoDate||'')?1:(b.isoDate||'')<(a.isoDate||'')?-1:0) ||
+    ((b.time||'')>(a.time||'')?1:(b.time||'')<(a.time||'')?-1:0)
+  ));
   const overlay = document.getElementById('history-overlay');
   const sheet   = document.getElementById('history-sheet');
   const body = document.getElementById('history-body');
@@ -4290,18 +4472,21 @@ function openHistory(){
             ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
               <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Дата:</span>
-              <input type="date" value="${r.isoDate||''}"
-                style="flex:1;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
-                       font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
-                 onchange="histEditDate(${globalIdx}, this.value)">
+              <div style="position:relative;flex:1;display:flex;align-items:center;">
+                <span id="hist-date-input-${globalIdx}" onclick="document.getElementById('hist-date-picker-${globalIdx}').showPicker?.() || document.getElementById('hist-date-picker-${globalIdx}').click()" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px;background:var(--surface2);color:var(--text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.date||r.isoDate||''}</span>
+                <input type="date" id="hist-date-picker-${globalIdx}" value="${r.isoDate||''}"
+                  style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;"
+                  onchange="histEditDate(this, ${globalIdx})">
+              </div>
             </div>
             <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Длит.:</span>
               <input type="number" min="0" value="${r.duration?Math.floor(r.duration/60000):''}" placeholder="мин"
                 style="width:70px;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
                        font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
-                 onchange="histEditDuration(${globalIdx}, this.value)">
+                  onchange="histEditDuration(${globalIdx}, this.value)">
             </div>
+            <button class="catalog-add-btn" onclick="deleteHistoryEntry(${globalIdx})" style="margin-top:8px;border-color:#e05a3a;color:#e05a3a;font-size:11px;padding:4px 10px;">Удалить запись</button>
           </div>
         </div>`;
     }).join('');
@@ -4339,9 +4524,10 @@ function openHistory(){
   }
 
   body.innerHTML = renderCalendar() +
-    `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-      <span style="font-size:12px;color:var(--text2);">Фильтр по неделе:</span>
-      <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)">
+    `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+      <button class="catalog-add-btn" onclick="window._histSortAsc=!window._histSortAsc;openHistory()" style="flex-shrink:0;min-width:36px;font-size:13px;" title="Сортировка">${window._histSortAsc?'↑':'↓'}</button>
+      <span style="font-size:12px;color:var(--text2);white-space:nowrap;">Неделя:</span>
+      <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)" style="flex:1;">
         <option value="all">Все недели</option>
         ${Array.from({length: 9}, (_, idx) => `<option value="${idx+1}">${idx === 8 ? 'Неделя 9+' : `Неделя ${idx+1}`}</option>`).join('')}
       </select>
@@ -4363,17 +4549,22 @@ function toggleHistoryRow(idx){
   if(navigator.vibrate) navigator.vibrate([6]);
 }
 
-function histEditDate(globalIdx, isoDate){
-  if(!isoDate) return;
+function histEditDate(inputEl, globalIdx){
   const h = loadHistory();
   if(!h[globalIdx]) return;
-  const d = new Date(isoDate);
+  const val = inputEl.value;
+  if (!val) return;
+  const d = new Date(val + 'T00:00:00');
+  if (isNaN(d.getTime())) return;
+  const isoDate = d.toISOString().slice(0,10);
   h[globalIdx].isoDate = isoDate;
-  h[globalIdx].date = d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  h[globalIdx].date = d.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
   saveHistory(h);
-  // Обновляем отображение даты в заголовке без полного перерендера
+  // Обновляем отображение даты в заголовке и видимом спане без полного перерендера
   const dateEl = document.getElementById(`hist-date-${globalIdx}`);
   if(dateEl) dateEl.textContent = h[globalIdx].date + (h[globalIdx].time ? ` · ${h[globalIdx].time}` : '');
+  const dateInputSpan = document.getElementById(`hist-date-input-${globalIdx}`);
+  if(dateInputSpan) dateInputSpan.textContent = h[globalIdx].date;
   if(navigator.vibrate) navigator.vibrate([8]);
 }
 
@@ -4395,6 +4586,14 @@ function histEditDuration(globalIdx, val){
 function clearHistory(){
   if(!confirm('Очистить всю историю тренировок?')) return;
   saveHistory([]);
+  openHistory();
+}
+function deleteHistoryEntry(idx){
+  const h = loadHistory();
+  if(!h[idx]) return;
+  if(!confirm(`Удалить запись от ${h[idx].date}?`)) return;
+  h.splice(idx, 1);
+  saveHistory(h);
   openHistory();
 }
 
