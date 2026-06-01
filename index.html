@@ -436,10 +436,11 @@ body {
 .ei-body { flex: 1; min-width: 0; }
 .ei-name {
   font-size: 14px; font-weight: 500; color: var(--text);
-  display: flex; align-items: center; gap: 7px; flex-wrap: wrap; line-height: 1.4;
+  line-height: 1.4;
   transition: var(--transition);
 }
 .ex-item.normal.chk .ei-name { color: var(--text3); text-decoration: line-through; text-decoration-color: var(--text3); }
+.nd-col { flex: 1; min-width: 0; }
 .ei-detail {
   font-family: 'Archivo Narrow', sans-serif; font-size: 12px; color: var(--text3);
   margin-top: 2px; letter-spacing: 0.04em; transition: var(--transition);
@@ -743,7 +744,7 @@ body {
 }
 
 .name-pill {
-  display: inline-flex; flex-direction: column; gap: 2px;
+  display: flex; align-items: flex-start; gap: 7px;
   background: rgba(128,128,128,0.06);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -2763,8 +2764,11 @@ function renderExItem(e,di,ei){
     </div>
     <div class="ei-body">
       <div class="name-pill">
-        <div class="ei-name">${tagH(e.t)}${esc(e.n)}</div>
-        <div class="ei-detail">${esc(e.d)}</div>
+        ${tagH(e.t)}
+        <div class="nd-col">
+          <div class="ei-name">${esc(e.n)}</div>
+          <div class="ei-detail">${esc(e.d)}</div>
+        </div>
       </div>
       ${setsHTML}
       ${toastHTML}
