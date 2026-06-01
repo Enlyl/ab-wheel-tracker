@@ -4525,6 +4525,13 @@ function openHistory(){
               </div>
             </div>
             <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Неделя:</span>
+              <input type="number" min="1" max="99" value="${r.week}"
+                style="width:50px;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
+                       font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
+                onchange="histEditWeek(${globalIdx}, this.value)">
+            </div>
+            <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
               <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Длит.:</span>
               <input type="number" min="0" value="${r.duration?Math.floor(r.duration/60000):''}" placeholder="мин"
                 style="width:70px;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
@@ -4568,6 +4575,15 @@ function openHistory(){
     }
   }
 
+  // Сохраняем развёрнутые строки перед перерисовкой
+  const expandedIdxs = [];
+  document.querySelectorAll('[id^="hist-body-"]').forEach(el => {
+    if (el.style.display !== 'none') {
+      const idx = parseInt(el.id.replace('hist-body-',''));
+      if (!isNaN(idx)) expandedIdxs.push(idx);
+    }
+  });
+
   body.innerHTML = renderCalendar() +
     `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
       <button class="catalog-add-btn" onclick="window._histSortAsc=!window._histSortAsc;openHistory()" style="flex-shrink:0;min-width:36px;font-size:13px;" title="Сортировка">${window._histSortAsc?'↑':'↓'}</button>
@@ -4580,6 +4596,14 @@ function openHistory(){
     `<div id="hist-list" style="margin-top:8px;">` +
     renderList(null, 'all') +
     `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button></div>`;
+
+  // Восстанавливаем развёрнутые строки
+  expandedIdxs.forEach(idx => {
+    const el = document.getElementById(`hist-body-${idx}`);
+    const arrow = document.getElementById(`hist-arrow-${idx}`);
+    if (el) el.style.display = 'block';
+    if (arrow) arrow.style.transform = 'rotate(90deg)';
+  });
 
   overlay.classList.add('open'); sheet.classList.add('open');
 }
@@ -4608,6 +4632,20 @@ function histEditDate(inputEl, globalIdx){
   const parts = val.split('-');
   const d2 = new Date(+parts[0], +parts[1]-1, +parts[2]);
   h[globalIdx].date = d2.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
+  saveHistory(h);
+  openHistory();
+}
+
+function histEditWeek(globalIdx, val){
+  let h = loadHistory();
+  h.sort((a,b) => (window._histSortAsc ? -1 : 1) * (
+    ((b.isoDate||'')>(a.isoDate||'')?1:(b.isoDate||'')<(a.isoDate||'')?-1:0) ||
+    ((b.time||'')>(a.time||'')?1:(b.time||'')<(a.time||'')?-1:0)
+  ));
+  if(!h[globalIdx]) return;
+  const w = parseInt(val);
+  if (isNaN(w) || w < 1) return;
+  h[globalIdx].week = w;
   saveHistory(h);
   openHistory();
 }
