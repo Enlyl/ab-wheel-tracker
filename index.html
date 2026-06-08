@@ -469,6 +469,9 @@ body {
 .ex-item:last-child { border-bottom: none; }
 .ex-item.normal { cursor: pointer; user-select: none; }
 .ex-item.normal:hover { background: var(--surface2); }
+.ex-item.normal.collapsed { padding: 5px 20px; }
+.ex-item.normal.collapsed .chk-wrap { flex-direction: row; gap: 4px; }
+.ex-item.normal.collapsed .name-pill { margin-bottom: 0; }
 .ex-item.normal.chk { background: var(--greenbg2); }
 .ex-item.editing { background: var(--goldbg); cursor: default; }
 .ex-item.editing.dragging { opacity: 0.4; background: var(--surface3); }
@@ -2943,7 +2946,7 @@ function renderExItem(e,di,ei){
         </div>`
       : '';
   }
-  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}" onclick="tog(${W},${di},${ei})">
+  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}${expanded?'':' collapsed'}" onclick="tog(${W},${di},${ei})">
     <div class="chk-wrap">
       <span class="ex-num">${ei+1}</span>
       <div class="chk-box">${chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
