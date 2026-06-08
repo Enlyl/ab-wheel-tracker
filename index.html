@@ -502,6 +502,15 @@ body {
 }
 
 .ei-body { flex: 1; min-width: 0; }
+.collapse-btn {
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  font-size: 10px; padding: 2px; line-height: 1; flex-shrink: 0;
+  transition: transform .2s; width: 16px; text-align: center;
+}
+.collapse-btn.expanded { transform: rotate(90deg); }
+.collapsible { overflow: hidden; transition: max-height .25s ease, opacity .2s; }
+.collapsible.collapsed { max-height: 0; opacity: 0; }
+.collapsible.expanded { max-height: 600px; opacity: 1; }
 .ei-name {
   font-size: 14px; font-weight: 500; color: var(--text);
   line-height: 1.4;
@@ -867,6 +876,7 @@ body {
   flex-shrink: 0;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
+.ex-actions-col.collapsed { display: none; }
 .ex-note-btn {
   width: 32px; height: 32px; border-radius: 50%;
   border: 1px solid var(--border);
@@ -2467,6 +2477,14 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
+function toggleExCollapse(key){
+  if (!S._exp) S._exp = [];
+  const idx = S._exp.indexOf(key);
+  if (idx > -1) S._exp.splice(idx, 1);
+  else S._exp.push(key);
+  save();
+  render();
+}
 function updateExField(di,ei,field,val){S.days[di].ex[ei][field]=val;save();}
 function changeSetCount(di,ei,delta){
   const d=S.days[di].ex[ei].d;
@@ -2842,6 +2860,9 @@ function renderExItem(e,di,ei){
   const sets=getSets(W,di,ei);
   const total=parseSets(e.d);
   const showToast = !editMode && lastTappedEx && lastTappedEx.d===di && lastTappedEx.i===ei;
+  const key = W+'-'+di+'-'+ei;
+  const expanded = S._exp && S._exp.includes(key);
+  const collapseBtn = `<button class="collapse-btn${expanded?' expanded':''}" onclick="event.stopPropagation();toggleExCollapse('${key}')">▶</button>`;
   const toastHTML = showToast
     ? `<div class="ex-timer-toast" onclick="event.stopPropagation();startTimerFromToast()">
         <span class="toast-icon">⏱</span>
@@ -2929,16 +2950,19 @@ function renderExItem(e,di,ei){
     </div>
     <div class="ei-body">
       <div class="name-pill">
+        ${collapseBtn}
         ${tagH(e.t)}
         <div class="nd-col">
           <div class="ei-name">${esc(e.n)}</div>
-          <div class="ei-detail">${esc(e.d)}</div>
         </div>
       </div>
-      ${setsHTML}
-      ${toastHTML}
+      <div class="collapsible${expanded?' expanded':' collapsed'}">
+        <div class="ei-detail">${esc(e.d)}</div>
+        ${setsHTML}
+        ${toastHTML}
+      </div>
     </div>
-    <div class="ex-actions-col">
+    <div class="ex-actions-col${expanded?'':' collapsed'}">
       <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
       <button class="ex-note-btn" onclick="event.stopPropagation();editExNote(${W},${di},${ei})" title="Заметка">✎</button>
     </div>
