@@ -5389,7 +5389,7 @@ function openHistory(){
           <button class="catalog-add-btn" style="font-size:11px;padding:2px 8px;line-height:1.4;" onclick="histZoomSet(100)" title="Сбросить зум">↺</button>
         </div>
        ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
-        ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin:18px 0 18px;"><button style="background:none;border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text3);cursor:pointer;transition:all .2s;font-family:inherit;" onclick="histToggleAll()">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
+        ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin:18px 0 18px;"><button style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="histToggleAll()" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='';this.style.color=''">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
        <button class="reset-btn" style="width:100%;" onclick="clearHistory()">Очистить историю</button>`;
     requestAnimationFrame(drawHistChart);
   } else {
