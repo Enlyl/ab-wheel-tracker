@@ -5100,9 +5100,8 @@ function drawHistChart(){
     if (name === hover) return;
     const pts = exData[name];
     const color = histColor(name);
-    const alpha = hover ? '33' : ''; // 20% alpha if something else is hovered
-    ctx.strokeStyle = hover ? color+'33' : color; ctx.lineWidth = 1.5;
     ctx.globalAlpha = hover ? 0.15 : 1;
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
     if (pts.length === 1) {
       ctx.beginPath(); ctx.arc(pts[0].x, yVal(pts[0].y), 2.5, 0, Math.PI*2);
       ctx.fillStyle = color; ctx.fill();
