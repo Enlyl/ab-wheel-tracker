@@ -5367,7 +5367,7 @@ function openHistory(){
          <canvas id="hist-chart" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;margin-bottom:10px;"></canvas>
        </div>
        ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
-       ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin-bottom:18px;"><button class="catalog-add-btn" style="font-size:13px;padding:8px 20px;" onclick="histToggleAll()">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
+       ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin:22px 0 18px;"><button class="catalog-add-btn" style="font-size:13px;padding:10px 24px;" onclick="histToggleAll()">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
        <button class="reset-btn" style="width:100%;" onclick="clearHistory()">Очистить историю</button>`;
     requestAnimationFrame(drawHistChart);
   } else {
