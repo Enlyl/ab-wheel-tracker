@@ -3351,6 +3351,7 @@ function cancelMeasEdit(){
 }
 
 const CHART_COLORS = {weight:'#ff2d78', chest:'#00f0ff', waist:'#ffb000', biceps:'#7a4aff'};
+const HIST_PALETTE = ['#ff2d78','#00f0ff','#ffb000','#7a4aff','#4ade80','#f472b6','#22d3ee','#fb923c','#a78bfa','#34d399'];
 
 function drawMeasChart(){
   const c = document.getElementById('meas-chart');
@@ -5087,7 +5088,7 @@ function drawHistChart(){
     ctx.fillText((gmax - i/4*(gmax-gmin)).toFixed(1), pad.l-4, y+3);
   }
 
-  const palette = ['#ff2d78','#00f0ff','#ffb000','#7a4aff','#4ade80','#f472b6','#22d3ee','#fb923c','#a78bfa','#34d399'];
+  const palette = HIST_PALETTE;
   exNames.forEach((name, idx) => {
     const pts = exData[name];
     const color = palette[idx % palette.length];
@@ -5317,9 +5318,10 @@ function openHistory(){
     const exNames = [];
     h.forEach(r => { if (r.exList) r.exList.forEach(e => { if (e.name && !exNames.includes(e.name)) exNames.push(e.name); }); });
     const activeEx = window._histChartActive || {};
-    const exToggles = exNames.map(n =>
+    const exToggles = exNames.map((n, i) =>
       `<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
-        <input type="checkbox" ${activeEx[n]?'checked':''} onchange="window._histChartActive['${n.replace(/'/g,"\\'")}']=this.checked;drawHistChart()" style="accent-color:var(--gold);">
+        <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:var(--gold);">
+        <span style="width:8px;height:8px;border-radius:50%;background:${HIST_PALETTE[i%HIST_PALETTE.length]};display:inline-block;flex-shrink:0;"></span>
         ${n}
       </label>`
     ).join('');
