@@ -3448,30 +3448,32 @@ function renderMeasBody(){
   const weightFields = MEAS_FIELDS.filter(f => f.k === 'weight');
   const bodyFields = MEAS_FIELDS.filter(f => f.k !== 'weight');
   body.innerHTML = `
-    <div style="margin-bottom:14px;">
-      <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Вес</div>
-      <div style="overflow-x:auto;"><canvas id="meas-chart-weight" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
-      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
-        ${weightFields.map(f => `
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
-            <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
-            <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
-            ${f.l.replace(/\(.*\)/,'').trim()}
-          </label>
-        `).join('')}
+    <div style="display:flex;gap:12px;margin-bottom:14px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Вес</div>
+        <div style="overflow-x:auto;"><canvas id="meas-chart-weight" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
+          ${weightFields.map(f => `
+            <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
+              <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
+              <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
+              ${f.l.replace(/\(.*\)/,'').trim()}
+            </label>
+          `).join('')}
+        </div>
       </div>
-    </div>
-    <div style="margin-bottom:14px;">
-      <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Грудь / Талия / Руки</div>
-      <div style="overflow-x:auto;"><canvas id="meas-chart-body" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
-      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
-        ${bodyFields.map(f => `
-          <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
-            <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
-            <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
-            ${f.l.replace(/\(.*\)/,'').trim()}
-          </label>
-        `).join('')}
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Грудь / Талия / Руки</div>
+        <div style="overflow-x:auto;"><canvas id="meas-chart-body" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
+          ${bodyFields.map(f => `
+            <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
+              <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
+              <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
+              ${f.l.replace(/\(.*\)/,'').trim()}
+            </label>
+          `).join('')}
+        </div>
       </div>
     </div>
     <button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button>
