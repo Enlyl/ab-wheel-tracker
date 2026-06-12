@@ -2319,7 +2319,6 @@ function tog(w,d,i){
   const cur=S[k(w,d,i)];
   if(cur==='skipped'){ S[k(w,d,i)]=false; save(); render(); return; }
   const wasDone=dayDone(w,d)===S.days[d].ex.length;
-  const cur=S[k(w,d,i)];
   if(!cur){
     const total=parseSets(S.days[d].ex[i].d);
     if(total<=1){ S[k(w,d,i)]=true; }
