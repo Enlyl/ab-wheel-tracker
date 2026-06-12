@@ -1809,6 +1809,11 @@ body {
       <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
     </div>
     <div class="help-section">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2);">
+        <input type="checkbox" id="cfg-show-sw" onchange="applyAppSettings()">
+        Показывать секундомер тренировки
+      </label>
+    <div class="help-section">
       <div class="help-section-title">Резервное копирование данных</div>
       <div style="display: flex; gap: 10px;">
         <button class="ipreset" style="flex: 1; padding: 10px;" onclick="exportData()">Экспорт JSON</button>
@@ -3088,6 +3093,7 @@ const APP_DEFAULTS = {
   progSubWeight: '300',
   progSubColor: '',
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
+  showSW:    false,
 };
 
 function loadAppCfg() {
@@ -3105,12 +3111,14 @@ function renderAppCfg(cfg) {
   const pt = document.getElementById('app-prog-title');
   const ps = document.getElementById('app-prog-sub');
   const ft = document.getElementById('app-footer');
+  const sw = document.getElementById('sw-block');
 
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
   if (ht) { const _t=esc(cfg.heroTitle || APP_DEFAULTS.heroTitle); ht.innerHTML = _t.replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>'); }
   if (pt) { pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle; pt.style.fontWeight = cfg.progTitleWeight || APP_DEFAULTS.progTitleWeight; if (cfg.progTitleColor) pt.style.color = cfg.progTitleColor; else pt.style.color = ''; }
   if (ps) { ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;   ps.style.fontWeight = cfg.progSubWeight   || APP_DEFAULTS.progSubWeight;   if (cfg.progSubColor) ps.style.color = cfg.progSubColor;     else ps.style.color = ''; }
   if (ft) ft.textContent = cfg.footer    || APP_DEFAULTS.footer;
+  if (sw) sw.style.display = (cfg.showSW !== false) ? '' : 'none';
   document.title = cfg.topbar || APP_DEFAULTS.topbar;
 }
 
@@ -3119,6 +3127,8 @@ function openAppSettings() {
   document.getElementById('cfg-topbar').value     = cfg.topbar;
   document.getElementById('cfg-hero-title').value = cfg.heroTitle.replace('\n', ' / ');
   document.getElementById('cfg-footer').value     = cfg.footer;
+  const swChk = document.getElementById('cfg-show-sw');
+  if (swChk) swChk.checked = cfg.showSW !== false;
   const themeSel = document.getElementById('cfg-theme');
   if (themeSel) themeSel.value = S.theme || 'light';
   document.getElementById('settings-overlay').classList.add('open');
@@ -3376,6 +3386,7 @@ function applyAppSettings() {
   const heroRaw  = document.getElementById('cfg-hero-title').value;
   const heroTitle = heroRaw.includes(' / ') ? heroRaw.replace(' / ', '\n') : heroRaw;
   const cur = loadAppCfg();
+  const swChk = document.getElementById('cfg-show-sw');
   const cfg = {
     topbar:    document.getElementById('cfg-topbar').value     || APP_DEFAULTS.topbar,
     heroTitle: heroTitle                                        || APP_DEFAULTS.heroTitle,
@@ -3386,6 +3397,7 @@ function applyAppSettings() {
     progSubWeight:   cur.progSubWeight                          || APP_DEFAULTS.progSubWeight,
     progSubColor:    cur.progSubColor                           || APP_DEFAULTS.progSubColor,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
+    showSW:    swChk ? swChk.checked : false,
   };
   saveAppCfg(cfg);
   renderAppCfg(cfg);
