@@ -43,8 +43,8 @@
 - **3 тренировки в неделю** (Push / Pull / Skill) с упражнениями, подходами и повторениями
 - **Режим редактирования** — добавляй, удаляй, переставляй упражнения, меняй теги
 - **История тренировок** — календарь + список, фильтр по неделям, inline-редактирование
-- **График прогресса** — средние повторения по каждому упражнению на canvas, переключение календарь/график, легенда с подсветкой линии при наведении
-- **Замеры тела** — вес, грудь, талия, бицепс с графиком изменений
+- **График прогресса** — средние повторения по каждому упражнению на canvas, переключение календарь/график, легенда с подсветкой линии при наведении, зум
+- **Замеры тела** — вес (шкала 70–100) / грудь, талия, бицепс — два отдельных графика, каждый со своей шкалой
 - **Сворачивание упражнений** — спрятать детали и кнопки, оставив только название и чекбокс
 - **Пропуск упражнения** — долгое нажатие на чекбокс, засчитывается как выполненное
 - **Встроенный таймер отдыха** — с кольцевой анимацией и метрономом
@@ -55,6 +55,49 @@
 - **7 тем оформления** — светлая, тёмная, cyberpunk, matrix, synthwave, terminal, holo
 - **Экспорт / Импорт** — полный бекап всех данных в JSON
 - **PWA** — работает офлайн (Service Worker только для уведомлений таймера)
+
+---
+
+## English
+
+<div align="center">
+  <h1>Kolyosiko</h1>
+  <p><strong>Universal PWA Workout Tracker</strong></p>
+</div>
+
+A fully customizable single-file workout tracker. Configure days, exercises, sets, reps, load — or use the built-in Standing Rollout program for ab wheel progression.
+
+### Features
+
+- **Standing Rollout program** — step-by-step roadmap from Wall Rollout to full standing
+- **3 sessions / week** (Push / Pull / Skill) with exercises, sets, and reps
+- **Edit mode** — add, delete, reorder exercises, change tags
+- **Training history** — calendar view + list, week filter, inline editing
+- **Progress chart** — per-exercise average reps on canvas, calendar/chart toggle, hover line highlight, zoom
+- **Body measurements** — weight (fixed 70–100 scale) / chest, waist, biceps — two separate charts, each with its own Y-axis
+- **Exercise collapse** — hide details, keep only name and checkbox
+- **Skip exercise** — long-press checkbox, counts as done
+- **Rest timer** — ring animation with metronome
+- **Stopwatch** — persists across page reloads (hidden by default)
+- **Exercise catalog** — search, custom exercises, alternatives, technique descriptions
+- **Settings** — card layout with visibility toggles per block, danger-styled reset section
+- **Topbar buttons** — grouped into pills: history/catalog/measurements, settings/theme
+- **7 themes** — light, dark, cyberpunk, matrix, synthwave, terminal, holo
+- **Export / Import** — full data backup as JSON
+- **PWA** — works offline (Service Worker for timer notifications only)
+
+### Quick start
+
+```
+https://enlyl.github.io/ab-wheel-tracker/
+```
+
+Or locally:
+```bash
+git clone https://github.com/Enlyl/ab-wheel-tracker.git
+cd ab-wheel-tracker
+# open index.html in a browser
+```
 
 ## Быстрый старт
 
