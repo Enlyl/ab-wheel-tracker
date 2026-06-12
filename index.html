@@ -3407,6 +3407,24 @@ function drawMeasChart(id, fields, fixedRange){
   const yVal = v => pad.t + ch - (v - gmin) / yRange * ch;
   const xVal = i => pad.l + i * X_GAP + X_GAP/2;
 
+  // Reference lines (dashed)
+  const refs = loadMeasRefs();
+  fields.forEach(f => {
+    const rv = refs[f.k];
+    if (rv == null || rv === '') return;
+    const y = yVal(Number(rv));
+    ctx.save();
+    ctx.strokeStyle = CHART_COLORS[f.k] || '#888';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = CHART_COLORS[f.k] || '#888';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('— ' + rv, w - pad.r + 3, y + 3);
+  });
+
   // grid lines
   ctx.strokeStyle = 'rgba(128,128,128,0.08)';
   ctx.lineWidth = 1;
@@ -3443,6 +3461,13 @@ function drawMeasChart(id, fields, fixedRange){
     ctx.fillText(label, x, h-6);
   });
 }
+const MEAS_REFS_KEY = 'abw_meas_refs';
+function loadMeasRefs(){
+  try { return JSON.parse(localStorage.getItem(MEAS_REFS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveMeasRefs(refs){
+  try { localStorage.setItem(MEAS_REFS_KEY, JSON.stringify(refs)); } catch(e) {}
+}
 
 function renderMeasBody(){
   const m = loadMeasures();
@@ -3451,6 +3476,14 @@ function renderMeasBody(){
   if (!window._measChartFields) window._measChartFields = {weight:true, chest:true, waist:true, biceps:true};
   const weightFields = MEAS_FIELDS.filter(f => f.k === 'weight');
   const bodyFields = MEAS_FIELDS.filter(f => f.k !== 'weight');
+  const refs = loadMeasRefs();
+  const refInput = (k, label) =>
+    `<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);cursor:text;">
+      <span style="width:6px;height:6px;border-radius:2px;background:${CHART_COLORS[k]||'#888'};display:inline-block;"></span>
+      ${label}
+      <input type="number" value="${refs[k]??''}" step="0.1" style="width:50px;border:1px solid var(--border);border-radius:4px;padding:1px 4px;font-size:10px;background:var(--surface2);color:var(--text);outline:none;font-family:inherit;"
+        onchange="const r=loadMeasRefs();r['${k}']=this.value;saveMeasRefs(r);renderMeasBody()">
+    </label>`;
   body.innerHTML = `
     <div style="display:flex;gap:12px;margin-bottom:14px;">
       <div style="flex:1;min-width:0;">
@@ -3465,6 +3498,9 @@ function renderMeasBody(){
             </label>
           `).join('')}
         </div>
+        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
+          ${weightFields.map(f => refInput(f.k, f.l.replace(/\(.*\)/,'').trim())).join('')}
+        </div>
       </div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Грудь / Талия / Руки</div>
@@ -3477,6 +3513,9 @@ function renderMeasBody(){
               ${f.l.replace(/\(.*\)/,'').trim()}
             </label>
           `).join('')}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
+          ${bodyFields.map(f => refInput(f.k, f.l.replace(/\(.*\)/,'').trim())).join('')}
         </div>
       </div>
     </div>
