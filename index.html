@@ -5393,9 +5393,10 @@ function openHistory(){
        <button class="reset-btn" style="width:100%;" onclick="clearHistory()">Очистить историю</button>`;
     requestAnimationFrame(drawHistChart);
   } else {
-    body.innerHTML = renderCalendar() +
+    body.innerHTML =
+      `<div style="display:flex;justify-content:center;margin-bottom:12px;">${chartBtn}</div>` +
+      renderCalendar() +
       `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-        ${chartBtn}
         <button class="catalog-add-btn" onclick="window._histSortAsc=!window._histSortAsc;openHistory()" style="flex-shrink:0;min-width:36px;font-size:13px;" title="Сортировка">${window._histSortAsc?'↑':'↓'}</button>
         <span style="font-size:12px;color:var(--text2);white-space:nowrap;">Неделя:</span>
         <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)" style="flex:1;">
