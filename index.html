@@ -2147,7 +2147,6 @@ DEFAULT_DAYS.forEach((day, di) => {
 
 // Запрашиваем сразу при загрузке
 grabWakeLock();
-});
 
 let W=S.W, D=S.D, editMode=false;
 
@@ -2549,7 +2548,7 @@ function completeDay(){
     if(total<=1) S[k(W,D,i)]=true;
     else S[k(W,D,i)]={done:total,total:total};
   });
-  save();render();
+  recordSession();save();render();
 }
 function chWk(dir){
   const prevW = W;
@@ -2778,7 +2777,7 @@ function moveDay(fromIdx, toIdx) {
   save(); render();
 }
 const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)||gotSkipped(w,d,i)).length;
-const allEx=()=>{let t=0;for(let w=1;w<=maxWks();w++)for(let d=0;d<S.days.length;d++)t+=dayDone(w,d);return t;};
+
 const calcWeekProg = () => {
   let base = 0, done = 0, extra = 0;
   S.days.forEach((day, di) => {
@@ -3155,6 +3154,7 @@ function render(){
     </div>`;
   }).join('');
 
+  renderMotiv();
 }
 
 // ══════════════════════════════════════
@@ -3290,14 +3290,6 @@ function closeMeasurements(){
   document.getElementById('measures-sheet').classList.remove('open');
 }
 
-function renderMeasBody(){
-  const m = loadMeasures();
-  const body = document.getElementById('measures-body');
-  body.innerHTML = `
-    <button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button>
-    ${m.length ? m.map((e,i)=>renderMeasEntry(e,i)).join('') : '<p class="help-no-info">Пока нет записей.</p>'}
-  `;
-}
 function renderMeasEntry(e,i){
   const vals = MEAS_FIELDS.filter(f => e[f.k] != null && e[f.k] !== '').map(f => `${e[f.k]} ${f.l.replace(/.*\(/,'').replace(/\).*/,'')}`).join(' · ');
   if (window._measEdit === i) {
