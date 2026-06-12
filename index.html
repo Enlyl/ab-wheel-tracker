@@ -200,6 +200,22 @@ body {
   transition: all .25s ease;
   box-shadow: var(--shadow-sm);
 }
+.topbar-pill {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface2);
+  box-shadow: var(--shadow-sm);
+}
+.topbar-pill .theme-toggle {
+  width: 34px; height: 34px;
+  border: none; border-radius: 0;
+  background: none; box-shadow: none;
+}
+.topbar-pill .theme-toggle + .theme-toggle {
+  border-left: 1px solid var(--border);
+}
 .theme-toggle:hover {
   border-color: var(--gold);
   color: var(--gold);
@@ -977,6 +993,33 @@ body {
   font-size: 9px; font-weight: 600;
   letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--text3); margin-bottom: 7px;
+}
+.help-section-card {
+  background: var(--surface2); border-radius: 14px;
+  padding: 16px 18px;
+}
+.help-section-card.danger {
+  border: 1px solid rgba(255,70,70,0.25);
+  background: rgba(255,70,70,0.06);
+}
+.help-section-card.danger .help-section-title {
+  color: #ff4646;
+}
+.help-section-card.danger .reset-btn {
+  color: #ff7070;
+}
+.help-section-card.danger .reset-btn:hover {
+  color: #ff9090;
+}
+.sett-title {
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  color: var(--text2); margin-bottom: 6px;
+}
+.sett-title input[type="checkbox"] {
+  accent-color: var(--gold);
+  width: 15px; height: 15px; cursor: pointer;
+  flex-shrink: 0;
 }
 .help-section-text {
   font-size: 14px; font-weight: 300;
@@ -1784,16 +1827,32 @@ body {
     <button class="help-close" onclick="closeAppSettings()">✕</button>
   </div>
   <div class="help-body">
-    <div class="help-section">
-      <div class="help-section-title">Название в шапке</div>
-      <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()">
+    <div class="help-section-card">
+      <div class="help-section">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-topbar" onchange="applyAppSettings()">
+          <span>Название в шапке</span>
+        </label>
+        <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()">
+      </div>
+      <div class="help-section">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-hero" onchange="applyAppSettings()">
+          <span>Главный заголовок</span>
+        </label>
+        <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
+      </div>
+      <div class="help-section">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-footer" onchange="applyAppSettings()">
+          <span>Футер</span>
+        </label>
+        <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
+      </div>
     </div>
-    <div class="help-section">
-      <div class="help-section-title">Главный заголовок</div>
-      <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
-    </div>
-    <div class="help-section">
-      <div class="help-section-title">Тема оформления</div>
+
+    <div class="help-section-card" style="margin-top:18px;">
+      <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Тема оформления</div>
       <select class="tag-select" id="cfg-theme" onchange="setTheme(this.value)">
         <option value="light">Светлая</option>
         <option value="dark">Тёмная</option>
@@ -1804,26 +1863,39 @@ body {
         <option value="holo">Holo</option>
       </select>
     </div>
-    <div class="help-section">
-      <div class="help-section-title">Футер</div>
-      <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
+
+    <div class="help-section-card" style="margin-top:18px;">
+      <div class="help-section" style="margin-bottom:0;">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-sw" onchange="applyAppSettings()">
+          <span>Секундомер тренировки</span>
+        </label>
+      </div>
+      <div class="help-section" style="margin-top:6px;margin-bottom:0;">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-roadmap" onchange="applyAppSettings()">
+          <span>Дорожная карта (прогрессия навыка)</span>
+        </label>
+      </div>
+      <div class="help-section" style="margin-top:6px;margin-bottom:0;">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-motiv" onchange="applyAppSettings()">
+          <span>Мотивационные цитаты</span>
+        </label>
+      </div>
     </div>
-    <div class="help-section">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text2);">
-        <input type="checkbox" id="cfg-show-sw" onchange="applyAppSettings()">
-        Показывать секундомер тренировки
-      </label>
-    </div>
-    <div class="help-section">
-      <div class="help-section-title">Резервное копирование данных</div>
+
+    <div class="help-section-card" style="margin-top:18px;">
+      <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Резервное копирование данных</div>
       <div style="display: flex; gap: 10px;">
         <button class="ipreset" style="flex: 1; padding: 10px;" onclick="exportData()">Экспорт JSON</button>
         <button class="ipreset" style="flex: 1; padding: 10px;" onclick="importData()">Импорт JSON</button>
       </div>
       <input type="file" id="import-file" style="display: none;" accept=".json" onchange="handleImportFile(event)">
     </div>
-    <div class="help-section">
-      <div class="help-section-title">Сброс данных</div>
+
+    <div class="help-section-card danger" style="margin-top:18px;">
+      <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Сброс данных</div>
       <div style="display:flex;gap:8px;">
         <button class="ipreset" style="flex:1;padding:10px;border-color:var(--green);color:var(--green);" onclick="resetProgram()">Сбросить прогресс</button>
         <button class="reset-btn" style="flex:1;" onclick="clearAllLocalStorage()">Очистить всё</button>
@@ -1861,24 +1933,29 @@ body {
     <div class="topbar-logo" id="app-topbar-title">Ab Wheel Program</div>
     <div class="topbar-right">
       <div class="topbar-week" id="topbar-wk">Неделя 1</div>
-      <button class="theme-toggle" onclick="openCatalog()" title="Каталог упражнений">☰</button>
-      <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения">⚙︎</button>
-      <button class="theme-toggle" onclick="openMeasurements()" title="Замеры">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="5" r="3"/>
-          <path d="M12 8v6l-4 6"/>
-          <path d="M12 14l4 6"/>
-          <path d="M6 19c2-1 4-1.5 6-1.5s4 .5 6 1.5"/>
-        </svg>
-      </button>
-      <button class="theme-toggle" id="theme-btn" onclick="openThemePicker()" title="Сменить тему">☽</button>
+      <div class="topbar-pill">
+        <button class="theme-toggle" id="history-btn" onclick="openHistory()" title="История тренировок">📋</button>
+        <button class="theme-toggle" onclick="openCatalog()" title="Каталог упражнений">☰</button>
+        <button class="theme-toggle" onclick="openMeasurements()" title="Замеры">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="3"/>
+            <path d="M12 8v6l-4 6"/>
+            <path d="M12 14l4 6"/>
+            <path d="M6 19c2-1 4-1.5 6-1.5s4 .5 6 1.5"/>
+          </svg>
+        </button>
+      </div>
+      <div class="topbar-pill">
+        <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения">⚙︎</button>
+        <button class="theme-toggle" id="theme-btn" onclick="openThemePicker()" title="Сменить тему">☽</button>
+      </div>
     </div>
   </div>
 
   <div class="hero">
     <div class="hero-title" id="app-hero-title">Standing<br><span class="accent">Rollout</span></div>
     <div class="hero-rule"></div>
-    <div class="hero-motiv">
+    <div class="hero-motiv" id="hero-motiv">
       <span class="hero-motiv-emoji" id="hero-motiv-emoji"></span>
       <span class="hero-motiv-text" id="hero-motiv-text"></span>
     </div>
@@ -1959,19 +2036,21 @@ body {
     </div>
   </div>
 
-  <div class="divider"><span>Прогрессия навыка</span></div>
+  <div id="roadmap-section">
+    <div class="divider"><span>Прогрессия навыка</span></div>
 
-  <div class="prog-block">
-    <div class="prog-header">
-      <div class="prog-header-row">
-        <div>
-          <div class="prog-title" id="app-prog-title">Standing Rollout</div>
-          <div class="prog-sub" id="app-prog-sub">Дорожная карта к полному выходу стоя</div>
+    <div class="prog-block">
+      <div class="prog-header">
+        <div class="prog-header-row">
+          <div>
+            <div class="prog-title" id="app-prog-title">Standing Rollout</div>
+            <div class="prog-sub" id="app-prog-sub">Дорожная карта к полному выходу стоя</div>
+          </div>
+          <button class="edit-toggle-btn" onclick="openWeeksEditor()" title="Редактировать дорожную карту">✎</button>
         </div>
-        <button class="edit-toggle-btn" onclick="openWeeksEditor()" title="Редактировать дорожную карту">✎</button>
       </div>
+      <div id="prog-list"></div>
     </div>
-    <div id="prog-list"></div>
   </div>
 
   <div class="footer"><div class="footer-txt" id="app-footer">Ab Wheel Tracker · Standing Rollout Program</div></div>
@@ -2698,7 +2777,7 @@ function moveDay(fromIdx, toIdx) {
   else if (fromIdx > toIdx && D >= toIdx && D < fromIdx) D++;
   save(); render();
 }
-const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)).length;
+const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)||gotSkipped(w,d,i)).length;
 const allEx=()=>{let t=0;for(let w=1;w<=maxWks();w++)for(let d=0;d<S.days.length;d++)t+=dayDone(w,d);return t;};
 const calcWeekProg = () => {
   let base = 0, done = 0, extra = 0;
@@ -3076,7 +3155,6 @@ function render(){
     </div>`;
   }).join('');
 
-  renderHistoryBtn();
 }
 
 // ══════════════════════════════════════
@@ -3095,6 +3173,11 @@ const APP_DEFAULTS = {
   progSubColor: '',
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
   showSW:    false,
+  showRoadmap: true,
+  showMotiv:   true,
+  showTopbar: true,
+  showHero:   true,
+  showFooter: true,
 };
 
 function loadAppCfg() {
@@ -3115,11 +3198,18 @@ function renderAppCfg(cfg) {
   const sw = document.getElementById('sw-block');
 
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
+  if (t)  t.style.display = (cfg.showTopbar !== false) ? '' : 'none';
   if (ht) { const _t=esc(cfg.heroTitle || APP_DEFAULTS.heroTitle); ht.innerHTML = _t.replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>'); }
+  if (ht) ht.style.display = (cfg.showHero !== false) ? '' : 'none';
   if (pt) { pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle; pt.style.fontWeight = cfg.progTitleWeight || APP_DEFAULTS.progTitleWeight; if (cfg.progTitleColor) pt.style.color = cfg.progTitleColor; else pt.style.color = ''; }
   if (ps) { ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;   ps.style.fontWeight = cfg.progSubWeight   || APP_DEFAULTS.progSubWeight;   if (cfg.progSubColor) ps.style.color = cfg.progSubColor;     else ps.style.color = ''; }
   if (ft) ft.textContent = cfg.footer    || APP_DEFAULTS.footer;
+  if (ft) ft.style.display = (cfg.showFooter !== false) ? '' : 'none';
   if (sw) sw.style.display = (cfg.showSW !== false) ? '' : 'none';
+  const rm = document.getElementById('roadmap-section');
+  if (rm) rm.style.display = (cfg.showRoadmap !== false) ? '' : 'none';
+  const hm = document.getElementById('hero-motiv');
+  if (hm) hm.style.display = (cfg.showMotiv !== false) ? '' : 'none';
   document.title = cfg.topbar || APP_DEFAULTS.topbar;
 }
 
@@ -3130,6 +3220,16 @@ function openAppSettings() {
   document.getElementById('cfg-footer').value     = cfg.footer;
   const swChk = document.getElementById('cfg-show-sw');
   if (swChk) swChk.checked = cfg.showSW !== false;
+  const rmChk = document.getElementById('cfg-show-roadmap');
+  if (rmChk) rmChk.checked = cfg.showRoadmap !== false;
+  const mvChk = document.getElementById('cfg-show-motiv');
+  if (mvChk) mvChk.checked = cfg.showMotiv !== false;
+  const tbChk = document.getElementById('cfg-show-topbar');
+  if (tbChk) tbChk.checked = cfg.showTopbar !== false;
+  const heChk = document.getElementById('cfg-show-hero');
+  if (heChk) heChk.checked = cfg.showHero !== false;
+  const ftChk = document.getElementById('cfg-show-footer');
+  if (ftChk) ftChk.checked = cfg.showFooter !== false;
   const themeSel = document.getElementById('cfg-theme');
   if (themeSel) themeSel.value = S.theme || 'light';
   document.getElementById('settings-overlay').classList.add('open');
@@ -3388,6 +3488,11 @@ function applyAppSettings() {
   const heroTitle = heroRaw.includes(' / ') ? heroRaw.replace(' / ', '\n') : heroRaw;
   const cur = loadAppCfg();
   const swChk = document.getElementById('cfg-show-sw');
+  const rmChk = document.getElementById('cfg-show-roadmap');
+  const mvChk = document.getElementById('cfg-show-motiv');
+  const tbChk = document.getElementById('cfg-show-topbar');
+  const heChk = document.getElementById('cfg-show-hero');
+  const ftChk = document.getElementById('cfg-show-footer');
   const cfg = {
     topbar:    document.getElementById('cfg-topbar').value     || APP_DEFAULTS.topbar,
     heroTitle: heroTitle                                        || APP_DEFAULTS.heroTitle,
@@ -3399,6 +3504,11 @@ function applyAppSettings() {
     progSubColor:    cur.progSubColor                           || APP_DEFAULTS.progSubColor,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
     showSW:    swChk ? swChk.checked : false,
+    showRoadmap: rmChk ? rmChk.checked : true,
+    showMotiv:   mvChk ? mvChk.checked : true,
+    showTopbar:  tbChk ? tbChk.checked : true,
+    showHero:    heChk ? heChk.checked : true,
+    showFooter:  ftChk ? ftChk.checked : true,
   };
   saveAppCfg(cfg);
   renderAppCfg(cfg);
@@ -5195,21 +5305,6 @@ function deleteHistoryEntry(idx){
   h.splice(idx, 1);
   saveHistory(h);
   openHistory();
-}
-
-// Добавляем кнопку истории в топбар — вызывается после render()
-function renderHistoryBtn(){
-  let btn = document.getElementById('history-btn');
-  if(!btn){
-    btn = document.createElement('button');
-    btn.id = 'history-btn';
-    btn.className = 'theme-toggle';
-    btn.title = 'История тренировок';
-    btn.textContent = '📋';
-    btn.onclick = openHistory;
-    const right = document.querySelector('.topbar-right');
-    if(right) right.insertBefore(btn, right.firstChild);
-  }
 }
 // ══════════════════════════════════════
 function triggerWeekComplete(w) {
