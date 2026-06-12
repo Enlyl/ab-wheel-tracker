@@ -3356,14 +3356,13 @@ const HIST_PALETTE = Array.from({length:30}, (_,i)=>`hsl(${i*12},75%,55%)`);
 const hashStr=s=>{let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h);};
 const histColor=n=>HIST_PALETTE[hashStr(n)%HIST_PALETTE.length];
 
-function drawMeasChart(){
-  const c = document.getElementById('meas-chart');
+function drawMeasChart(id, fields){
+  const c = document.getElementById(id);
   if (!c) return;
   const m = loadMeasures();
   const sorted = [...m].reverse();
   const X_GAP = 45;
   const pad = {t:16, r:16, b:32, l:44};
-  const minW = pad.l + pad.r + X_GAP;
   const needW = pad.l + sorted.length * X_GAP + pad.r;
   const parent = c.parentElement;
   const parentW = parent.clientWidth;
@@ -3386,9 +3385,7 @@ function drawMeasChart(){
   const ch = h - pad.t - pad.b;
   ctx.clearRect(0,0,w,h);
 
-  const fields = MEAS_FIELDS.filter(f => window._measChartFields && window._measChartFields[f.k]);
-
-  // global Y range
+  // Per-chart Y range
   let gmin=Infinity, gmax=-Infinity;
   sorted.forEach(e => {
     fields.forEach(f => {
@@ -3448,21 +3445,39 @@ function renderMeasBody(){
   const body = document.getElementById('measures-body');
   if (!m.length){ body.innerHTML = '<button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button><p class="help-no-info">Пока нет записей.</p>'; return; }
   if (!window._measChartFields) window._measChartFields = {weight:true, chest:true, waist:true, biceps:true};
+  const weightFields = MEAS_FIELDS.filter(f => f.k === 'weight');
+  const bodyFields = MEAS_FIELDS.filter(f => f.k !== 'weight');
   body.innerHTML = `
-    <div style="overflow-x:auto;"><canvas id="meas-chart" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;margin-bottom:12px;"></canvas></div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;justify-content:center;">
-      ${MEAS_FIELDS.map(f => `
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
-          <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;drawMeasChart()" style="accent-color:var(--gold);">
-          <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
-          ${f.l.replace(/\(.*\)/,'').trim()}
-        </label>
-      `).join('')}
+    <div style="margin-bottom:14px;">
+      <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Вес</div>
+      <div style="overflow-x:auto;"><canvas id="meas-chart-weight" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
+        ${weightFields.map(f => `
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
+            <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
+            <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
+            ${f.l.replace(/\(.*\)/,'').trim()}
+          </label>
+        `).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Грудь / Талия / Руки</div>
+      <div style="overflow-x:auto;"><canvas id="meas-chart-body" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
+        ${bodyFields.map(f => `
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
+            <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
+            <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
+            ${f.l.replace(/\(.*\)/,'').trim()}
+          </label>
+        `).join('')}
+      </div>
     </div>
     <button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button>
     ${m.map((e,i)=>renderMeasEntry(e,i)).join('')}
   `;
-  requestAnimationFrame(drawMeasChart);
+  requestAnimationFrame(()=>{ drawMeasChart('meas-chart-weight', weightFields.filter(f=>window._measChartFields[f.k])); drawMeasChart('meas-chart-body', bodyFields.filter(f=>window._measChartFields[f.k])); });
 }
 function addMeasEntry(){
   const m = loadMeasures();
