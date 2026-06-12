@@ -3477,13 +3477,17 @@ function renderMeasBody(){
   const weightFields = MEAS_FIELDS.filter(f => f.k === 'weight');
   const bodyFields = MEAS_FIELDS.filter(f => f.k !== 'weight');
   const refs = loadMeasRefs();
-  const refInput = (k, label) =>
-    `<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);cursor:text;">
-      <span style="width:6px;height:6px;border-radius:2px;background:${CHART_COLORS[k]||'#888'};display:inline-block;"></span>
-      ${label}
-      <input type="number" value="${refs[k]??''}" step="0.1" style="width:50px;border:1px solid var(--border);border-radius:4px;padding:1px 4px;font-size:10px;background:var(--surface2);color:var(--text);outline:none;font-family:inherit;"
+  const refInput = (k, label) => {
+    const step = k === 'weight' ? 1 : 0.5;
+    return `<div style="display:flex;align-items:center;gap:2px;font-size:10px;color:var(--text3);">
+      <span style="width:6px;height:6px;border-radius:2px;background:${CHART_COLORS[k]||'#888'};display:inline-block;flex-shrink:0;"></span>
+      <span style="margin-right:2px;">${label}</span>
+      <button style="background:var(--surface2);border:1px solid var(--border);border-radius:4px 0 0 4px;padding:1px 5px;font-size:11px;cursor:pointer;color:var(--text2);line-height:1.4;font-family:inherit;" onclick="const r=loadMeasRefs();r['${k}']=Math.max(0,(parseFloat(r['${k}'])||0)-${step});saveMeasRefs(r);renderMeasBody()">−</button>
+      <input type="text" inputmode="decimal" value="${refs[k]??'0'}" style="width:44px;border:1px solid var(--border);border-left:none;border-right:none;padding:1px 2px;font-size:10px;background:var(--surface2);color:var(--text);text-align:center;outline:none;font-family:inherit;-moz-appearance:textfield;"
         onchange="const r=loadMeasRefs();r['${k}']=this.value;saveMeasRefs(r);renderMeasBody()">
-    </label>`;
+      <button style="background:var(--surface2);border:1px solid var(--border);border-radius:0 4px 4px 0;padding:1px 5px;font-size:11px;cursor:pointer;color:var(--text2);line-height:1.4;font-family:inherit;" onclick="const r=loadMeasRefs();r['${k}']=(parseFloat(r['${k}'])||0)+${step};saveMeasRefs(r);renderMeasBody()">+</button>
+    </div>`;
+  };
   body.innerHTML = `
     <div style="display:flex;gap:12px;margin-bottom:14px;">
       <div style="flex:1;min-width:0;">
