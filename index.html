@@ -5353,7 +5353,12 @@ function openHistory(){
   });
 
   // Build chart toggle + mode content
-  const chartBtn = `<button class="catalog-add-btn" onclick="toggleHistMode()" style="flex-shrink:0;font-size:12px;${window._histChartMode?'background:var(--gold);color:#000;border-color:var(--gold);':''}" title="График прогресса">${window._histChartMode?'☑ График':'☐ График'}</button>`;
+  const segStyle = 'font-size:11px;padding:5px 14px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .2s;';
+  const segActive = 'background:var(--gold);color:#000;border-color:var(--gold);';
+  const chartBtn = `<div style="display:inline-flex;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);">
+    <button onclick="window._histChartMode=false;openHistory()" style="${segStyle}border-radius:20px 0 0 20px;${!window._histChartMode?segActive:''}border-right:none;">📅 Календарь</button>
+    <button onclick="window._histChartMode=true;openHistory()" style="${segStyle}border-radius:0 20px 20px 0;${window._histChartMode?segActive:''}">📈 График</button>
+  </div>`;
 
   if (window._histChartMode) {
     const exNames = [];
