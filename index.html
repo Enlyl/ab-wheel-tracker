@@ -5353,9 +5353,9 @@ function openHistory(){
   });
 
   // Build chart toggle + mode content
-  const segStyle = 'font-size:11px;padding:5px 14px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .2s;';
+  const segStyle = 'font-size:11px;padding:5px 0;flex:1;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;';
   const segActive = 'background:var(--gold);color:#000;border-color:var(--gold);';
-  const chartBtn = `<div style="display:inline-flex;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);">
+  const chartBtn = `<div style="display:inline-flex;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);min-width:200px;">
     <button onclick="window._histChartMode=false;openHistory()" style="${segStyle}border-radius:20px 0 0 20px;${!window._histChartMode?segActive:''}border-right:none;">📅 Календарь</button>
     <button onclick="window._histChartMode=true;openHistory()" style="${segStyle}border-radius:0 20px 20px 0;${window._histChartMode?segActive:''}">📈 График</button>
   </div>`;
