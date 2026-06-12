@@ -498,6 +498,8 @@ body {
 }
 [data-theme="dark"] .chk-box { border-color: rgba(255,255,255,0.14); }
 .ex-item.normal.chk .chk-box { background: var(--green); border-color: var(--green); }
+.ex-item.normal.skipped .chk-box { background: var(--surface3); border-color: var(--border); color: var(--text3); }
+.ex-item.normal.skipped .ei-name { color: var(--text3); }
 .ex-num {
   font-size: 13px; font-weight: 700;
   color: var(--text3); opacity: 0.55;
@@ -2285,14 +2287,37 @@ function setRep(w,d,i,val){
   if(navigator.vibrate) navigator.vibrate([6]);
   save(); render();
 }
-const got=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return true;return v.done>=v.total;};
-const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v)return false;if(v===true)return false;return v.done>0&&v.done<v.total;};
+const got=(w,d,i)=>{const v=S[k(w,d,i)];if(v==='skipped')return false;if(!v)return false;if(v===true)return true;return v.done>=v.total;};
+const gotSkipped=(w,d,i)=>S[k(w,d,i)]==='skipped';
+const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v||v==='skipped')return false;if(v===true)return false;return v.done>0&&v.done<v.total;};
 
 // ── Последнее нажатое упражнение (для плашки таймера) ──
 let lastTappedEx = null; // { d, i }
+let _lpTimer = null;
+function startLp(e, w, d, i){
+  if(e.button && e.button!==0) return;
+  if(_lpTimer) clearTimeout(_lpTimer);
+  _lpTimer = setTimeout(() => {
+    _lpTimer = null;
+    togSkip(w,d,i);
+  }, 500);
+}
+function cancelLp(e){
+  if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer = null; }
+}
+function togSkip(w,d,i){
+  if(editMode) return;
+  const cur=S[k(w,d,i)];
+  if(cur==='skipped'){ S[k(w,d,i)]=false; }
+  else { S[k(w,d,i)]='skipped'; }
+  save();
+  render();
+}
 
 function tog(w,d,i){
   if(editMode) return;
+  const cur=S[k(w,d,i)];
+  if(cur==='skipped'){ S[k(w,d,i)]=false; save(); render(); return; }
   const wasDone=dayDone(w,d)===S.days[d].ex.length;
   const cur=S[k(w,d,i)];
   if(!cur){
@@ -2860,6 +2885,7 @@ function renderExItem(e,di,ei){
   }
   const chk=got(W,di,ei);
   const partial=gotPartial(W,di,ei);
+  const skipped=gotSkipped(W,di,ei);
   const sets=getSets(W,di,ei);
   const total=parseSets(e.d);
   const showToast = !editMode && lastTappedEx && lastTappedEx.d===di && lastTappedEx.i===ei;
@@ -2946,10 +2972,10 @@ function renderExItem(e,di,ei){
         </div>`
       : '';
   }
-  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}${expanded?'':' collapsed'}" onclick="tog(${W},${di},${ei})">
+  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}${skipped?' skipped':''}${expanded?'':' collapsed'}" onclick="tog(${W},${di},${ei})">
     <div class="chk-wrap">
       <span class="ex-num">${ei+1}</span>
-      <div class="chk-box">${chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
+      <div class="chk-box" onpointerdown="event.stopPropagation();startLp(event,${W},${di},${ei})" onpointerup="cancelLp(event)" onpointerleave="cancelLp(event)" oncontextmenu="event.preventDefault();togSkip(${W},${di},${ei})">${skipped?'—':chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
     </div>
     <div class="ei-body">
       <div class="name-pill">
