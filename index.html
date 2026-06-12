@@ -5363,11 +5363,10 @@ function openHistory(){
     const activeEx = window._histChartActive;
     const allChecked = exNames.every(n => activeEx[n]);
     const exToggles = exNames.map((n) =>
-      `<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;"
+      `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);cursor:pointer;"
         onmouseenter="window._histChartHover='${esc(n)}';drawHistChart()"
         onmouseleave="window._histChartHover='';drawHistChart()">
-        <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:var(--gold);">
-        <span style="width:8px;height:8px;border-radius:50%;background:${histColor(n)};display:inline-block;flex-shrink:0;"></span>
+        <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:${histColor(n)};width:14px;height:14px;cursor:pointer;flex-shrink:0;margin:0;">
         ${n}
       </label>`
     ).join('');
