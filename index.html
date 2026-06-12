@@ -5140,8 +5140,10 @@ function toggleHistMode(){
   window._histChartMode = !window._histChartMode;
   openHistory();
 }
-function histCheckAll(v){
-  if (window._histChartActive) Object.keys(window._histChartActive).forEach(k => window._histChartActive[k] = v);
+function histToggleAll(){
+  if (!window._histChartActive) return;
+  const anyOff = Object.values(window._histChartActive).some(v => !v);
+  Object.keys(window._histChartActive).forEach(k => window._histChartActive[k] = anyOff);
   openHistory();
 }
 
@@ -5349,6 +5351,7 @@ function openHistory(){
     if (!window._histChartActive) window._histChartActive = {};
     exNames.forEach(n => { if (window._histChartActive[n] === undefined) window._histChartActive[n] = true; });
     const activeEx = window._histChartActive;
+    const allChecked = exNames.every(n => activeEx[n]);
     const exToggles = exNames.map((n) =>
       `<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;"
         onmouseenter="window._histChartHover='${esc(n)}';drawHistChart()"
@@ -5358,15 +5361,13 @@ function openHistory(){
         ${n}
       </label>`
     ).join('');
-    const selAll = `<button class="catalog-add-btn" style="font-size:10px;padding:3px 10px;" onclick="histCheckAll(true)">Все</button>`;
-    const deselAll = `<button class="catalog-add-btn" style="font-size:10px;padding:3px 10px;" onclick="histCheckAll(false)">Сбросить</button>`;
     body.innerHTML =
       `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">${chartBtn}</div>
        <div id="hist-chart-wrap" style="overflow-x:auto;">
          <canvas id="hist-chart" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;margin-bottom:10px;"></canvas>
        </div>
        ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
-       ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">${deselAll}${selAll}</div>` : ''}
+       ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;"><button class="catalog-add-btn" style="font-size:10px;padding:3px 10px;" onclick="histToggleAll()">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
        <button class="reset-btn" style="width:100%;" onclick="clearHistory()">Очистить историю</button>`;
     requestAnimationFrame(drawHistChart);
   } else {
