@@ -3351,7 +3351,10 @@ function cancelMeasEdit(){
 }
 
 const CHART_COLORS = {weight:'#ff2d78', chest:'#00f0ff', waist:'#ffb000', biceps:'#7a4aff'};
-const HIST_PALETTE = ['#ff2d78','#00f0ff','#ffb000','#7a4aff','#4ade80','#f472b6','#22d3ee','#fb923c','#a78bfa','#34d399'];
+// 30 evenly-spaced HSL colors for history chart
+const HIST_PALETTE = Array.from({length:30}, (_,i)=>`hsl(${i*12},75%,55%)`);
+const hashStr=s=>{let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h);};
+const histColor=n=>HIST_PALETTE[hashStr(n)%HIST_PALETTE.length];
 
 function drawMeasChart(){
   const c = document.getElementById('meas-chart');
@@ -5071,6 +5074,7 @@ function drawHistChart(){
     return;
   }
 
+  // Y range
   let gmin=Infinity, gmax=-Infinity;
   exNames.forEach(n => exData[n].forEach(p => { if (p.y < gmin) gmin = p.y; if (p.y > gmax) gmax = p.y; }));
   if (gmin === Infinity) { gmin=0; gmax=1; }
@@ -5080,6 +5084,7 @@ function drawHistChart(){
   const yRange = gmax - gmin;
   const yVal = v => pad.t + ch - (v - gmin) / yRange * ch;
 
+  // Grid lines
   ctx.strokeStyle = 'rgba(128,128,128,0.08)'; ctx.lineWidth = 1;
   for (let i=0;i<=4;i++) {
     const y = pad.t + i/4*ch;
@@ -5088,21 +5093,42 @@ function drawHistChart(){
     ctx.fillText((gmax - i/4*(gmax-gmin)).toFixed(1), pad.l-4, y+3);
   }
 
-  const palette = HIST_PALETTE;
-  exNames.forEach((name, idx) => {
+  // Draw lines — hovered exercise highlighted
+  const hover = window._histChartHover;
+  // First pass: dimmed lines
+  exNames.forEach(name => {
+    if (name === hover) return;
     const pts = exData[name];
-    const color = palette[idx % palette.length];
-    if (pts.length < 2) {
-      ctx.beginPath(); ctx.arc(pts[0].x, yVal(pts[0].y), 3, 0, Math.PI*2);
+    const color = histColor(name);
+    const alpha = hover ? '33' : ''; // 20% alpha if something else is hovered
+    ctx.strokeStyle = hover ? color+'33' : color; ctx.lineWidth = 1.5;
+    ctx.globalAlpha = hover ? 0.15 : 1;
+    if (pts.length === 1) {
+      ctx.beginPath(); ctx.arc(pts[0].x, yVal(pts[0].y), 2.5, 0, Math.PI*2);
       ctx.fillStyle = color; ctx.fill();
       return;
     }
-    ctx.strokeStyle = color; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(pts[0].x, yVal(pts[0].y));
     for (let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, yVal(pts[i].y));
     ctx.stroke();
-    pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, yVal(p.y), 3, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill(); });
+    pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, yVal(p.y), 2.5, 0, Math.PI*2); ctx.fillStyle = ctx.strokeStyle; ctx.fill(); });
   });
+  ctx.globalAlpha = 1;
+  // Second pass: hovered line on top
+  if (hover && exData[hover]) {
+    const pts = exData[hover];
+    const color = histColor(hover);
+    ctx.strokeStyle = color; ctx.lineWidth = 3;
+    if (pts.length === 1) {
+      ctx.beginPath(); ctx.arc(pts[0].x, yVal(pts[0].y), 4, 0, Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.moveTo(pts[0].x, yVal(pts[0].y));
+      for (let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x, yVal(pts[i].y));
+      ctx.stroke();
+      pts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, yVal(p.y), 4, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill(); });
+    }
+  }
 
   ctx.fillStyle = '#888780'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
   sorted.forEach((r,i) => {
@@ -5324,10 +5350,12 @@ function openHistory(){
     if (!window._histChartActive) window._histChartActive = {};
     exNames.forEach(n => { if (window._histChartActive[n] === undefined) window._histChartActive[n] = true; });
     const activeEx = window._histChartActive;
-    const exToggles = exNames.map((n, i) =>
-      `<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
+    const exToggles = exNames.map((n) =>
+      `<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;"
+        onmouseenter="window._histChartHover='${esc(n)}';drawHistChart()"
+        onmouseleave="window._histChartHover='';drawHistChart()">
         <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:var(--gold);">
-        <span style="width:8px;height:8px;border-radius:50%;background:${HIST_PALETTE[i%HIST_PALETTE.length]};display:inline-block;flex-shrink:0;"></span>
+        <span style="width:8px;height:8px;border-radius:50%;background:${histColor(n)};display:inline-block;flex-shrink:0;"></span>
         ${n}
       </label>`
     ).join('');
