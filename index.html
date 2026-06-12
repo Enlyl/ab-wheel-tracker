@@ -2139,13 +2139,12 @@ DEFAULT_DAYS.forEach((day, di) => {
   day.ex.forEach((defEx, ei) => {
     const curEx = S.days[di].ex[ei];
     if (!curEx) return;
-    // Если название совпадает но детали устарели — обновляем
     if (curEx.n === defEx.n && curEx.d !== defEx.d) {
       curEx.d = defEx.d;
-  }
+    }
+  });
 });
 
-// Запрашиваем сразу при загрузке
 grabWakeLock();
 
 let W=S.W, D=S.D, editMode=false;
