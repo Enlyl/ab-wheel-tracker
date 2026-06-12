@@ -5132,10 +5132,17 @@ function drawHistChart(){
     if (i % 2 !== 0 && i !== sorted.length-1) return;
     ctx.fillText(r.date ? r.date.split(' ').slice(0,2).join(' ') : '', pad.l + i * X_GAP + X_GAP/2, hh-6);
   });
+  // Sync zoom input value
+  const zi = document.querySelector('#history-sheet .help-body input[type="number"]');
+  if (zi) zi.value = ((window._histChartZoom || 1) * 100).toFixed(0);
 }
 
 function histZoom(v){
   window._histChartZoom = Math.max(0.5, Math.min(4, (window._histChartZoom || 1) + v));
+  drawHistChart();
+}
+function histZoomSet(pct){
+  window._histChartZoom = Math.max(0.5, Math.min(4, parseInt(pct) / 100));
   drawHistChart();
 }
 
@@ -5369,11 +5376,14 @@ function openHistory(){
        <div id="hist-chart-wrap" style="overflow-x:auto;">
          <canvas id="hist-chart" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;margin-bottom:6px;"></canvas>
        </div>
-       <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:8px;">
-         <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(-0.5)" title="Уменьшить">−</button>
-         <span style="font-size:11px;color:var(--text3);min-width:32px;text-align:center;">${((window._histChartZoom||1)*100).toFixed(0)}%</span>
-         <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(0.5)" title="Увеличить">+</button>
-       </div>
+        <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:8px;">
+          <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(-0.5)" title="Уменьшить">−</button>
+          <input type="number" value="${((window._histChartZoom||1)*100).toFixed(0)}" min="50" max="400" step="10"
+            onchange="histZoomSet(this.value)"
+            style="width:52px;border:1px solid var(--border);border-radius:6px;padding:2px 6px;font-size:12px;background:var(--surface2);color:var(--text);text-align:center;outline:none;">
+          <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(0.5)" title="Увеличить">+</button>
+          <button class="catalog-add-btn" style="font-size:11px;padding:2px 8px;line-height:1.4;" onclick="histZoomSet(100)" title="Сбросить зум">↺</button>
+        </div>
        ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
        ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin:22px 0 18px;"><button class="catalog-add-btn" style="font-size:13px;padding:10px 24px;" onclick="histToggleAll()">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
        <button class="reset-btn" style="width:100%;" onclick="clearHistory()">Очистить историю</button>`;
