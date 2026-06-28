@@ -2140,6 +2140,15 @@ if(!S.theme) S.theme='light';
 
 const maxWks = () => Math.max(W, ...S.days.filter(d=>d.week).map(d=>d.week));
 
+// Миграция: Body Saw / Long-Lever Plank → Body Saw
+if (!localStorage.getItem('abw8_bsaw_mig')) {
+  S.days.forEach(d => { if (d.ex) d.ex.forEach(e => {
+    if (e.n === 'Body Saw / Long-Lever Plank') e.n = 'Body Saw';
+  }); });
+  try { localStorage.setItem('abw8', JSON.stringify(S)); } catch(e) {}
+  localStorage.setItem('abw8_bsaw_mig', '1');
+}
+
 // Миграция: синхронизируем поле d (детали/повторения) из DEFAULT_DAYS
 // Это нужно если пользователь не менял упражнение вручную, но мы обновили DEFAULT_DAYS
 DEFAULT_DAYS.forEach((day, di) => {
