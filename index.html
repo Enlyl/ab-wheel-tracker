@@ -480,9 +480,10 @@ body {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid var(--border); background: var(--surface3);
   color: var(--text2); cursor: pointer; font-size: 12px;
-  display: flex; align-items: center; justify-content: center; transition: all .18s;
+  display: flex; align-items: center; justify-content: center; transition: all .2s;
 }
 .collapse-all-btn:hover { border-color: var(--gold); color: var(--gold); }
+.collapse-all-btn.expanded { transform: rotate(180deg); color: var(--gold); border-color: var(--gold); }
 
 /* ── EX ITEMS — NORMAL ── */
 .ex-item {
@@ -3130,6 +3131,7 @@ function render(){
   }).join('') + `<div class="d-tab-add" onclick="addExtraDay()" title="Добавить день">+</div>`;
 
   const day=S.days[D], done=dayDone(W,D), tot=day.ex.length;
+  const anyExp = S._exp && day.ex.some((_,i)=>S._exp.includes(W+'-'+D+'-'+i));
   document.getElementById('done-banner').className='done-banner'+((!editMode&&done===tot)?' on':'');
 
   document.getElementById('day-content').innerHTML=
@@ -3145,7 +3147,7 @@ function render(){
           }
         </div>
         <div class="ex-head-right">
-          ${editMode?'':`<button class="collapse-all-btn" onclick="toggleAllEx()" title="Свернуть / развернуть все">⤢</button>`}
+          ${editMode?'':`<button class="collapse-all-btn${anyExp?' expanded':''}" onclick="toggleAllEx()" title="Свернуть / развернуть все">⤢</button>`}
           <div class="ex-counter">${done}/${tot}</div>
           <button class="edit-toggle-btn${editMode?' active':''}" onclick="toggleEditMode()">${editMode?'✓':'✎'}</button>
         </div>
