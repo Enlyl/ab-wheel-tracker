@@ -3083,13 +3083,13 @@ function renderExItem(e,di,ei){
         </div>`
       : '';
   }
-  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}${skipped?' skipped':''}${expanded?'':' collapsed'}" onclick="tog(${W},${di},${ei})">
-    <div class="chk-wrap">
+  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}${skipped?' skipped':''}${expanded?'':' collapsed'}">
+    <div class="chk-wrap" onclick="tog(${W},${di},${ei})">
       <span class="ex-num">${ei+1}</span>
       <div class="chk-box" onpointerdown="event.stopPropagation();startLp(event,${W},${di},${ei})" onpointerup="cancelLp(event)" onpointerleave="cancelLp(event)" oncontextmenu="event.preventDefault();togSkip(${W},${di},${ei})">${skipped?'—':chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
     </div>
     <div class="ei-body">
-      <div class="name-pill">
+      <div class="name-pill" onclick="event.stopPropagation();toggleExCollapse('${key}')">
         ${collapseBtn}
         ${tagH(e.t)}
         <div class="nd-col">
