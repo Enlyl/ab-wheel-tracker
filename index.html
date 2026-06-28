@@ -476,6 +476,13 @@ body {
 }
 .edit-toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
 .edit-toggle-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+.collapse-all-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface3);
+  color: var(--text2); cursor: pointer; font-size: 12px;
+  display: flex; align-items: center; justify-content: center; transition: all .18s;
+}
+.collapse-all-btn:hover { border-color: var(--gold); color: var(--gold); }
 
 /* ── EX ITEMS — NORMAL ── */
 .ex-item {
@@ -2587,6 +2594,18 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
+function toggleAllEx(){
+  const keys = S.days[D].ex.map((_, i) => W+'-'+D+'-'+i);
+  if (!S._exp) S._exp = [];
+  const allCollapsed = keys.every(k => !S._exp.includes(k));
+  keys.forEach(k => {
+    const idx = S._exp.indexOf(k);
+    if (allCollapsed) { if (idx < 0) S._exp.push(k); }
+    else { if (idx > -1) S._exp.splice(idx, 1); }
+  });
+  save();
+  render();
+}
 function toggleExCollapse(key){
   if (!S._exp) S._exp = [];
   const idx = S._exp.indexOf(key);
@@ -3126,6 +3145,7 @@ function render(){
           }
         </div>
         <div class="ex-head-right">
+          ${editMode?'':`<button class="collapse-all-btn" onclick="toggleAllEx()" title="Свернуть / развернуть все">⤢</button>`}
           <div class="ex-counter">${done}/${tot}</div>
           <button class="edit-toggle-btn${editMode?' active':''}" onclick="toggleEditMode()">${editMode?'✓':'✎'}</button>
         </div>
