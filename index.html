@@ -1622,6 +1622,38 @@ body {
 }
 .sw-popup-btn.finish:active { opacity: 0.85; }
 
+/* ── CONFIRM MODAL ── */
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 501;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.confirm-overlay.open { opacity: 1; pointer-events: all; }
+.confirm-popup {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px 28px;
+  max-width: 320px; width: 90%;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform .2s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+}
+.confirm-overlay.open .confirm-popup { transform: scale(1); }
+.confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.confirm-text { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.4; }
+.confirm-btns { display: flex; gap: 10px; }
+.confirm-btn {
+  flex: 1; padding: 10px 0; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface3);
+  color: var(--text); font-size: 14px; cursor: pointer; transition: all .15s;
+}
+.confirm-btn:hover { border-color: var(--gold); }
+.confirm-danger { background: #e05a3a; border-color: #e05a3a; color: #fff; }
+.confirm-danger:hover { background: #d04a2a; }
+
 /* ── STOPWATCH ── */
 .sw-block {
   margin: 0 24px 16px;
@@ -1773,6 +1805,17 @@ body {
   <div class="sw-popup-btns">
     <button class="sw-popup-btn continue" onclick="swResetCancel()">Отмена</button>
     <button class="sw-popup-btn finish" style="background:#e05a3a;box-shadow:0 2px 12px rgba(224,90,58,0.3);" onclick="swResetConfirm()">Сбросить</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirm-overlay" onclick="closeConfirm()"></div>
+<div class="confirm-popup" id="confirm-popup">
+  <div class="confirm-title" id="confirm-title"></div>
+  <div class="confirm-text" id="confirm-text"></div>
+  <div class="confirm-btns">
+    <button class="confirm-btn" onclick="closeConfirm()">Отмена</button>
+    <button class="confirm-btn confirm-danger" id="confirm-ok">Подтвердить</button>
   </div>
 </div>
 
@@ -2556,15 +2599,16 @@ function togSet(w,d,i,setIdx){
 }
 
 function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();render();}
-function resetDayProgress(){if(confirm('Сбросить все подходы за сегодня?'))resetDay();}
+function resetDayProgress(){showConfirm('Сбросить прогресс','Сбросить все подходы за сегодня?',resetDay);}
 function completeDay(){
-  if(!confirm('Закрыть все подходы за сегодня?')) return;
-  S.days[D].ex.forEach((_,i)=>{
-    const total=parseSets(S.days[D].ex[i].d);
-    if(total<=1) S[k(W,D,i)]=true;
-    else S[k(W,D,i)]={done:total,total:total};
+  showConfirm('Заполнить день','Закрыть все подходы за сегодня?',function(){
+    S.days[D].ex.forEach((_,i)=>{
+      const total=parseSets(S.days[D].ex[i].d);
+      if(total<=1) S[k(W,D,i)]=true;
+      else S[k(W,D,i)]={done:total,total:total};
+    });
+    recordSession();save();render();
   });
-  recordSession();save();render();
 }
 function chWk(dir){
   const prevW = W;
@@ -2604,6 +2648,17 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
+function showConfirm(title, text, onConfirm){
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-text').innerHTML = text;
+  document.getElementById('confirm-ok').onclick = function(){ closeConfirm(); if(onConfirm) onConfirm(); };
+  document.getElementById('confirm-overlay').classList.add('open');
+  document.getElementById('confirm-popup').classList.add('open');
+}
+function closeConfirm(){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  document.getElementById('confirm-popup').classList.remove('open');
+}
 function toggleAllEx(){
   const keys = S.days[D].ex.map((_, i) => W+'-'+D+'-'+i);
   if (!S._exp) S._exp = [];
@@ -2683,27 +2738,30 @@ function toggleExBlock(di, ei, type, show) {
   save();
 }
 function deleteEx(di,ei){
-  const len=S.days[di].ex.length;
-  for(let w=1;w<=maxWks();w++){
-    delete S[k(w,di,ei)];
-    for(let i=ei;i<len-1;i++){
-      S[k(w,di,i)]=S[k(w,di,i+1)];
+  const name = S.days[di].ex[ei].n || 'Упражнение';
+  showConfirm('Удалить упражнение',`Удалить "${name}" из программы?`,function(){
+    const len=S.days[di].ex.length;
+    for(let w=1;w<=maxWks();w++){
+      delete S[k(w,di,ei)];
+      for(let i=ei;i<len-1;i++){
+        S[k(w,di,i)]=S[k(w,di,i+1)];
+      }
+      delete S[k(w,di,len-1)];
     }
-    delete S[k(w,di,len-1)];
-  }
-  delete S[`reps_${S.days[di].uid}_e${ei}`];
-  delete S[`load_${S.days[di].uid}_e${ei}`];
-  delete S[`loadUnit_${S.days[di].uid}_e${ei}`];
-  for(let i=ei;i<len-1;i++){
-    S[`reps_${S.days[di].uid}_e${i}`]=S[`reps_${S.days[di].uid}_e${i+1}`];
-    S[`load_${S.days[di].uid}_e${i}`]=S[`load_${S.days[di].uid}_e${i+1}`];
-    S[`loadUnit_${S.days[di].uid}_e${i}`]=S[`loadUnit_${S.days[di].uid}_e${i+1}`];
-  }
-  delete S[`reps_${S.days[di].uid}_e${len-1}`];
-  delete S[`load_${S.days[di].uid}_e${len-1}`];
-  delete S[`loadUnit_${S.days[di].uid}_e${len-1}`];
-  S.days[di].ex.splice(ei,1);
-  save();render();
+    delete S[`reps_${S.days[di].uid}_e${ei}`];
+    delete S[`load_${S.days[di].uid}_e${ei}`];
+    delete S[`loadUnit_${S.days[di].uid}_e${ei}`];
+    for(let i=ei;i<len-1;i++){
+      S[`reps_${S.days[di].uid}_e${i}`]=S[`reps_${S.days[di].uid}_e${i+1}`];
+      S[`load_${S.days[di].uid}_e${i}`]=S[`load_${S.days[di].uid}_e${i+1}`];
+      S[`loadUnit_${S.days[di].uid}_e${i}`]=S[`loadUnit_${S.days[di].uid}_e${i+1}`];
+    }
+    delete S[`reps_${S.days[di].uid}_e${len-1}`];
+    delete S[`load_${S.days[di].uid}_e${len-1}`];
+    delete S[`loadUnit_${S.days[di].uid}_e${len-1}`];
+    S.days[di].ex.splice(ei,1);
+    save();render();
+  });
 }
 function moveEx(di,ei,dir){
   const ex=S.days[di].ex; const ni=ei+dir;
@@ -2782,18 +2840,19 @@ function addExtraDay(){
 }
 
 function removeExtraDay(di){
-  if(!confirm('Удалить этот день?')) return;
-  const uid = S.days[di].uid;
-  for(let w=1;w<=maxWks();w++) for(let i=0;i<S.days[di].ex.length;i++) {
-    delete S[k(w,di,i)];
-    delete S[`reps_${uid}_e${i}`];
-    delete S[`load_${uid}_e${i}`];
-    delete S[`loadUnit_${uid}_e${i}`];
-  }
-  S.days.splice(di, 1);
-  D = Math.min(D, S.days.length-1);
-  editMode = false;
-  save(); render();
+  showConfirm('Удалить день','Удалить этот день из программы?',function(){
+    const uid = S.days[di].uid;
+    for(let w=1;w<=maxWks();w++) for(let i=0;i<S.days[di].ex.length;i++) {
+      delete S[k(w,di,i)];
+      delete S[`reps_${uid}_e${i}`];
+      delete S[`load_${uid}_e${i}`];
+      delete S[`loadUnit_${uid}_e${i}`];
+    }
+    S.days.splice(di, 1);
+    D = Math.min(D, S.days.length-1);
+    editMode = false;
+    save(); render();
+  });
 }
 function moveDay(fromIdx, toIdx) {
   if (fromIdx === toIdx) return;
@@ -3268,24 +3327,26 @@ function openAppSettings() {
 }
 
 function clearAllLocalStorage(){
-  if(!confirm('Удалить все данные приложения?\n\nЭто сотрёт прогресс, историю, заметки, настройки.\nДействие необратимо.\n\nСовет: сначала сделайте экспорт JSON для резервной копии.')) return;
-  localStorage.clear();
-  closeAppSettings();
-  location.reload();
+  showConfirm('Удалить всё','Удалить все данные приложения?<br><br>Это сотрёт прогресс, историю, заметки, настройки.<br>Действие необратимо.<br><br>Совет: сначала сделайте экспорт JSON для резервной копии.',function(){
+    localStorage.clear();
+    closeAppSettings();
+    location.reload();
+  });
 }
 
 function resetProgram(){
-  if(!confirm('Сбросить прогресс тренировок?\n\nИстория и настройки приложения сохранятся.\nТекущий прогресс недель и заметки к упражнениям будут удалены.')) return;
-  const savedCfg = localStorage.getItem(APP_CFG_KEY);
-  const savedHistory = loadHistory();
-  // Сбрасываем всё, кроме конфига и истории
-  const keys = Object.keys(localStorage);
-  for (const key of keys) {
-    if (key === APP_CFG_KEY || key === 'abw_history' || key === MEAS_KEY) continue;
-    localStorage.removeItem(key);
-  }
-  closeAppSettings();
-  location.reload();
+  showConfirm('Сбросить прогресс','Сбросить прогресс тренировок?<br><br>История и настройки приложения сохранятся.<br>Текущий прогресс недель и заметки к упражнениям будут удалены.',function(){
+    const savedCfg = localStorage.getItem(APP_CFG_KEY);
+    const savedHistory = loadHistory();
+    // Сбрасываем всё, кроме конфига и истории
+    const keys = Object.keys(localStorage);
+    for (const key of keys) {
+      if (key === APP_CFG_KEY || key === 'abw_history' || key === MEAS_KEY) continue;
+      localStorage.removeItem(key);
+    }
+    closeAppSettings();
+    location.reload();
+  });
 }
 
 function closeAppSettings() {
@@ -3568,9 +3629,13 @@ function addMeasEntry(){
 }
 function deleteMeasEntry(i){
   let m = loadMeasures();
-  m.splice(i,1);
-  saveMeasures(m);
-  renderMeasBody();
+  const label = m[i] ? (m[i].date || 'запись') : 'запись';
+  showConfirm('Удалить замер',`Удалить замер от ${label}?`,function(){
+    let m = loadMeasures();
+    m.splice(i,1);
+    saveMeasures(m);
+    renderMeasBody();
+  });
 }
 
 function applyAppSettings() {
@@ -3773,9 +3838,11 @@ function moveWeek(i, dir) {
 
 function deleteWeek(i) {
   if (WEEKS.length <= 1) return;
-  WEEKS.splice(i, 1);
-  saveWeeks(WEEKS);
-  renderWeeksBody();
+  showConfirm('Удалить этап',`Удалить этап "${WEEKS[i].l}" из дорожной карты?`,function(){
+    WEEKS.splice(i, 1);
+    saveWeeks(WEEKS);
+    renderWeeksBody();
+  });
 }
 
 function addWeek() {
@@ -3790,10 +3857,11 @@ function addWeek() {
 }
 
 function resetWeeks() {
-  if (!confirm('Сбросить дорожную карту к исходной?')) return;
-  WEEKS = JSON.parse(JSON.stringify(WEEKS_DEFAULT));
-  saveWeeks(WEEKS);
-  renderWeeksBody();
+  showConfirm('Сбросить карту','Сбросить дорожную карту к исходной?',function(){
+    WEEKS = JSON.parse(JSON.stringify(WEEKS_DEFAULT));
+    saveWeeks(WEEKS);
+    renderWeeksBody();
+  });
 }
 
 // Применяем при загрузке
@@ -4799,13 +4867,13 @@ function handleImportFile(event) {
         if (typeof data[key] !== 'string') throw new Error('value not string');
         if (key.length > 100) throw new Error('key too long');
       }
-      if (confirm('Импортировать данные? Это перезапишет текущий прогресс.')) {
+      showConfirm('Импорт данных','Импортировать данные? Это перезапишет текущий прогресс.',function(){
         localStorage.clear();
         for (const key in data) {
           localStorage.setItem(key, data[key]);
         }
         location.reload();
-      }
+      });
     } catch (err) {
       alert('Ошибка при чтении файла JSON. Убедитесь, что файл корректен.');
     }
@@ -5056,10 +5124,35 @@ function catalogDeleteEx(btn) {
   if (ed) parts.push('правки');
   if (ex) parts.push('упражнение из дня');
   if (!parts.length) return;
-  if (!confirm(`Удалить ${parts.join(' и ')} для "${name}"?`)) return;
-  if (ex) { const ei = S.days[D].ex.indexOf(ex); if(ei>=0) deleteEx(D, ei); }
-  if (ed) { delete edits[name]; saveCatEdits(edits); }
-  openCatalog();
+  showConfirm('Удалить из каталога',`Удалить ${parts.join(' и ')} для "${name}"?`,function(){
+    const edits2 = loadCatEdits();
+    const ed2 = edits2[name];
+    const ex2 = S.days[D].ex.find(e => e.n.trim().toLowerCase() === name.trim().toLowerCase());
+    if (ex2) { const ei = S.days[D].ex.indexOf(ex2); if(ei>=0) catalogDeleteExDirect(D, ei); }
+    if (ed2) { delete edits2[name]; saveCatEdits(edits2); }
+    openCatalog();
+  });
+}
+function catalogDeleteExDirect(di,ei){
+  const len=S.days[di].ex.length;
+  for(let w=1;w<=maxWks();w++){
+    delete S[k(w,di,ei)];
+    for(let i=ei;i<len-1;i++){ S[k(w,di,i)]=S[k(w,di,i+1)]; }
+    delete S[k(w,di,len-1)];
+  }
+  delete S[`reps_${S.days[di].uid}_e${ei}`];
+  delete S[`load_${S.days[di].uid}_e${ei}`];
+  delete S[`loadUnit_${S.days[di].uid}_e${ei}`];
+  for(let i=ei;i<len-1;i++){
+    S[`reps_${S.days[di].uid}_e${i}`]=S[`reps_${S.days[di].uid}_e${i+1}`];
+    S[`load_${S.days[di].uid}_e${i}`]=S[`load_${S.days[di].uid}_e${i+1}`];
+    S[`loadUnit_${S.days[di].uid}_e${i}`]=S[`loadUnit_${S.days[di].uid}_e${i+1}`];
+  }
+  delete S[`reps_${S.days[di].uid}_e${len-1}`];
+  delete S[`load_${S.days[di].uid}_e${len-1}`];
+  delete S[`loadUnit_${S.days[di].uid}_e${len-1}`];
+  S.days[di].ex.splice(ei,1);
+  save();render();
 }
 
 function catalogAddAlt(ri) {
@@ -5562,17 +5655,21 @@ function histEditDuration(globalIdx, val){
 }
 
 function clearHistory(){
-  if(!confirm('Очистить всю историю тренировок?')) return;
-  saveHistory([]);
-  openHistory();
+  showConfirm('Очистить историю','Очистить всю историю тренировок?',function(){
+    saveHistory([]);
+    openHistory();
+  });
 }
 function deleteHistoryEntry(idx){
   const h = loadHistory();
   if(!h[idx]) return;
-  if(!confirm(`Удалить запись от ${h[idx].date}?`)) return;
-  h.splice(idx, 1);
-  saveHistory(h);
-  openHistory();
+  showConfirm('Удалить запись',`Удалить запись от ${h[idx].date}?`,function(){
+    const h = loadHistory();
+    if(!h[idx]) return;
+    h.splice(idx, 1);
+    saveHistory(h);
+    openHistory();
+  });
 }
 // ══════════════════════════════════════
 function triggerWeekComplete(w) {
