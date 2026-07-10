@@ -5369,6 +5369,16 @@ function openHistory(){
     localStorage.setItem('abw_v4_iso_migrated','1');
   }
 
+  // Миграция: Body Saw / Long-Lever Plank → Body Saw в истории
+  if (!localStorage.getItem('abw8_bsaw_hist_mig')) {
+    let dirty = false;
+    h.forEach(r => { if (r.exList) r.exList.forEach(e => {
+      if (e.name === 'Body Saw / Long-Lever Plank') { e.name = 'Body Saw'; dirty = true; }
+    }); });
+    if (dirty) saveHistory(h);
+    localStorage.setItem('abw8_bsaw_hist_mig', '1');
+  }
+
   // Строим Set дат тренировок для подсветки
   const trainDates = {};
   h.forEach(r => { if(r.isoDate) trainDates[r.isoDate] = (trainDates[r.isoDate]||0)+1; });
@@ -5542,6 +5552,7 @@ function openHistory(){
   if (window._histChartMode) {
     const exNames = [];
     h.forEach(r => { if (r.exList) r.exList.forEach(e => { if (e.name && !exNames.includes(e.name)) exNames.push(e.name); }); });
+    DEFAULT_DAYS.forEach(d => { if (d.ex) d.ex.forEach(e => { if (e.n && !exNames.includes(e.n)) exNames.push(e.n); }); });
     if (!window._histChartActive) window._histChartActive = {};
     exNames.forEach(n => { if (window._histChartActive[n] === undefined) window._histChartActive[n] = true; });
     const activeEx = window._histChartActive;
