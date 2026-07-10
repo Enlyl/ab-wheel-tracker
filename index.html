@@ -5261,16 +5261,22 @@ function drawHistChart(){
   const yRange = gmax;
   const yVal = v => pad.t + ch - v / yRange * ch;
 
-  // Grid lines every 10 units
-  ctx.strokeStyle = 'rgba(128,128,128,0.08)'; ctx.lineWidth = 1;
-  for (let v=0;v<=gmax;v+=10) {
-    const y = yVal(v);
-    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
-    ctx.fillStyle = '#888780'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText(v.toString(), pad.l-4, y+3);
-  }
+  // Compute progress for each exercise: first point → last point
+  const exProgress = {};
+  Object.keys(exData).forEach(name => {
+    const pts = exData[name];
+    if (pts.length >= 2) {
+      const first = pts[0].y;
+      const last = pts[pts.length-1].y;
+      const change = last - first;
+      const pct = first !== 0 ? ((change / first) * 100) : 0;
+      exProgress[name] = { first: first.toFixed(1), last: last.toFixed(1), change: change > 0 ? '+' + change.toFixed(1) : change.toFixed(1), pct: (change > 0 ? '+' : '') + pct.toFixed(0) + '%' };
+    } else if (pts.length === 1) {
+      exProgress[name] = { first: pts[0].y.toFixed(1), last: pts[0].y.toFixed(1), change: '0', pct: '0%' };
+    }
+  });
 
-  // Draw lines — hovered exercise highlighted
+  // Show tooltip for hovered exercise
   const hover = window._histChartHover;
   // First pass: dimmed lines
   exNames.forEach(name => {
@@ -5311,6 +5317,25 @@ function drawHistChart(){
     if (i % 2 !== 0 && i !== sorted.length-1) return;
     ctx.fillText(r.date ? r.date.split(' ').slice(0,2).join(' ') : '', pad.l + i * X_GAP + X_GAP/2, hh-6);
   });
+  // Draw progress tooltip for hovered exercise
+  if (hover && exProgress[hover]) {
+    const p = exProgress[hover];
+    const tipText = `${p.first} → ${p.last} (${p.pct})`;
+    ctx.font = 'bold 13px sans-serif';
+    const tw = ctx.measureText(tipText).width;
+    const tx = Math.min(Math.max(pad.l, w/2 - tw/2 - 10), w - pad.r - tw - 14);
+    const ty = pad.t - 2;
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    const rh = 22; const rw = tw + 14;
+    ctx.beginPath(); ctx.moveTo(tx-4, ty-rh+4); ctx.quadraticCurveTo(tx-4, ty-rh, tx, ty-rh);
+    ctx.lineTo(tx+rw-4, ty-rh); ctx.quadraticCurveTo(tx+rw, ty-rh, tx+rw, ty-rh+4);
+    ctx.lineTo(tx+rw, ty-2); ctx.quadraticCurveTo(tx+rw, ty, tx+rw-4, ty);
+    ctx.lineTo(tx+4, ty); ctx.quadraticCurveTo(tx, ty, tx, ty-2);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left';
+    ctx.fillText(tipText, tx, ty-3);
+  }
   // Sync zoom input value
   const zi = document.querySelector('#history-sheet .help-body input[type="number"]');
   if (zi) zi.value = ((window._histChartZoom || 1) * 100).toFixed(0);
@@ -5557,14 +5582,36 @@ function openHistory(){
     exNames.forEach(n => { if (window._histChartActive[n] === undefined) window._histChartActive[n] = true; });
     const activeEx = window._histChartActive;
     const allChecked = exNames.every(n => activeEx[n]);
-    const exToggles = exNames.map((n) =>
-      `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);cursor:pointer;"
+    // Compute progress for each exercise from history
+    const exProgress = {};
+    const sortedH = [...h].reverse();
+    exNames.forEach(name => {
+      const pts = [];
+      sortedH.forEach(r => { if (r.exList) r.exList.forEach(e => {
+        if (e.name === name && e.reps) {
+          const repsArr = Array.isArray(e.reps) ? e.reps : [e.reps];
+          pts.push(repsArr.reduce((a,b)=>a+b,0) / repsArr.length);
+        }
+      }); });
+      if (pts.length >= 2) {
+        const first = pts[0], last = pts[pts.length-1];
+        const change = last - first;
+        const pct = first !== 0 ? (change / first) * 100 : 0;
+        exProgress[name] = { first: first.toFixed(1), last: last.toFixed(1), pct: (change > 0 ? '+' : '') + pct.toFixed(0) + '%' };
+      } else if (pts.length === 1) {
+        exProgress[name] = { first: pts[0].toFixed(1), last: pts[0].toFixed(1), pct: '0%' };
+      }
+    });
+    const exToggles = exNames.map((n) => {
+      const prog = exProgress[n];
+      const progBadge = prog ? `<span style="font-size:10px;color:${prog.pct.startsWith('+')?'var(--green)':'#e05a3a'};margin-left:4px;flex-shrink:0;">${prog.pct}</span>` : '';
+      return `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);cursor:pointer;"
         onmouseenter="window._histChartHover='${esc(n)}';drawHistChart()"
         onmouseleave="window._histChartHover='';drawHistChart()">
         <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:${histColor(n)};width:14px;height:14px;cursor:pointer;flex-shrink:0;margin:0;">
-        ${n}
-      </label>`
-    ).join('');
+        <span style="display:flex;align-items:center;min-width:0;">${n}${progBadge}</span>
+      </label>`;
+    }).join('');
     body.innerHTML =
       `<div style="display:flex;justify-content:center;margin-bottom:10px;">${chartBtn}</div>
        <div id="hist-chart-wrap" style="overflow-x:auto;">
