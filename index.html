@@ -1637,11 +1637,12 @@ body {
   padding: 24px 28px;
   max-width: 320px; width: 90%;
   text-align: center;
+  opacity: 0;
   transform: scale(0.9);
-  transition: transform .2s cubic-bezier(.4,0,.2,1);
+  transition: opacity .2s ease, transform .2s cubic-bezier(.4,0,.2,1);
   box-shadow: 0 8px 40px rgba(0,0,0,0.25);
 }
-.confirm-overlay.open .confirm-popup { transform: scale(1); }
+.confirm-overlay.open .confirm-popup { opacity: 1; transform: scale(1); }
 .confirm-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
 .confirm-text { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.4; }
 .confirm-btns { display: flex; gap: 10px; }
@@ -1809,13 +1810,14 @@ body {
 </div>
 
 <!-- CONFIRM MODAL -->
-<div class="confirm-overlay" id="confirm-overlay" onclick="closeConfirm()"></div>
-<div class="confirm-popup" id="confirm-popup">
-  <div class="confirm-title" id="confirm-title"></div>
-  <div class="confirm-text" id="confirm-text"></div>
-  <div class="confirm-btns">
-    <button class="confirm-btn" onclick="closeConfirm()">Отмена</button>
-    <button class="confirm-btn confirm-danger" id="confirm-ok">Подтвердить</button>
+<div class="confirm-overlay" id="confirm-overlay" onclick="closeConfirm()">
+  <div class="confirm-popup" id="confirm-popup" onclick="event.stopPropagation()">
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-text" id="confirm-text"></div>
+    <div class="confirm-btns">
+      <button class="confirm-btn" onclick="closeConfirm()">Отмена</button>
+      <button class="confirm-btn confirm-danger" id="confirm-ok">Подтвердить</button>
+    </div>
   </div>
 </div>
 
