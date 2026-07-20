@@ -2665,9 +2665,8 @@ function completeDay(){
 }
 function chWk(dir){
   const prevW = W;
-  const max = Math.min(99, editMode ? 99 : (S.maxWk||1));
+  const max = Math.min(99, S.maxWk||1);
   W = Math.max(1, Math.min(max, W + dir));
-  if (W > (S.maxWk||1)) S.maxWk = W;
   D = 0; // всегда первый день
 
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
