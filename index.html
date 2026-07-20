@@ -1931,20 +1931,44 @@ body {
           <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">Первое слово</div>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
             <input type="color" id="cfg-hw1-color" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет">
-            <input type="number" id="cfg-hw1-weight" min="100" max="900" step="100" placeholder="Вес" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Жирность">
-            <label style="font-size:11px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text3);" title="Курсив">
-              <input type="checkbox" id="cfg-hw1-italic" onchange="applyAppSettings()"> <i>I</i>
+            <select id="cfg-hw1-weight" onchange="applyAppSettings()" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Насыщенность">
+              <option value="">—</option>
+              <option value="300">Light</option>
+              <option value="400">Regular</option>
+              <option value="500">Medium</option>
+              <option value="600">Semi Bold</option>
+              <option value="700">Bold</option>
+              <option value="800">Extra Bold</option>
+            </select>
+            <label style="font-size:12px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text2);padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);" title="Курсив">
+              <input type="checkbox" id="cfg-hw1-italic" onchange="applyAppSettings()" style="margin:0;"> <i>I</i>
             </label>
-            <input type="text" id="cfg-hw1-stroke" placeholder="Обв" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Обводка, напр. 0.5px #fff">
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;margin-top:4px;">
+            <span style="font-size:9px;color:var(--text3);white-space:nowrap;">Обводка</span>
+            <input type="number" id="cfg-hw1-stroke-w" min="0" max="3" step="0.1" placeholder="0" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
+            <input type="color" id="cfg-hw1-stroke-c" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
           </div>
           <div style="font-size:9px;color:var(--text3);margin:4px 0;">Второе слово</div>
           <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
             <input type="color" id="cfg-hw2-color" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет">
-            <input type="number" id="cfg-hw2-weight" min="100" max="900" step="100" placeholder="Вес" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Жирность">
-            <label style="font-size:11px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text3);" title="Курсив">
-              <input type="checkbox" id="cfg-hw2-italic" onchange="applyAppSettings()"> <i>I</i>
+            <select id="cfg-hw2-weight" onchange="applyAppSettings()" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Насыщенность">
+              <option value="">—</option>
+              <option value="300">Light</option>
+              <option value="400">Regular</option>
+              <option value="500">Medium</option>
+              <option value="600">Semi Bold</option>
+              <option value="700">Bold</option>
+              <option value="800">Extra Bold</option>
+            </select>
+            <label style="font-size:12px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text2);padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);" title="Курсив">
+              <input type="checkbox" id="cfg-hw2-italic" onchange="applyAppSettings()" style="margin:0;"> <i>I</i>
             </label>
-            <input type="text" id="cfg-hw2-stroke" placeholder="Обв" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Обводка, напр. 0.5px #fff">
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;margin-top:4px;">
+            <span style="font-size:9px;color:var(--text3);white-space:nowrap;">Обводка</span>
+            <input type="number" id="cfg-hw2-stroke-w" min="0" max="3" step="0.1" placeholder="0" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
+            <input type="color" id="cfg-hw2-stroke-c" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
           </div>
         </div>
       </div>
@@ -3392,7 +3416,7 @@ const APP_DEFAULTS = {
   hw1Color: '', hw2Color: '',
   hw1Weight: '', hw2Weight: '',
   hw1Italic: false, hw2Italic: false,
-  hw1Stroke: '', hw2Stroke: '',
+  hw1StrokeW: '', hw1StrokeC: '', hw2StrokeW: '', hw2StrokeC: '',
   wkColor:   '',
   wkRandom:  false,
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
@@ -3432,11 +3456,11 @@ function renderAppCfg(cfg) {
     if (cfg.hw1Color) s1.push('color:'+cfg.hw1Color); else if (cfg.heroTitleColor) s1.push('color:'+cfg.heroTitleColor);
     if (cfg.hw1Weight) s1.push('font-weight:'+cfg.hw1Weight);
     if (cfg.hw1Italic) s1.push('font-style:italic');
-    if (cfg.hw1Stroke) s1.push('-webkit-text-stroke:'+cfg.hw1Stroke);
+    if (cfg.hw1StrokeW && cfg.hw1StrokeC) s1.push('-webkit-text-stroke:'+cfg.hw1StrokeW+'px '+cfg.hw1StrokeC);
     if (cfg.hw2Color) s2.push('color:'+cfg.hw2Color); else if (cfg.heroTitleColor) s2.push('color:'+cfg.heroTitleColor);
     if (cfg.hw2Weight) s2.push('font-weight:'+cfg.hw2Weight);
     if (cfg.hw2Italic) s2.push('font-style:italic');
-    if (cfg.hw2Stroke) s2.push('-webkit-text-stroke:'+cfg.hw2Stroke);
+    if (cfg.hw2StrokeW && cfg.hw2StrokeC) s2.push('-webkit-text-stroke:'+cfg.hw2StrokeW+'px '+cfg.hw2StrokeC);
     const cls2 = s2.length ? '' : ' class="accent"';
     const st1 = s1.length ? ' style="'+s1.join(';')+'"' : '';
     const st2 = s2.length ? ' style="'+s2.join(';')+'"' : '';
@@ -3486,16 +3510,20 @@ function openAppSettings() {
   if (hw1w) hw1w.value = cfg.hw1Weight || '';
   const hw1i = document.getElementById('cfg-hw1-italic');
   if (hw1i) hw1i.checked = cfg.hw1Italic === true;
-  const hw1s = document.getElementById('cfg-hw1-stroke');
-  if (hw1s) hw1s.value = cfg.hw1Stroke || '';
+  const hw1s = document.getElementById('cfg-hw1-stroke-w');
+  if (hw1s) hw1s.value = cfg.hw1StrokeW || '';
+  const hw1sc = document.getElementById('cfg-hw1-stroke-c');
+  if (hw1sc) hw1sc.value = cfg.hw1StrokeC || '#ffffff';
   const hw2c = document.getElementById('cfg-hw2-color');
   if (hw2c) hw2c.value = cfg.hw2Color || '#ffffff';
   const hw2w = document.getElementById('cfg-hw2-weight');
   if (hw2w) hw2w.value = cfg.hw2Weight || '';
   const hw2i = document.getElementById('cfg-hw2-italic');
   if (hw2i) hw2i.checked = cfg.hw2Italic === true;
-  const hw2s = document.getElementById('cfg-hw2-stroke');
-  if (hw2s) hw2s.value = cfg.hw2Stroke || '';
+  const hw2s = document.getElementById('cfg-hw2-stroke-w');
+  if (hw2s) hw2s.value = cfg.hw2StrokeW || '';
+  const hw2sc = document.getElementById('cfg-hw2-stroke-c');
+  if (hw2sc) hw2sc.value = cfg.hw2StrokeC || '#ffffff';
   const fc = document.getElementById('cfg-footer-color');
   if (fc) fc.value = cfg.footerColor || '#ffffff';
   const wkColorInp = document.getElementById('cfg-wk-color');
@@ -3851,8 +3879,10 @@ function applyAppSettings() {
     hw2Weight: document.getElementById('cfg-hw2-weight').value  || APP_DEFAULTS.hw2Weight,
     hw1Italic: document.getElementById('cfg-hw1-italic').checked,
     hw2Italic: document.getElementById('cfg-hw2-italic').checked,
-    hw1Stroke: document.getElementById('cfg-hw1-stroke').value  || APP_DEFAULTS.hw1Stroke,
-    hw2Stroke: document.getElementById('cfg-hw2-stroke').value  || APP_DEFAULTS.hw2Stroke,
+    hw1StrokeW: document.getElementById('cfg-hw1-stroke-w').value || '',
+    hw1StrokeC: document.getElementById('cfg-hw1-stroke-c').value || '',
+    hw2StrokeW: document.getElementById('cfg-hw2-stroke-w').value || '',
+    hw2StrokeC: document.getElementById('cfg-hw2-stroke-c').value || '',
     wkColor:    document.getElementById('cfg-wk-color').value || APP_DEFAULTS.wkColor,
     wkRandom:   document.getElementById('cfg-wk-random').checked,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
