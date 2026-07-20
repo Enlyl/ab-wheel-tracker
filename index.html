@@ -3252,8 +3252,8 @@ function render(){
   document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
   document.getElementById('s-wk').textContent=calcWeekProg();
   document.getElementById('wn-edits').innerHTML = editMode && W >= (S.maxWk||1)
-    ? `<button class="wn-edit-btn" onclick="event.stopPropagation();addWeek()" title="Добавить неделю">+</button>
-       <button class="wn-edit-btn" onclick="event.stopPropagation();removeWeek()" title="Удалить последнюю неделю">−</button>`
+    ? `<button class="wn-edit-btn" onclick="event.stopPropagation();removeWeek()" title="Удалить последнюю неделю">−</button>
+       <button class="wn-edit-btn" onclick="event.stopPropagation();addWeek()" title="Добавить неделю">+</button>`
     : '';
 
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
