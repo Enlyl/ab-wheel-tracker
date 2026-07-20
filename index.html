@@ -3104,7 +3104,7 @@ function renderExItem(e,di,ei){
   const collapseBtn = `<button class="collapse-btn${expanded?' expanded':''}" onclick="event.stopPropagation();toggleExCollapse('${key}')">▶</button>`;
   const toastHTML = showToast
     ? `<div class="ex-timer-presets">
-        ${[30,60,120,180,300].map(s => {
+        ${[30,60,90,120,150].map(s => {
           const sv = getExTP(W,di,ei);
           return `<button class="ex-ipreset${sv===s?' active':''}" onclick="event.stopPropagation();exTimerPreset(${W},${di},${ei},${s},this)">${Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}</button>`;
         }).join('')}
