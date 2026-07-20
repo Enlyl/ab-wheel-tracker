@@ -2700,7 +2700,7 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
-function addWeek(){
+function addTrainingWeek(){
   W = Math.min(99, W + 1);
   if (W > (S.maxWk||0)) S.maxWk = W;
   D = 0;
@@ -3252,7 +3252,7 @@ function render(){
   document.getElementById('s-wk').textContent=calcWeekProg();
   document.getElementById('wn-edits').innerHTML = editMode
     ? `<button class="wn-edit-btn" onclick="event.stopPropagation();removeWeek()" title="Удалить последнюю неделю">−</button>
-       <button class="wn-edit-btn" onclick="event.stopPropagation();addWeek()" title="Добавить неделю">+</button>`
+       <button class="wn-edit-btn" onclick="event.stopPropagation();addTrainingWeek()" title="Добавить неделю">+</button>`
     : '';
 
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
