@@ -702,6 +702,7 @@ body {
   white-space: nowrap;
 }
 .ex-ipreset:hover { border-color: var(--gold); color: var(--gold); }
+.ex-ipreset:active { background: var(--gold); color: #fff; transform: scale(0.93); }
 .ex-ipreset.active { background: var(--gold); border-color: var(--gold); color: #fff; }
 
 /* ── SET ROWS (per-set reps/load) ── */
@@ -2525,6 +2526,7 @@ function setExTP(w,d,i,s) { const p=loadExTP(); p[w+'-'+d+'-'+i]=s; localStorage
 
 function exTimerPreset(w,d,i,secs,btn){
   setExTP(w,d,i,secs);
+  if(navigator.vibrate) navigator.vibrate([12]);
   if (iRunning) iStop();
   iTotal = secs;
   iLeft = secs;
