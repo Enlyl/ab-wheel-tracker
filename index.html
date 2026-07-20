@@ -2421,7 +2421,7 @@ function decSetLoad(btn,w,d,i,s){
   S[k(w,d,i)]=obj;
   S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]); save();
-  const inp=btn&&(btn.previousElementSibling||btn.nextElementSibling);
+  const inp=btn&&(btn.nextElementSibling||btn.previousElementSibling);
   if(inp&&inp.tagName==='INPUT') inp.value=obj.load[s];
 }
 function setRep(w,d,i,val){
