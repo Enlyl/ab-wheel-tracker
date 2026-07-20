@@ -2703,8 +2703,10 @@ function chWk(dir){
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
 function addWeek(){
-  S.maxWk = Math.min(99, (S.maxWk||1) + 1);
-  W = S.maxWk;
+  const next = Math.min(99, W + 1);
+  if (next <= W) return;
+  W = next;
+  if (W > (S.maxWk||0)) S.maxWk = W;
   D = 0;
   save(); render();
 }
