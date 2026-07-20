@@ -688,6 +688,21 @@ body {
   color: var(--gold);
   white-space: nowrap;
 }
+.ex-timer-presets {
+  display: flex; gap: 4px; margin-top: 7px; flex-wrap: wrap;
+}
+.ex-ipreset {
+  padding: 3px 8px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text3);
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  cursor: pointer; transition: all .15s;
+  white-space: nowrap;
+}
+.ex-ipreset:hover { border-color: var(--gold); color: var(--gold); }
+.ex-ipreset.active { background: var(--gold); border-color: var(--gold); color: #fff; }
 
 /* ── SET ROWS (per-set reps/load) ── */
 .set-rows {
@@ -2056,13 +2071,13 @@ body {
       <div class="itimer-label">Отдых между подходами</div>
       <button class="metro-toggle" id="metro-btn" onclick="toggleMetronome()" title="Метроном">🔊</button>
       <div class="itimer-presets">
-        <button class="ipreset" onclick="iSetPreset(30,this)">0:30</button>
-        <button class="ipreset" onclick="iSetPreset(60,this)">1:00</button>
-        <button class="ipreset" onclick="iSetPreset(90,this)">1:30</button>
-        <button class="ipreset active" onclick="iSetPreset(120,this)">2:00</button>
-        <button class="ipreset" onclick="iSetPreset(150,this)">2:30</button>
-        <button class="ipreset" onclick="iSetPreset(180,this)">3:00</button>
-        <button class="ipreset" onclick="iSetPreset(300,this)">5:00</button>
+        <button class="ipreset" data-t="30" onclick="iSetPreset(30,this)">0:30</button>
+        <button class="ipreset" data-t="60" onclick="iSetPreset(60,this)">1:00</button>
+        <button class="ipreset" data-t="90" onclick="iSetPreset(90,this)">1:30</button>
+        <button class="ipreset active" data-t="120" onclick="iSetPreset(120,this)">2:00</button>
+        <button class="ipreset" data-t="150" onclick="iSetPreset(150,this)">2:30</button>
+        <button class="ipreset" data-t="180" onclick="iSetPreset(180,this)">3:00</button>
+        <button class="ipreset" data-t="300" onclick="iSetPreset(300,this)">5:00</button>
       </div>
     </div>
     <div class="itimer-body">
@@ -2500,6 +2515,26 @@ function tog(w,d,i){
   const nowDone=dayDone(w,d)===S.days[d].ex.length;
   render();
   if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
+}
+
+// ── Пресеты таймера для упражнений ──
+const EX_TP_KEY = 'abw_ex_timer_presets';
+function loadExTP() { try { return JSON.parse(localStorage.getItem(EX_TP_KEY))||{}; } catch(e){ return {}; } }
+function getExTP(w,d,i) { return loadExTP()[w+'-'+d+'-'+i] || null; }
+function setExTP(w,d,i,s) { const p=loadExTP(); p[w+'-'+d+'-'+i]=s; localStorage.setItem(EX_TP_KEY,JSON.stringify(p)); }
+
+function exTimerPreset(w,d,i,secs,btn){
+  setExTP(w,d,i,secs);
+  lastTappedEx = null;
+  if (iRunning) iStop();
+  iTotal = secs;
+  iLeft = secs;
+  document.querySelectorAll('.ipreset').forEach(b=>b.classList.toggle('active',+b.getAttribute('data-t')===secs));
+  iBlock.classList.remove('finished');
+  iStart();
+  const el=document.getElementById('itimer');
+  if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  render();
 }
 
 // ── Запуск таймера с плашки ──
@@ -3067,11 +3102,14 @@ function renderExItem(e,di,ei){
   const expanded = S._exp && S._exp.includes(key);
   const collapseBtn = `<button class="collapse-btn${expanded?' expanded':''}" onclick="event.stopPropagation();toggleExCollapse('${key}')">▶</button>`;
   const toastHTML = showToast
-    ? `<div class="ex-timer-toast" onclick="event.stopPropagation();startTimerFromToast()">
-        <span class="toast-icon">⏱</span>
-        <span class="toast-label">Запустить таймер</span>
+    ? `<div class="ex-timer-presets">
+        ${[30,60,120,180,300].map(s => {
+          const sv = getExTP(W,di,ei);
+          return `<button class="ex-ipreset${sv===s?' active':''}" onclick="event.stopPropagation();exTimerPreset(${W},${di},${ei},${s},this)">${Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}</button>`;
+        }).join('')}
        </div>`
     : '';
+
   const planReps = parseReps(e.d);
   const reps = planReps > 0 ? getReps(W,di,ei) : (e.showReps ? getBaseReps(di,ei)||10 : 0);
   // showSets: показываем если есть подходы в плане И не скрыто, ИЛИ если явно включено чекбоксом
