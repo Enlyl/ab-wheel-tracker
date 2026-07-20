@@ -68,3 +68,5 @@ Injected via Blob URL as fallback (tries `sw.js` first). Only used for timer bac
 ## Dev commands
 
 No build, no test, no lint, no typecheck. Open `index.html` in a browser. Deploy by uploading `index.html` to any static host.
+
+Only update the GitHub repository when asked, and never update GitHub yourself.
