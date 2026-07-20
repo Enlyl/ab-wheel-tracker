@@ -2191,6 +2191,7 @@ S.days.forEach(d => {
 });
 if(!S.W) S.W=1;
 if(!S.D) S.D=0;
+if(!S.maxWk) S.maxWk=S.W;
 
 // Миграция: старые ключи → UUID-формат
 (function migrateKeys() {
@@ -2664,7 +2665,7 @@ function completeDay(){
 }
 function chWk(dir){
   const prevW = W;
-  W = Math.max(1, Math.min(99, W + dir));
+  W = Math.max(1, Math.min(Math.min(99, S.maxWk||1), W + dir));
   D = 0; // всегда первый день
 
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
@@ -2715,6 +2716,7 @@ function removeWeek(){
       Object.keys(localStorage).filter(k=>k.startsWith('reps_'+S.days[di].uid+'_e')||k.startsWith('load_'+S.days[di].uid+'_e')||k.startsWith('loadUnit_'+S.days[di].uid+'_e')||k.startsWith('exnote_'+wk+'_'+S.days[di].uid+'_e')).forEach(k=>localStorage.removeItem(k));
     });
     W = wk - 1;
+    if (W < S.maxWk) S.maxWk = W;
     D = 0;
     save(); render();
   });
