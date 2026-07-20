@@ -1913,21 +1913,30 @@ body {
           <input type="checkbox" id="cfg-show-topbar" onchange="applyAppSettings()">
           <span>Название в шапке</span>
         </label>
-        <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()" style="flex:1;">
+          <input type="color" id="cfg-topbar-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
+        </div>
       </div>
       <div class="help-section">
         <label class="sett-title">
           <input type="checkbox" id="cfg-show-hero" onchange="applyAppSettings()">
           <span>Главный заголовок</span>
         </label>
-        <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()" style="flex:1;">
+          <input type="color" id="cfg-hero-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
+        </div>
       </div>
       <div class="help-section">
         <label class="sett-title">
           <input type="checkbox" id="cfg-show-footer" onchange="applyAppSettings()">
           <span>Футер</span>
         </label>
-        <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()" style="flex:1;">
+          <input type="color" id="cfg-footer-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
+        </div>
       </div>
     </div>
 
@@ -3357,6 +3366,9 @@ const APP_DEFAULTS = {
   progTitleColor: '',
   progSubWeight: '300',
   progSubColor: '',
+  topbarColor: '',
+  heroTitleColor: '',
+  footerColor: '',
   wkColor:   '',
   wkRandom:  false,
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
@@ -3387,12 +3399,15 @@ function renderAppCfg(cfg) {
 
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
   if (t)  t.style.display = (cfg.showTopbar !== false) ? '' : 'none';
+  if (t) { if (cfg.topbarColor) t.style.color = cfg.topbarColor; else t.style.color = ''; }
   if (ht) { const _t=esc(cfg.heroTitle || APP_DEFAULTS.heroTitle); ht.innerHTML = _t.replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>'); }
   if (ht) ht.style.display = (cfg.showHero !== false) ? '' : 'none';
+  if (ht) { if (cfg.heroTitleColor) ht.style.color = cfg.heroTitleColor; else ht.style.color = ''; }
   if (pt) { pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle; pt.style.fontWeight = cfg.progTitleWeight || APP_DEFAULTS.progTitleWeight; if (cfg.progTitleColor) pt.style.color = cfg.progTitleColor; else pt.style.color = ''; }
   if (ps) { ps.textContent = cfg.progSub   || APP_DEFAULTS.progSub;   ps.style.fontWeight = cfg.progSubWeight   || APP_DEFAULTS.progSubWeight;   if (cfg.progSubColor) ps.style.color = cfg.progSubColor;     else ps.style.color = ''; }
   if (ft) ft.textContent = cfg.footer    || APP_DEFAULTS.footer;
   if (ft) ft.style.display = (cfg.showFooter !== false) ? '' : 'none';
+  if (ft) { if (cfg.footerColor) ft.style.color = cfg.footerColor; else ft.style.color = ''; }
   if (sw) sw.style.display = (cfg.showSW !== false) ? '' : 'none';
   const rm = document.getElementById('roadmap-section');
   if (rm) rm.style.display = (cfg.showRoadmap !== false) ? '' : 'none';
@@ -3420,6 +3435,12 @@ function openAppSettings() {
   if (ftChk) ftChk.checked = cfg.showFooter !== false;
   const themeSel = document.getElementById('cfg-theme');
   if (themeSel) themeSel.value = S.theme || 'light';
+  const tc = document.getElementById('cfg-topbar-color');
+  if (tc) tc.value = cfg.topbarColor || '#ffffff';
+  const hc = document.getElementById('cfg-hero-color');
+  if (hc) hc.value = cfg.heroTitleColor || '#ffffff';
+  const fc = document.getElementById('cfg-footer-color');
+  if (fc) fc.value = cfg.footerColor || '#ffffff';
   const wkColorInp = document.getElementById('cfg-wk-color');
   const wkColorVal = document.getElementById('cfg-wk-color-val');
   const wkRandChk = document.getElementById('cfg-wk-random');
@@ -3764,6 +3785,9 @@ function applyAppSettings() {
     progTitleColor:  cur.progTitleColor                         || APP_DEFAULTS.progTitleColor,
     progSubWeight:   cur.progSubWeight                          || APP_DEFAULTS.progSubWeight,
     progSubColor:    cur.progSubColor                           || APP_DEFAULTS.progSubColor,
+    topbarColor:    document.getElementById('cfg-topbar-color').value || APP_DEFAULTS.topbarColor,
+    heroTitleColor: document.getElementById('cfg-hero-color').value  || APP_DEFAULTS.heroTitleColor,
+    footerColor:    document.getElementById('cfg-footer-color').value || APP_DEFAULTS.footerColor,
     wkColor:    document.getElementById('cfg-wk-color').value || APP_DEFAULTS.wkColor,
     wkRandom:   document.getElementById('cfg-wk-random').checked,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
