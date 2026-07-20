@@ -2525,7 +2525,6 @@ function setExTP(w,d,i,s) { const p=loadExTP(); p[w+'-'+d+'-'+i]=s; localStorage
 
 function exTimerPreset(w,d,i,secs,btn){
   setExTP(w,d,i,secs);
-  lastTappedEx = null;
   if (iRunning) iStop();
   iTotal = secs;
   iLeft = secs;
@@ -3097,7 +3096,7 @@ function renderExItem(e,di,ei){
   const skipped=gotSkipped(W,di,ei);
   const sets=getSets(W,di,ei);
   const total=parseSets(e.d);
-  const showToast = !editMode && lastTappedEx && lastTappedEx.d===di && lastTappedEx.i===ei;
+  const showToast = !editMode;
   const key = W+'-'+di+'-'+ei;
   const expanded = S._exp && S._exp.includes(key);
   const collapseBtn = `<button class="collapse-btn${expanded?' expanded':''}" onclick="event.stopPropagation();toggleExCollapse('${key}')">▶</button>`;
