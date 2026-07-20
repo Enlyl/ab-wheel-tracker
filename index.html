@@ -2402,7 +2402,8 @@ function incSetLoad(btn,w,d,i,s){
   obj.load=obj.load||Array(obj.total).fill(0);
   if(!Array.isArray(obj.load)) obj.load=Array(obj.total).fill(obj.load);
   const cur=obj.load[s]||0;
-  obj.load[s]=Math.round((cur+0.5)*2)/2;
+  const step = getLoadUnit(w,d,i)==='кг' ? 0.5 : 1;
+  obj.load[s]=Math.round((cur+step)*2)/2;
   S[k(w,d,i)]=obj;
   S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]); save();
@@ -2415,7 +2416,8 @@ function decSetLoad(btn,w,d,i,s){
   obj.load=obj.load||Array(obj.total).fill(0);
   if(!Array.isArray(obj.load)) obj.load=Array(obj.total).fill(obj.load);
   const cur=obj.load[s]||0;
-  obj.load[s]=Math.max(0,Math.round((cur-0.5)*2)/2);
+  const step = getLoadUnit(w,d,i)==='кг' ? 0.5 : 1;
+  obj.load[s]=Math.max(0,Math.round((cur-step)*2)/2);
   S[k(w,d,i)]=obj;
   S[`load_${S.days[d].uid}_e${i}`]=[...obj.load];
   if(navigator.vibrate) navigator.vibrate([6]); save();
@@ -2614,7 +2616,7 @@ function completeDay(){
 }
 function chWk(dir){
   const prevW = W;
-  W = Math.max(1, Math.min(9, W + dir));
+  W = Math.max(1, Math.min(99, W + dir));
   D = 0; // всегда первый день
 
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
@@ -3173,7 +3175,7 @@ function renderExItem(e,di,ei){
 function render(){
   const WK_COLORS=['','#5dcaa5','#2aaa72','#4a9fd4','#7b6fe8','#c8a96e','#e07a3a','#d45a5a','#c45faa','#b08840'];
   document.getElementById('topbar-wk').textContent='Неделя '+W;
-  document.getElementById('topbar-wk').style.color=WK_COLORS[W]||'var(--text2)';
+  document.getElementById('topbar-wk').style.color=WK_COLORS[W]||WK_COLORS[(W-1)%8+1]||'var(--text2)';
   document.getElementById('wn-n').textContent=W;
   document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
@@ -3232,7 +3234,7 @@ function render(){
       <button class="add-ex-btn${editMode?' visible':''}" onclick="addEx(${D})">+ Добавить упражнение</button>
     </div>`;
 
-  const wi=Math.min(Math.ceil(W/2)-1,4);
+  const wi=Math.min(Math.ceil(W/2)-1, WEEKS.length-1);
   document.getElementById('prog-list').innerHTML=WEEKS.map((w,i)=>{
     const cur=i===wi,past=i<wi;
     return `<div class="prog-item${cur?' now':''}">
@@ -5458,8 +5460,9 @@ function openHistory(){
     }
     if (filterWeek && filterWeek !== 'all') {
       const wkVal = parseInt(filterWeek);
-      if (wkVal === 9) {
-        filtered = filtered.filter(r => r.week >= 9);
+      const maxWeek = Math.max(...h.map(r=>r.week||0));
+      if (wkVal === maxWeek + 1) {
+        filtered = filtered.filter(r => r.week >= wkVal - 1);
       } else {
         filtered = filtered.filter(r => r.week === wkVal);
       }
@@ -5638,7 +5641,7 @@ function openHistory(){
         <span style="font-size:12px;color:var(--text2);white-space:nowrap;">Неделя:</span>
         <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)" style="flex:1;">
           <option value="all">Все недели</option>
-          ${Array.from({length: 9}, (_, idx) => `<option value="${idx+1}">${idx === 8 ? 'Неделя 9+' : `Неделя ${idx+1}`}</option>`).join('')}
+          ${(()=>{const maxW = Math.max(...h.map(r=>r.week||0), 9); return Array.from({length: maxW + 1}, (_, idx) => { const n = idx + 1; return `<option value="${n}">${n > maxW ? `Неделя ${n - 1}+` : `Неделя ${n}`}</option>`; }).join('')})()}
         </select>
       </div>` +
       `<div id="hist-list" style="margin-top:8px;">` +
