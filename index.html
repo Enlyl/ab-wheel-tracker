@@ -1927,6 +1927,26 @@ body {
           <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()" style="flex:1;">
           <input type="color" id="cfg-hero-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
         </div>
+        <div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);">
+          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">Первое слово</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+            <input type="color" id="cfg-hw1-color" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет">
+            <input type="number" id="cfg-hw1-weight" min="100" max="900" step="100" placeholder="Вес" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Жирность">
+            <label style="font-size:11px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text3);" title="Курсив">
+              <input type="checkbox" id="cfg-hw1-italic" onchange="applyAppSettings()"> <i>I</i>
+            </label>
+            <input type="text" id="cfg-hw1-stroke" placeholder="Обв" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Обводка, напр. 0.5px #fff">
+          </div>
+          <div style="font-size:9px;color:var(--text3);margin:4px 0;">Второе слово</div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+            <input type="color" id="cfg-hw2-color" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет">
+            <input type="number" id="cfg-hw2-weight" min="100" max="900" step="100" placeholder="Вес" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Жирность">
+            <label style="font-size:11px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text3);" title="Курсив">
+              <input type="checkbox" id="cfg-hw2-italic" onchange="applyAppSettings()"> <i>I</i>
+            </label>
+            <input type="text" id="cfg-hw2-stroke" placeholder="Обв" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Обводка, напр. 0.5px #fff">
+          </div>
+        </div>
       </div>
       <div class="help-section">
         <label class="sett-title">
@@ -3369,6 +3389,10 @@ const APP_DEFAULTS = {
   topbarColor: '',
   heroTitleColor: '',
   footerColor: '',
+  hw1Color: '', hw2Color: '',
+  hw1Weight: '', hw2Weight: '',
+  hw1Italic: false, hw2Italic: false,
+  hw1Stroke: '', hw2Stroke: '',
   wkColor:   '',
   wkRandom:  false,
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
@@ -3400,7 +3424,24 @@ function renderAppCfg(cfg) {
   if (t)  t.textContent  = cfg.topbar    || APP_DEFAULTS.topbar;
   if (t)  t.style.display = (cfg.showTopbar !== false) ? '' : 'none';
   if (t) { if (cfg.topbarColor) t.style.color = cfg.topbarColor; else t.style.color = ''; }
-  if (ht) { const _t=esc(cfg.heroTitle || APP_DEFAULTS.heroTitle); ht.innerHTML = _t.replace('\n', '<br><span class="accent">').replace(/(<br><span class="accent">)(.*)/,'$1$2</span>'); }
+  if (ht) {
+    const words = (cfg.heroTitle || APP_DEFAULTS.heroTitle).split('\n');
+    const w1 = esc(words[0] || '');
+    const w2 = esc(words[1] || '');
+    const s1 = []; const s2 = [];
+    if (cfg.hw1Color) s1.push('color:'+cfg.hw1Color); else if (cfg.heroTitleColor) s1.push('color:'+cfg.heroTitleColor);
+    if (cfg.hw1Weight) s1.push('font-weight:'+cfg.hw1Weight);
+    if (cfg.hw1Italic) s1.push('font-style:italic');
+    if (cfg.hw1Stroke) s1.push('-webkit-text-stroke:'+cfg.hw1Stroke);
+    if (cfg.hw2Color) s2.push('color:'+cfg.hw2Color); else if (cfg.heroTitleColor) s2.push('color:'+cfg.heroTitleColor);
+    if (cfg.hw2Weight) s2.push('font-weight:'+cfg.hw2Weight);
+    if (cfg.hw2Italic) s2.push('font-style:italic');
+    if (cfg.hw2Stroke) s2.push('-webkit-text-stroke:'+cfg.hw2Stroke);
+    const cls2 = s2.length ? '' : ' class="accent"';
+    const st1 = s1.length ? ' style="'+s1.join(';')+'"' : '';
+    const st2 = s2.length ? ' style="'+s2.join(';')+'"' : '';
+    ht.innerHTML = '<span'+st1+'>'+w1+'</span><br><span'+cls2+st2+'>'+w2+'</span>';
+  }
   if (ht) ht.style.display = (cfg.showHero !== false) ? '' : 'none';
   if (ht) { if (cfg.heroTitleColor) ht.style.color = cfg.heroTitleColor; else ht.style.color = ''; }
   if (pt) { pt.textContent = cfg.progTitle || APP_DEFAULTS.progTitle; pt.style.fontWeight = cfg.progTitleWeight || APP_DEFAULTS.progTitleWeight; if (cfg.progTitleColor) pt.style.color = cfg.progTitleColor; else pt.style.color = ''; }
@@ -3439,6 +3480,22 @@ function openAppSettings() {
   if (tc) tc.value = cfg.topbarColor || '#ffffff';
   const hc = document.getElementById('cfg-hero-color');
   if (hc) hc.value = cfg.heroTitleColor || '#ffffff';
+  const hw1c = document.getElementById('cfg-hw1-color');
+  if (hw1c) hw1c.value = cfg.hw1Color || '#ffffff';
+  const hw1w = document.getElementById('cfg-hw1-weight');
+  if (hw1w) hw1w.value = cfg.hw1Weight || '';
+  const hw1i = document.getElementById('cfg-hw1-italic');
+  if (hw1i) hw1i.checked = cfg.hw1Italic === true;
+  const hw1s = document.getElementById('cfg-hw1-stroke');
+  if (hw1s) hw1s.value = cfg.hw1Stroke || '';
+  const hw2c = document.getElementById('cfg-hw2-color');
+  if (hw2c) hw2c.value = cfg.hw2Color || '#ffffff';
+  const hw2w = document.getElementById('cfg-hw2-weight');
+  if (hw2w) hw2w.value = cfg.hw2Weight || '';
+  const hw2i = document.getElementById('cfg-hw2-italic');
+  if (hw2i) hw2i.checked = cfg.hw2Italic === true;
+  const hw2s = document.getElementById('cfg-hw2-stroke');
+  if (hw2s) hw2s.value = cfg.hw2Stroke || '';
   const fc = document.getElementById('cfg-footer-color');
   if (fc) fc.value = cfg.footerColor || '#ffffff';
   const wkColorInp = document.getElementById('cfg-wk-color');
@@ -3788,6 +3845,14 @@ function applyAppSettings() {
     topbarColor:    document.getElementById('cfg-topbar-color').value || APP_DEFAULTS.topbarColor,
     heroTitleColor: document.getElementById('cfg-hero-color').value  || APP_DEFAULTS.heroTitleColor,
     footerColor:    document.getElementById('cfg-footer-color').value || APP_DEFAULTS.footerColor,
+    hw1Color:  document.getElementById('cfg-hw1-color').value   || APP_DEFAULTS.hw1Color,
+    hw2Color:  document.getElementById('cfg-hw2-color').value   || APP_DEFAULTS.hw2Color,
+    hw1Weight: document.getElementById('cfg-hw1-weight').value  || APP_DEFAULTS.hw1Weight,
+    hw2Weight: document.getElementById('cfg-hw2-weight').value  || APP_DEFAULTS.hw2Weight,
+    hw1Italic: document.getElementById('cfg-hw1-italic').checked,
+    hw2Italic: document.getElementById('cfg-hw2-italic').checked,
+    hw1Stroke: document.getElementById('cfg-hw1-stroke').value  || APP_DEFAULTS.hw1Stroke,
+    hw2Stroke: document.getElementById('cfg-hw2-stroke').value  || APP_DEFAULTS.hw2Stroke,
     wkColor:    document.getElementById('cfg-wk-color').value || APP_DEFAULTS.wkColor,
     wkRandom:   document.getElementById('cfg-wk-random').checked,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
