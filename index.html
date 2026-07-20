@@ -296,6 +296,17 @@ body {
 .wn-num[data-w="7"] { color: #d45a5a; }
 .wn-num[data-w="8"] { color: #c45faa; }
 .wn-num[data-w="9"] { color: #b08840; }
+.wn-edits { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
+.wn-edit-btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text3);
+  font-size: 14px; line-height: 1;
+  cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.wn-edit-btn:hover { border-color: var(--gold); color: var(--gold); }
 .wn-btn {
   width: 40px; height: 40px; border-radius: 50%;
   border: 1px solid var(--border);
@@ -2053,6 +2064,7 @@ body {
     <div class="wn-label">
       <div class="wn-eyebrow">Неделя</div>
       <div class="wn-num" id="wn-n">1</div>
+      <div class="wn-edits" id="wn-edits"></div>
     </div>
     <button class="wn-btn" onclick="chWk(1)">&#8594;</button>
   </div>
@@ -2179,6 +2191,7 @@ S.days.forEach(d => {
 });
 if(!S.W) S.W=1;
 if(!S.D) S.D=0;
+if(!S.maxWk) S.maxWk=S.W;
 
 // Миграция: старые ключи → UUID-формат
 (function migrateKeys() {
@@ -2652,7 +2665,8 @@ function completeDay(){
 }
 function chWk(dir){
   const prevW = W;
-  W = Math.max(1, Math.min(99, W + dir));
+  const max = Math.min(99, editMode ? 99 : (S.maxWk||1));
+  W = Math.max(1, Math.min(max, W + dir));
   D = 0; // всегда первый день
 
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
@@ -2688,6 +2702,24 @@ function chWk(dir){
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
+function addWeek(){
+  S.maxWk = Math.min(99, (S.maxWk||1) + 1);
+  W = S.maxWk;
+  D = 0;
+  save(); render();
+}
+function removeWeek(){
+  if ((S.maxWk||1) <= 1) return;
+  showConfirm('Удалить неделю','Удалить последнюю неделю '+(S.maxWk||1)+'? Все данные недели будут потеряны.',function(){
+    const wk = S.maxWk||1;
+    S.days.forEach((day,di)=>{
+      for(let w=wk;w<=wk;w++){ delete S[k(w,di,0)]; }
+    });
+    S.maxWk = wk - 1;
+    if (W > S.maxWk) { W = S.maxWk; D = 0; }
+    save(); render();
+  });
+}
 function showConfirm(title, text, onConfirm){
   document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-text').innerHTML = text;
@@ -3219,6 +3251,10 @@ function render(){
   document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
   document.getElementById('s-wk').textContent=calcWeekProg();
+  document.getElementById('wn-edits').innerHTML = editMode && W >= (S.maxWk||1)
+    ? `<button class="wn-edit-btn" onclick="event.stopPropagation();addWeek()" title="Добавить неделю">+</button>
+       <button class="wn-edit-btn" onclick="event.stopPropagation();removeWeek()" title="Удалить последнюю неделю">−</button>`
+    : '';
 
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
   document.getElementById('day-tabs').innerHTML = S.days.map((d,i)=>{
