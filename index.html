@@ -2191,7 +2191,6 @@ S.days.forEach(d => {
 });
 if(!S.W) S.W=1;
 if(!S.D) S.D=0;
-if(!S.maxWk) S.maxWk=S.W;
 
 // Миграция: старые ключи → UUID-формат
 (function migrateKeys() {
@@ -2665,8 +2664,7 @@ function completeDay(){
 }
 function chWk(dir){
   const prevW = W;
-  const max = Math.min(99, S.maxWk||1);
-  W = Math.max(1, Math.min(max, W + dir));
+  W = Math.max(1, Math.min(99, W + dir));
   D = 0; // всегда первый день
 
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
@@ -2703,22 +2701,21 @@ function chWk(dir){
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
 function addWeek(){
-  const next = Math.min(99, W + 1);
-  if (next <= W) return;
-  W = next;
+  W = Math.min(99, W + 1);
   if (W > (S.maxWk||0)) S.maxWk = W;
   D = 0;
   save(); render();
 }
 function removeWeek(){
-  if ((S.maxWk||1) <= 1) return;
-  showConfirm('Удалить неделю','Удалить последнюю неделю '+(S.maxWk||1)+'? Все данные недели будут потеряны.',function(){
-    const wk = S.maxWk||1;
+  if (W <= 1) return;
+  showConfirm('Удалить неделю','Удалить неделю ' + W + '? Все данные недели будут потеряны.',function(){
+    const wk = W;
     S.days.forEach((day,di)=>{
-      for(let w=wk;w<=wk;w++){ delete S[k(w,di,0)]; }
+      delete S[k(wk,di,0)];
+      Object.keys(localStorage).filter(k=>k.startsWith('reps_'+S.days[di].uid+'_e')||k.startsWith('load_'+S.days[di].uid+'_e')||k.startsWith('loadUnit_'+S.days[di].uid+'_e')||k.startsWith('exnote_'+wk+'_'+S.days[di].uid+'_e')).forEach(k=>localStorage.removeItem(k));
     });
-    S.maxWk = wk - 1;
-    if (W > S.maxWk) { W = S.maxWk; D = 0; }
+    W = wk - 1;
+    D = 0;
     save(); render();
   });
 }
@@ -3253,7 +3250,7 @@ function render(){
   document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
   document.getElementById('s-wk').textContent=calcWeekProg();
-  document.getElementById('wn-edits').innerHTML = editMode && W >= (S.maxWk||1)
+  document.getElementById('wn-edits').innerHTML = editMode
     ? `<button class="wn-edit-btn" onclick="event.stopPropagation();removeWeek()" title="Удалить последнюю неделю">−</button>
        <button class="wn-edit-btn" onclick="event.stopPropagation();addWeek()" title="Добавить неделю">+</button>`
     : '';
