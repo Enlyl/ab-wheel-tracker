@@ -1942,6 +1942,18 @@ body {
         <option value="terminal">Terminal</option>
         <option value="holo">Holo</option>
       </select>
+      <div class="help-section" style="margin-top:10px;">
+        <label class="sett-title" style="margin-bottom:6px;"><span>Цвет счётчика недель</span></label>
+        <label class="sett-title" style="font-size:10px;margin-bottom:6px;">
+          <input type="checkbox" id="cfg-wk-random" onchange="applyAppSettings()">
+          <span>Случайный цвет</span>
+        </label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="color" id="cfg-wk-color" value="#5dcaa5" oninput="document.getElementById('cfg-wk-color-val').textContent=this.value;applyAppSettings()" style="width:32px;height:28px;padding:1px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;">
+          <span id="cfg-wk-color-val" style="font-size:10px;color:var(--text3);flex:1;"></span>
+          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-wk-color').value='';document.getElementById('cfg-wk-color-val').textContent='По умолчанию';applyAppSettings()">Сбросить</span>
+        </div>
+      </div>
     </div>
 
     <div class="help-section-card" style="margin-top:18px;">
@@ -3246,10 +3258,15 @@ function renderExItem(e,di,ei){
 
 function render(){
   const WK_COLORS=['','#5dcaa5','#2aaa72','#4a9fd4','#7b6fe8','#c8a96e','#e07a3a','#d45a5a','#c45faa','#b08840'];
+  const wkCfg = loadAppCfg();
+  const wkColor = wkCfg.wkRandom
+    ? '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0')
+    : (wkCfg.wkColor || WK_COLORS[W] || WK_COLORS[(W-1)%8+1] || 'var(--text2)');
   document.getElementById('topbar-wk').textContent='Неделя '+W;
-  document.getElementById('topbar-wk').style.color=WK_COLORS[W]||WK_COLORS[(W-1)%8+1]||'var(--text2)';
+  document.getElementById('topbar-wk').style.color=wkColor;
   document.getElementById('wn-n').textContent=W;
   document.getElementById('wn-n').setAttribute('data-w', W);
+  document.getElementById('wn-n').style.color = wkCfg.wkRandom || wkCfg.wkColor ? wkColor : '';
   document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
   document.getElementById('s-wk').textContent=calcWeekProg();
   document.getElementById('wn-edits').innerHTML = editMode
@@ -3340,6 +3357,8 @@ const APP_DEFAULTS = {
   progTitleColor: '',
   progSubWeight: '300',
   progSubColor: '',
+  wkColor:   '',
+  wkRandom:  false,
   footer:    'Ab Wheel Tracker · Standing Rollout Program',
   showSW:    false,
   showRoadmap: true,
@@ -3401,6 +3420,14 @@ function openAppSettings() {
   if (ftChk) ftChk.checked = cfg.showFooter !== false;
   const themeSel = document.getElementById('cfg-theme');
   if (themeSel) themeSel.value = S.theme || 'light';
+  const wkColorInp = document.getElementById('cfg-wk-color');
+  const wkColorVal = document.getElementById('cfg-wk-color-val');
+  const wkRandChk = document.getElementById('cfg-wk-random');
+  if (wkRandChk) wkRandChk.checked = cfg.wkRandom === true;
+  if (wkColorInp) {
+    wkColorInp.value = cfg.wkColor || '#5dcaa5';
+    if (wkColorVal) wkColorVal.textContent = cfg.wkColor ? cfg.wkColor : (cfg.wkRandom ? '—' : 'По умолчанию');
+  }
   document.getElementById('settings-overlay').classList.add('open');
   document.getElementById('settings-sheet').classList.add('open');
   if (navigator.vibrate) navigator.vibrate(8);
@@ -3737,6 +3764,8 @@ function applyAppSettings() {
     progTitleColor:  cur.progTitleColor                         || APP_DEFAULTS.progTitleColor,
     progSubWeight:   cur.progSubWeight                          || APP_DEFAULTS.progSubWeight,
     progSubColor:    cur.progSubColor                           || APP_DEFAULTS.progSubColor,
+    wkColor:    document.getElementById('cfg-wk-color').value || APP_DEFAULTS.wkColor,
+    wkRandom:   document.getElementById('cfg-wk-random').checked,
     footer:    document.getElementById('cfg-footer').value     || APP_DEFAULTS.footer,
     showSW:    swChk ? swChk.checked : false,
     showRoadmap: rmChk ? rmChk.checked : true,
