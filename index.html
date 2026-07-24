@@ -2256,7 +2256,12 @@ S.days.forEach(d => {
 });
 if(!S.W) S.W=1;
 if(!S.D) S.D=0;
-if(!S.maxWk) S.maxWk=S.W;
+// Определяем максимальную неделю из сохранённых данных
+(function initMaxWk(){
+  let max = 1;
+  Object.keys(S).forEach(k => { const m = k.match(/^c_(\d+)_/); if (m) max = Math.max(max, +m[1]); });
+  S.maxWk = Math.max(max, S.W);
+})();
 
 // Миграция: старые ключи → UUID-формат
 (function migrateKeys() {
@@ -2611,8 +2616,6 @@ function exTimerPreset(w,d,i,secs,btn){
   document.querySelectorAll('.ipreset').forEach(b=>b.classList.toggle('active',+b.getAttribute('data-t')===secs));
   iBlock.classList.remove('finished');
   iStart();
-  const el=document.getElementById('itimer');
-  if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
   render();
 }
 
@@ -3043,11 +3046,13 @@ const EX_GROUPS = [
     'Жим штанги стоя', 'Жим гантелей на плечи', 'Жим Арнольда',
     'Махи в стороны (средняя дельта)',
     'Задняя дельта (махи в наклоне)', 'Выкруты с резиной',
+    'Подъем гантели по диагонали на грудь',
   ]},
   { label: 'Руки', items: [
     'Сгибания на бицепс', 'Подтягивания обратным хватом',
     'Французский жим', 'Разгибания на блоке (трицепс)',
     'Отжимания узкие / алмазные',
+    'Французские отжимания от упора',
   ]},
   { label: 'Ноги', items: [
     'Присед с гантелями', 'Приседания со штангой', 'Выпады',
