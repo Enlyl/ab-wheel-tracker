@@ -2564,7 +2564,7 @@ function tog(w,d,i){
   if(editMode) return;
   const cur=S[k(w,d,i)];
   if(cur==='skipped'){ S[k(w,d,i)]=false; save(); render(); return; }
-  const wasDone=dayDone(w,d)===S.days[d].ex.length;
+  const wasDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   if(!cur){
     const total=parseSets(S.days[d].ex[i].d);
     if(total<=1){ S[k(w,d,i)]=true; }
@@ -2596,7 +2596,7 @@ function tog(w,d,i){
     S[`ts_start_w${w}_d${d}`] = Date.now();
   }
   save();
-  const nowDone=dayDone(w,d)===S.days[d].ex.length;
+  const nowDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   render();
   if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
 }
@@ -2688,7 +2688,7 @@ function removeSet(w,d,i){
 
 function togSet(w,d,i,setIdx){
   if(editMode) return;
-  const wasDone=dayDone(w,d)===S.days[d].ex.length;
+  const wasDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   const cur=S[k(w,d,i)];
   const total=cur&&cur!==true?cur.total:parseSets(S.days[d].ex[i].d);
   const doneBefore=cur&&cur!==true?cur.done:cur===true?total:0;
@@ -2714,7 +2714,7 @@ function togSet(w,d,i,setIdx){
     S[`ts_start_w${w}_d${d}`] = Date.now();
   }
   save();
-  const nowDone=dayDone(w,d)===S.days[d].ex.length;
+  const nowDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   render();
   if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
 }
@@ -2723,12 +2723,15 @@ function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();rende
 function resetDayProgress(){showConfirm('Сбросить прогресс','Сбросить все подходы за сегодня?',resetDay);}
 function completeDay(){
   showConfirm('Заполнить день','Закрыть все подходы за сегодня?',function(){
-    S.days[D].ex.forEach((_,i)=>{
+    S.days[D].ex.forEach((e,i)=>{
+      const from = e.addedAt || 1;
+      const until = e.removedAt || Infinity;
+      if (W < from || W >= until) return;
       const total=parseSets(S.days[D].ex[i].d);
       if(total<=1) S[k(W,D,i)]=true;
       else S[k(W,D,i)]={done:total,total:total};
     });
-    recordSession();save();render();
+    recordSession(W,D);save();render();
   });
 }
 function chWk(dir){
@@ -2741,6 +2744,9 @@ function chWk(dir){
     S.days.forEach((day, di) => {
       if (day.extra) return; // не переносим экстра-дни на другие недели
       day.ex.forEach((ex, ei) => {
+        const from = ex.addedAt || 1;
+        const until = ex.removedAt || Infinity;
+        if (W < from || W >= until) return;
         const prevVal = S[k(prevW, di, ei)];
         const newVal  = S[k(W, di, ei)];
         // Берём кастомные total и reps из прошлой недели
@@ -2880,27 +2886,8 @@ function toggleExBlock(di, ei, type, show) {
 }
 function deleteEx(di,ei){
   const name = S.days[di].ex[ei].n || 'Упражнение';
-  showConfirm('Удалить упражнение',`Удалить "${name}" из программы?`,function(){
-    const len=S.days[di].ex.length;
-    for(let w=1;w<=maxWks();w++){
-      delete S[k(w,di,ei)];
-      for(let i=ei;i<len-1;i++){
-        S[k(w,di,i)]=S[k(w,di,i+1)];
-      }
-      delete S[k(w,di,len-1)];
-    }
-    delete S[`reps_${S.days[di].uid}_e${ei}`];
-    delete S[`load_${S.days[di].uid}_e${ei}`];
-    delete S[`loadUnit_${S.days[di].uid}_e${ei}`];
-    for(let i=ei;i<len-1;i++){
-      S[`reps_${S.days[di].uid}_e${i}`]=S[`reps_${S.days[di].uid}_e${i+1}`];
-      S[`load_${S.days[di].uid}_e${i}`]=S[`load_${S.days[di].uid}_e${i+1}`];
-      S[`loadUnit_${S.days[di].uid}_e${i}`]=S[`loadUnit_${S.days[di].uid}_e${i+1}`];
-    }
-    delete S[`reps_${S.days[di].uid}_e${len-1}`];
-    delete S[`load_${S.days[di].uid}_e${len-1}`];
-    delete S[`loadUnit_${S.days[di].uid}_e${len-1}`];
-    S.days[di].ex.splice(ei,1);
+  showConfirm('Удалить упражнение',`Удалить "${name}" из программы?<br><small>Упражнение останется на прошлых неделях.</small>`,function(){
+    S.days[di].ex[ei].removedAt = W;
     save();render();
   });
 }
@@ -2950,7 +2937,7 @@ function reorderEx(di, fromEi, toEi) {
 let _dragSource = null;
 let _dragDay = null;
 function addEx(di){
-  S.days[di].ex.push({n:'Новое упражнение',d:'',t:'key'});
+  S.days[di].ex.push({n:'Новое упражнение',d:'',t:'key',addedAt:W});
   save(); render();
   const ei = S.days[di].ex.length - 1;
   setTimeout(() => {
@@ -3004,7 +2991,20 @@ function moveDay(fromIdx, toIdx) {
   else if (fromIdx > toIdx && D >= toIdx && D < fromIdx) D++;
   save(); render();
 }
-const dayDone=(w,d)=>S.days[d].ex.filter((_,i)=>got(w,d,i)||gotSkipped(w,d,i)).length;
+const activeEx = (day, w) => day.ex.filter(e => {
+  const from = e.addedAt || 1;
+  const until = e.removedAt || Infinity;
+  return w >= from && w < until;
+});
+const dayDone=(w,d)=>{
+  const ex = S.days[d].ex;
+  return ex.filter((e,i)=>{
+    const from = e.addedAt || 1;
+    const until = e.removedAt || Infinity;
+    if (w < from || w >= until) return false;
+    return got(w,d,i)||gotSkipped(w,d,i);
+  }).length;
+};
 
 const calcWeekProg = () => {
   let base = 0, done = 0, extra = 0;
@@ -3012,7 +3012,7 @@ const calcWeekProg = () => {
     if (day.week && day.week !== W) return;
     if (day.extra === true) extra++;
     else if (day.week == null) base++;
-    if (dayDone(W, di) === day.ex.length) done++;
+    if (dayDone(W, di) === activeEx(day, W).length) done++;
   });
   return extra > 0 ? done + '/' + base + '+' + extra : done + '/' + base;
 };
@@ -3041,12 +3041,12 @@ const EX_GROUPS = [
   { label: 'Грудь', items: [
     'Отжимания', 'Отжимания узкие / алмазные', 'Брусья',
     'Жим лёжа', 'Жим гантелей лёжа', 'Разведение гантелей лёжа',
+    'Подъем гантели по диагонали на грудь',
   ]},
   { label: 'Плечи', items: [
     'Жим штанги стоя', 'Жим гантелей на плечи', 'Жим Арнольда',
     'Махи в стороны (средняя дельта)',
     'Задняя дельта (махи в наклоне)', 'Выкруты с резиной',
-    'Подъем гантели по диагонали на грудь',
   ]},
   { label: 'Руки', items: [
     'Сгибания на бицепс', 'Подтягивания обратным хватом',
@@ -3325,7 +3325,7 @@ function render(){
   document.getElementById('wn-n').textContent=W;
   document.getElementById('wn-n').setAttribute('data-w', W);
   document.getElementById('wn-n').style.color = wkCfg.wkRandom || wkCfg.wkColor ? wkColor : '';
-  document.getElementById('s-ex').textContent=S.days[D] ? S.days[D].ex.length : 0;
+  document.getElementById('s-ex').textContent=S.days[D] ? activeEx(S.days[D],W).length : 0;
   document.getElementById('s-wk').textContent=calcWeekProg();
   document.getElementById('wn-edits').innerHTML = editMode
     ? `<button class="wn-edit-btn" onclick="event.stopPropagation();removeWeek()" title="Удалить последнюю неделю">−</button>
@@ -3335,7 +3335,7 @@ function render(){
   const DAYS_OF_WEEK = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
   document.getElementById('day-tabs').innerHTML = S.days.map((d,i)=>{
     if (d.extra && d.week != null && d.week !== W) return '';
-    const full=dayDone(W,i)===d.ex.length, act=i===D;
+    const full=dayDone(W,i)===activeEx(d,W).length, act=i===D;
     if(editMode && act){
       return `<div class="d-tab editing ${d.cls}" data-di="${i}" draggable="true" onclick="event.stopPropagation()">
         <span class="d-tab-grip" draggable="true">≡</span>
@@ -3353,8 +3353,13 @@ function render(){
     </div>`;
   }).join('') + `<div class="d-tab-add" onclick="addExtraDay()" title="Добавить день">+</div>`;
 
-  const day=S.days[D], done=dayDone(W,D), tot=day.ex.length;
-  const anyExp = S._exp && day.ex.some((_,i)=>S._exp.includes(W+'-'+D+'-'+i));
+  const day=S.days[D], done=dayDone(W,D), tot=activeEx(day,W).length;
+  const anyExp = S._exp && day.ex.some((e,i)=>{
+    const from = e.addedAt || 1;
+    const until = e.removedAt || Infinity;
+    if (W < from || W >= until) return false;
+    return S._exp.includes(W+'-'+D+'-'+i);
+  });
   document.getElementById('done-banner').className='done-banner'+((!editMode&&done===tot)?' on':'');
 
   document.getElementById('day-content').innerHTML=
@@ -3375,7 +3380,12 @@ function render(){
           <button class="edit-toggle-btn${editMode?' active':''}" onclick="toggleEditMode()">${editMode?'✓':'✎'}</button>
         </div>
       </div>
-      ${day.ex.length ? day.ex.map((e,i)=>renderExItem(e,D,i)).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
+      ${day.ex.some(e=>W>=(e.addedAt||1) && W<(e.removedAt||Infinity)) ? day.ex.map((e,i)=>{
+        const from = e.addedAt || 1;
+        const until = e.removedAt || Infinity;
+        if (W < from || W >= until) return '';
+        return renderExItem(e,D,i);
+      }).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
       ${editMode?'':`
       <div class="day-actions-toggle" onclick="this.classList.toggle('exp');this.nextElementSibling.classList.toggle('open')"><span class="arr">▶</span> дополнительно</div>
       <div class="day-actions" style="display:none;">
@@ -5049,7 +5059,7 @@ function recordSession(w,d){
     time: now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
     isoDate,
     week: w, dayId: day.id, dayTitle: day.title,
-    done: exList.length, total: day.ex.length,
+    done: exList.length, total: activeEx(day,w).length,
     exList,
     duration,
     note: note.trim(),
@@ -5057,7 +5067,7 @@ function recordSession(w,d){
   if(h.length>100) h.length=100;
   saveHistory(h);
 
-  const allDaysDone = S.days.every((day, di) => (day.week && day.week !== w) || dayDone(w, di) === day.ex.length);
+  const allDaysDone = S.days.every((day, di) => (day.week && day.week !== w) || dayDone(w, di) === activeEx(day,w).length);
   if (allDaysDone) setTimeout(() => triggerWeekComplete(w), 800);
 }
 
@@ -5596,6 +5606,18 @@ function histToggleAll(){
   Object.keys(window._histChartActive).forEach(k => window._histChartActive[k] = anyOff);
   openHistory();
 }
+window._histAddEx = function(){
+  const inp = document.getElementById('hist-add-ex-input');
+  if (!inp) return;
+  const n = inp.value.trim();
+  if (!n) return;
+  showConfirm('Добавить на график','Добавить упражнение «'+n+'» в список графика?',function(){
+    let e = JSON.parse(localStorage.getItem('histChartExtra')||'[]');
+    if (!e.includes(n)) e.push(n);
+    localStorage.setItem('histChartExtra',JSON.stringify(e));
+    openHistory();
+  });
+};
 
 function openHistory(){
   if (window._histChartMode === undefined) window._histChartMode = false;
@@ -5812,11 +5834,19 @@ function openHistory(){
   </div>`;
 
   if (window._histChartMode) {
+    const hiddenEx = (()=>{ try { return JSON.parse(localStorage.getItem('histChartHidden')||'[]'); } catch(e){ return []; } })();
+    const extraEx = (()=>{ try { return JSON.parse(localStorage.getItem('histChartExtra')||'[]'); } catch(e){ return []; } })();
     const exNames = [];
-    h.forEach(r => { if (r.exList) r.exList.forEach(e => { if (e.name && !exNames.includes(e.name)) exNames.push(e.name); }); });
-    DEFAULT_DAYS.forEach(d => { if (d.ex) d.ex.forEach(e => { if (e.n && !exNames.includes(e.n)) exNames.push(e.n); }); });
+    h.forEach(r => { if (r.exList) r.exList.forEach(e => { if (e.name && !exNames.includes(e.name) && !hiddenEx.includes(e.name)) exNames.push(e.name); }); });
+    DEFAULT_DAYS.forEach(d => { if (d.ex) d.ex.forEach(e => { if (e.n && !exNames.includes(e.n) && !hiddenEx.includes(e.n)) exNames.push(e.n); }); });
+    extraEx.forEach(n => { if (!exNames.includes(n)) exNames.push(n); });
     if (!window._histChartActive) window._histChartActive = {};
-    exNames.forEach(n => { if (window._histChartActive[n] === undefined) window._histChartActive[n] = true; });
+    exNames.forEach(n => {
+      if (window._histChartActive[n] === undefined) {
+        const inProgram = S.days.some(day => day.ex.some(e => e.n === n && !e.removedAt));
+        window._histChartActive[n] = inProgram;
+      }
+    });
     const activeEx = window._histChartActive;
     const allChecked = exNames.every(n => activeEx[n]);
     // Compute progress for each exercise from history
@@ -5839,14 +5869,20 @@ function openHistory(){
         exProgress[name] = { first: pts[0].toFixed(1), last: pts[0].toFixed(1), pct: '0%' };
       }
     });
+    const editing = window._histChartEditing === true;
+    const allExNames = [...EX_ALL_FLAT, ...Object.keys(loadCatEdits()).filter(k=>!EX_ALL_FLAT.includes(k))];
     const exToggles = exNames.map((n) => {
       const prog = exProgress[n];
       const progBadge = prog ? `<span style="font-size:10px;color:${prog.pct.startsWith('+')?'var(--green)':'#e05a3a'};margin-left:4px;flex-shrink:0;">${prog.pct}</span>` : '';
-      return `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);cursor:pointer;"
+      const delBtn = editing
+        ? `<span style="font-size:9px;color:var(--text3);cursor:pointer;padding:0 2px;flex-shrink:0;" onclick="event.stopPropagation();showConfirm('Удалить с графика','Убрать «${esc(n)}» из списка упражнений на графике?',function(){let h=JSON.parse(localStorage.getItem('histChartHidden')||'[]');h.push('${esc(n)}');localStorage.setItem('histChartHidden',JSON.stringify(h));openHistory();})" title="Убрать из графика">✕</span>`
+        : '';
+      return `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);${editing?'':'cursor:pointer;'}"
         onmouseenter="window._histChartHover='${esc(n)}';drawHistChart()"
         onmouseleave="window._histChartHover='';drawHistChart()">
         <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:${histColor(n)};width:14px;height:14px;cursor:pointer;flex-shrink:0;margin:0;">
         <span style="display:flex;align-items:center;min-width:0;">${n}${progBadge}</span>
+        ${delBtn}
       </label>`;
     }).join('');
     body.innerHTML =
@@ -5863,8 +5899,21 @@ function openHistory(){
           <button class="catalog-add-btn" style="font-size:11px;padding:2px 8px;line-height:1.4;" onclick="histZoomSet(100)" title="Сбросить зум">↺</button>
         </div>
        ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
-        ${exNames.length ? `<div style="display:flex;gap:8px;justify-content:center;margin:18px 0 18px;"><button style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="histToggleAll()" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='';this.style.color=''">${allChecked?'✓ Все':'✕ Сбросить'}</button></div>` : ''}
-       <button class="reset-btn" style="width:100%;" onclick="clearHistory()">Очистить историю</button>`;
+        <div style="display:flex;gap:8px;justify-content:center;margin:8px 0;">
+          ${editing
+            ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:300px;">
+                 <div style="display:flex;gap:6px;width:100%;">
+                    <input id="hist-add-ex-input" list="hist-ex-list" placeholder="Название упражнения" style="flex:1;font-size:11px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;" onkeydown="if(event.key==='Enter')window._histAddEx()">
+                    <datalist id="hist-ex-list">${allExNames.map(a=>`<option value="${esc(a)}">`).join('')}</datalist>
+                   <button class="catalog-add-btn" onclick="window._histAddEx()" style="flex-shrink:0;">+</button>
+                 </div>
+                 <button style="background:var(--surface2);border:1px solid var(--green);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--green);cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="window._histChartEditing=false;openHistory()">✓ Готово</button>
+               </div>`
+            : `<button style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="histToggleAll()" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='';this.style.color=''">${allChecked?'✓ Все':'✕ Сбросить'}</button>
+              <button style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="window._histChartEditing=true;openHistory()" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='';this.style.color=''">✎ Изменить список</button>`
+          }
+        </div>
+       <button class="reset-btn" style="width:100%;margin-top:8px;" onclick="clearHistory()">Очистить историю</button>`;
     requestAnimationFrame(drawHistChart);
   } else {
     body.innerHTML =
