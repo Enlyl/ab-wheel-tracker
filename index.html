@@ -457,6 +457,45 @@ body {
 /* dark glow on card top edge */
 [data-theme="dark"] .ex-block { border-top-color: rgba(255,255,255,0.09); }
 
+/* ── DAY LAYOUT (exercises + reminder) ── */
+.day-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 24px 10px;
+}
+.day-layout .ex-block { margin: 0; flex: 1 1 auto; min-width: 0; }
+.reminder-block {
+  flex: 0 0 auto;
+  position: relative;
+  border: 1px solid var(--border); border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  padding: 10px 14px;
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+.reminder-block .reminder-label {
+  font-family: 'Archivo Narrow', sans-serif; font-size: 9px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold);
+}
+.reminder-block .reminder-word {
+  font-family: 'Italiana', serif; font-size: 22px; color: var(--text); line-height: 1.2;
+}
+.reminder-block .reminder-img {
+  max-width: 120px; max-height: 60px; border-radius: 8px; object-fit: contain;
+}
+.reminder-block.pulse {
+  animation: reminder-pulse 0.6s ease-in-out infinite;
+}
+@keyframes reminder-pulse {
+  0%   { transform: scale(1);    opacity: 1; }
+  50%  { transform: scale(1.12); opacity: 0.35; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+
 .ex-head {
   padding: 18px 20px 14px; border-bottom: 1px solid var(--border);
   display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
@@ -2034,6 +2073,54 @@ body {
     </div>
 
     <div class="help-section-card" style="margin-top:18px;">
+      <div class="help-section" style="margin-bottom:0;">
+        <label class="sett-title">
+          <input type="checkbox" id="cfg-show-reminder" onchange="applyAppSettings()">
+          <span>Напоминание рядом с упражнениями</span>
+        </label>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Положение</span>
+          <select id="cfg-reminder-pos" onchange="applyAppSettings()" style="font-size:10px;padding:3px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);">
+            <option value="top">Сверху</option>
+            <option value="bottom">Снизу</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <label class="sett-title" style="font-size:10px;margin-bottom:0;">
+            <input type="checkbox" id="cfg-show-reminder-label" onchange="applyAppSettings()">
+            <span>Показывать слово «Напоминание»</span>
+          </label>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <input class="edit-field" id="cfg-reminder-text" placeholder="Слово (например: Фокус)" oninput="applyAppSettings()" style="flex:1;">
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Или картинка:</span>
+          <input type="file" id="cfg-reminder-img" accept="image/*" style="display:none;" onchange="handleReminderImg(event)">
+          <label for="cfg-reminder-img" style="font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;">Выбрать файл</label>
+          <span id="cfg-reminder-img-name" style="font-size:10px;color:var(--text3);"></span>
+          <span style="font-size:10px;color:var(--blue);cursor:pointer;" onclick="clearReminderImg()">Убрать картинку</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Цвет слова</span>
+          <input type="color" id="cfg-reminder-word-c" value="#ffffff" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет слова">
+          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-word-c').value='#ffffff';applyAppSettings()">Сбросить</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Цвет надписи «Напоминание»</span>
+          <input type="color" id="cfg-reminder-label-c" value="#ffffff" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет надписи">
+          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-label-c').value='#ffffff';applyAppSettings()">Сбросить</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Обводка</span>
+          <input type="number" id="cfg-reminder-border-w" min="0" max="8" step="1" placeholder="1" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
+          <input type="color" id="cfg-reminder-border-c" value="#888" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
+          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-border-w').value='';document.getElementById('cfg-reminder-border-c').value='#888';applyAppSettings()">Сбросить</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-section-card" style="margin-top:18px;">
       <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Резервное копирование данных</div>
       <div style="display: flex; gap: 10px;">
         <button class="ipreset" style="flex: 1; padding: 10px;" onclick="exportData()">Экспорт JSON</button>
@@ -2050,6 +2137,8 @@ body {
       </div>
       <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4;">«Сбросить прогресс» — очищает недели и заметки, сохраняет историю и настройки. «Очистить всё» — удаляет все данные без возможности восстановления.</div>
     </div>
+
+    <button class="day-action-btn complete" style="width:100%;margin-top:18px;" onclick="saveAppSettings()">✓ Сохранить</button>
   </div>
 </div>
 
@@ -2595,12 +2684,15 @@ function tog(w,d,i){
     if(finalObj.load != null) S[`load_${S.days[d].uid}_e${i}`] = [...finalObj.load];
   }
   // Авто-замер времени тренировки: начало — первый подход первого упражнения
+  let pulseAfterRender = false;
   if (i === 0 && finalObj && !S[`ts_start_w${w}_d${d}`]) {
     S[`ts_start_w${w}_d${d}`] = Date.now();
+    pulseAfterRender = true;
   }
   save();
   const nowDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   render();
+  if(pulseAfterRender) triggerReminderPulse();
   if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
 }
 
@@ -2713,12 +2805,15 @@ function togSet(w,d,i,setIdx){
     if(finalObj.load != null) S[`load_${S.days[d].uid}_e${i}`] = [...finalObj.load];
   }
   // Авто-замер времени тренировки: начало — первый подход первого упражнения
+  let pulseAfterRender = false;
   if (i === 0 && setIdx === 0 && newDone > doneBefore && !S[`ts_start_w${w}_d${d}`]) {
     S[`ts_start_w${w}_d${d}`] = Date.now();
+    pulseAfterRender = true;
   }
   save();
   const nowDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   render();
+  if(pulseAfterRender) triggerReminderPulse();
   if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
 }
 
@@ -3365,7 +3460,7 @@ function render(){
   });
   document.getElementById('done-banner').className='done-banner'+((!editMode&&done===tot)?' on':'');
 
-  document.getElementById('day-content').innerHTML=
+  const exBlockHTML =
     `<div class="ex-block">
       <div class="ex-head">
         <div class="ex-head-left">
@@ -3398,6 +3493,27 @@ function render(){
       <button class="add-ex-btn${editMode?' visible':''}" onclick="addEx(${D})">+ Добавить упражнение</button>
     </div>`;
 
+  const rmdCfg = loadAppCfg();
+  const showRmd = rmdCfg.showReminder === true && !editMode && (rmdCfg.reminderText || rmdCfg.reminderImg);
+  const rmdStyle = (rmdCfg.reminderBorderW || rmdCfg.reminderBorderC)
+    ? ` style="border-width:${rmdCfg.reminderBorderW||1}px;border-color:${rmdCfg.reminderBorderC||'var(--border)'};"`
+    : '';
+  const rmdTextStyle = rmdCfg.reminderTextC ? ` style="color:${rmdCfg.reminderTextC};"` : '';
+  const rmdLabelStyleParts = [];
+  if (rmdCfg.reminderLabelC) rmdLabelStyleParts.push('color:'+rmdCfg.reminderLabelC+';');
+  if (rmdCfg.reminderLabelShow === false) rmdLabelStyleParts.push('display:none;');
+  const rmdLabelStyle = rmdLabelStyleParts.length ? ' style="'+rmdLabelStyleParts.join('')+'"' : '';
+  const rmdHTML = showRmd
+    ? `<div class="reminder-block" id="reminder-block"${rmdStyle}>
+        <div class="reminder-label"${rmdLabelStyle}>Напоминание</div>
+        ${rmdCfg.reminderImg ? `<img class="reminder-img" src="${esc(rmdCfg.reminderImg)}" alt="Напоминание">` : ''}
+        ${rmdCfg.reminderText ? `<div class="reminder-word"${rmdTextStyle}>${esc(rmdCfg.reminderText)}</div>` : ''}
+      </div>`
+    : '';
+  document.getElementById('day-content').innerHTML= showRmd
+    ? `<div class="day-layout">${rmdCfg.reminderPos === 'bottom' ? exBlockHTML + rmdHTML : rmdHTML + exBlockHTML}</div>`
+    : exBlockHTML;
+
   const wi=Math.min(Math.ceil(W/2)-1, WEEKS.length-1);
   document.getElementById('prog-list').innerHTML=WEEKS.map((w,i)=>{
     const cur=i===wi,past=i<wi;
@@ -3412,6 +3528,14 @@ function render(){
   }).join('');
 
   renderMotiv();
+}
+
+function triggerReminderPulse(){
+  const el = document.getElementById('reminder-block');
+  if (!el) return;
+  el.classList.add('pulse');
+  clearTimeout(el._pulseTimer);
+  el._pulseTimer = setTimeout(()=>el.classList.remove('pulse'), 3000);
 }
 
 // ══════════════════════════════════════
@@ -3444,6 +3568,15 @@ const APP_DEFAULTS = {
   showTopbar: true,
   showHero:   true,
   showFooter: true,
+  showReminder: false,
+  reminderPos: 'top',
+  reminderText: '',
+  reminderImg: '',
+  reminderBorderW: '',
+  reminderBorderC: '',
+  reminderTextC: '',
+  reminderLabelC: '',
+  reminderLabelShow: true,
 };
 
 function loadAppCfg() {
@@ -3516,6 +3649,22 @@ function openAppSettings() {
   if (heChk) heChk.checked = cfg.showHero !== false;
   const ftChk = document.getElementById('cfg-show-footer');
   if (ftChk) ftChk.checked = cfg.showFooter !== false;
+  const rmChk2 = document.getElementById('cfg-show-reminder');
+  if (rmChk2) rmChk2.checked = cfg.showReminder === true;
+  const rmPos = document.getElementById('cfg-reminder-pos');
+  if (rmPos) rmPos.value = cfg.reminderPos || 'top';
+  const rmText = document.getElementById('cfg-reminder-text');
+  if (rmText) rmText.value = cfg.reminderText || '';
+  const rmBW = document.getElementById('cfg-reminder-border-w');
+  if (rmBW) rmBW.value = cfg.reminderBorderW || '';
+  const rmBC = document.getElementById('cfg-reminder-border-c');
+  if (rmBC) rmBC.value = cfg.reminderBorderC || '#888';
+  const rmTC = document.getElementById('cfg-reminder-word-c');
+  if (rmTC) rmTC.value = cfg.reminderTextC || '#ffffff';
+  const rmLC = document.getElementById('cfg-reminder-label-c');
+  if (rmLC) rmLC.value = cfg.reminderLabelC || '#ffffff';
+  const rmLS = document.getElementById('cfg-show-reminder-label');
+  if (rmLS) rmLS.checked = cfg.reminderLabelShow !== false;
   const themeSel = document.getElementById('cfg-theme');
   if (themeSel) themeSel.value = S.theme || 'light';
   const tc = document.getElementById('cfg-topbar-color');
@@ -3557,8 +3706,34 @@ function openAppSettings() {
   if (navigator.vibrate) navigator.vibrate(8);
 }
 
-function clearAllLocalStorage(){
-  showConfirm('Удалить всё','Удалить все данные приложения?<br><br>Это сотрёт прогресс, историю, заметки, настройки.<br>Действие необратимо.<br><br>Совет: сначала сделайте экспорт JSON для резервной копии.',function(){
+function handleReminderImg(e){
+  const file = e.target && e.target.files && e.target.files[0];
+  if (!file) return;
+  const nameEl = document.getElementById('cfg-reminder-img-name');
+  if (nameEl) nameEl.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = function(){
+    const cfg = loadAppCfg();
+    cfg.reminderImg = reader.result;
+    saveAppCfg(cfg);
+    renderAppCfg(cfg);
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+function clearReminderImg(){
+  const cfg = loadAppCfg();
+  cfg.reminderImg = '';
+  saveAppCfg(cfg);
+  const fi = document.getElementById('cfg-reminder-img');
+  if (fi) fi.value = '';
+  const nameEl = document.getElementById('cfg-reminder-img-name');
+  if (nameEl) nameEl.textContent = '';
+  renderAppCfg(cfg);
+  render();
+}
+
+function clearAllLocalStorage(){  showConfirm('Удалить всё','Удалить все данные приложения?<br><br>Это сотрёт прогресс, историю, заметки, настройки.<br>Действие необратимо.<br><br>Совет: сначала сделайте экспорт JSON для резервной копии.',function(){
     localStorage.clear();
     closeAppSettings();
     location.reload();
@@ -3583,6 +3758,12 @@ function resetProgram(){
 function closeAppSettings() {
   document.getElementById('settings-overlay').classList.remove('open');
   document.getElementById('settings-sheet').classList.remove('open');
+}
+
+function saveAppSettings() {
+  applyAppSettings();
+  closeAppSettings();
+  if(navigator.vibrate) navigator.vibrate([14, 40, 14]);
 }
 
 // ══════════════════════════════════════
@@ -3925,9 +4106,19 @@ function applyAppSettings() {
     showTopbar:  tbChk ? tbChk.checked : true,
     showHero:    heChk ? heChk.checked : true,
     showFooter:  ftChk ? ftChk.checked : true,
+    showReminder: document.getElementById('cfg-show-reminder') ? document.getElementById('cfg-show-reminder').checked : false,
+    reminderPos: document.getElementById('cfg-reminder-pos') ? document.getElementById('cfg-reminder-pos').value : 'right',
+    reminderText: document.getElementById('cfg-reminder-text') ? document.getElementById('cfg-reminder-text').value : '',
+    reminderImg: cur.reminderImg || '',
+    reminderBorderW: document.getElementById('cfg-reminder-border-w') ? document.getElementById('cfg-reminder-border-w').value : '',
+    reminderBorderC: document.getElementById('cfg-reminder-border-c') ? document.getElementById('cfg-reminder-border-c').value : '',
+    reminderTextC: document.getElementById('cfg-reminder-word-c') ? document.getElementById('cfg-reminder-word-c').value : '',
+    reminderLabelC: document.getElementById('cfg-reminder-label-c') ? document.getElementById('cfg-reminder-label-c').value : '',
+    reminderLabelShow: document.getElementById('cfg-show-reminder-label') ? document.getElementById('cfg-show-reminder-label').checked : true,
   };
   saveAppCfg(cfg);
   renderAppCfg(cfg);
+  render();
 }
 
 function updateAppField(field, rawVal) {
