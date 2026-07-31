@@ -3855,7 +3855,7 @@ function renderMeasBody(){
       </div>
     </div>
     <button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button>
-    ${m.map((e,i)=>({e,i})).sort((a,b)=>(a.e.iso||'').localeCompare(b.e.iso||'')).map(({e,i})=>renderMeasEntry(e,i)).join('')}
+    ${m.map((e,i)=>({e,i})).sort((a,b)=>(b.e.iso||'').localeCompare(a.e.iso||'')).map(({e,i})=>renderMeasEntry(e,i)).join('')}
   `;
   requestAnimationFrame(()=>{ drawMeasChart('meas-chart-weight', weightFields.filter(f=>window._measChartFields[f.k]), [70,100]); drawMeasChart('meas-chart-body', bodyFields.filter(f=>window._measChartFields[f.k])); });
 }
