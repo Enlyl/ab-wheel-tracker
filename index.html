@@ -948,6 +948,9 @@ body {
   touch-action: manipulation;
 }
 .ex-note-btn:active { background: var(--greenbg); border-color: var(--green); color: var(--green); }
+.ex-note-btn.has-note {
+  background: var(--greenbg); border-color: var(--green); color: var(--green);
+}
 
 /* ── HELP SHEET ── */
 .help-overlay {
@@ -3309,7 +3312,7 @@ function renderExItem(e,di,ei){
     </div>
     <div class="ex-actions-col${expanded?'':' collapsed'}">
       <button class="ex-help-btn" data-exname="${esc(e.n)}" data-extag="${esc(e.t)}" title="Как выполнять">?</button>
-      <button class="ex-note-btn" onclick="event.stopPropagation();editExNote(${W},${di},${ei})" title="Заметка">✎</button>
+      <button class="ex-note-btn${S[exNoteKey(W,di,ei)]?' has-note':''}" onclick="event.stopPropagation();editExNote(${W},${di},${ei})" title="Заметка">✎</button>
     </div>
   </div>`;
 }
