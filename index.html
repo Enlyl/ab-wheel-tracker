@@ -3600,6 +3600,12 @@ const MEAS_FIELDS = [
   {k:'biceps',l:'Бицепс (см)',ph:'35'},
 ];
 
+function measDateStr(iso){
+  const parts = iso.split('-');
+  const mn = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  return parseInt(parts[2]) + ' ' + mn[parseInt(parts[1])-1] + ' ' + parts[0];
+}
+
 function openMeasurements(){
   renderMeasBody();
   document.getElementById('measures-overlay').classList.add('open');
@@ -3619,6 +3625,10 @@ function renderMeasEntry(e,i){
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <span class="meas-date">${e.date}${e.time?`<span style="font-weight:400;color:var(--text3);margin-left:6px;">${e.time}</span>`:''}</span>
         <span class="meas-del" onclick="deleteMeasEntry(${i})">✕</span>
+      </div>
+      <div class="meas-row">
+        <label>Дата</label>
+        <input type="date" id="meas-${i}-date" value="${e.iso||''}" style="flex:1;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;">
       </div>
       ${MEAS_FIELDS.map(f => `
         <div class="meas-row">
@@ -3651,6 +3661,13 @@ function saveMeasEntry(i){
     const el = document.getElementById('meas-'+i+'-'+f.k);
     if (el) m[i][f.k] = el.value ? parseFloat(el.value) : 0;
   });
+  const dateEl = document.getElementById('meas-'+i+'-date');
+  if (dateEl && dateEl.value) {
+    m[i].iso = dateEl.value;
+    m[i].date = measDateStr(dateEl.value);
+    const now = new Date();
+    m[i].time = now.toTimeString().slice(0,5);
+  }
   saveMeasures(m);
   window._measEdit = null;
   renderMeasBody();
@@ -3846,9 +3863,7 @@ function addMeasEntry(){
   const m = loadMeasures();
   const now = new Date();
   const iso = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-  const parts = iso.split('-');
-  const mn = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-  const dateStr = parseInt(parts[2]) + ' ' + mn[parseInt(parts[1])-1] + ' ' + parts[0];
+  const dateStr = measDateStr(iso);
   const time = now.toTimeString().slice(0,5);
   const prev = m[0] || {};
   const entry = { date: dateStr, iso, time };
