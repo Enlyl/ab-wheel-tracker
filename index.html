@@ -486,6 +486,14 @@ body {
 .reminder-block .reminder-img {
   max-width: 120px; max-height: 60px; border-radius: 8px; object-fit: contain;
 }
+.reminder-dismiss {
+  background: none; border: 1px solid var(--border); border-radius: 50%;
+  color: var(--text3); font-size: 10px; cursor: pointer; padding: 2px 4px; line-height: 1;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all .15s;
+}
+.reminder-dismiss:hover { color: var(--text); border-color: var(--text2); }
 .reminder-block.pulse {
   animation: reminder-pulse 0.6s ease-in-out infinite;
 }
@@ -547,6 +555,36 @@ body {
 .ex-item.normal.collapsed .chk-wrap { flex-direction: row; gap: 4px; }
 .ex-item.normal.collapsed .name-pill { margin-bottom: 0; }
 .ex-item.normal.chk { background: var(--greenbg2); }
+.ex-item.normal.sup-member { padding-left: 34px; background: transparent; }
+.ex-item.normal.sup-member .name-pill { margin-left: 0; }
+.ex-item.normal.sup-member .ex-num { color: var(--gold); opacity: 1; font-weight: 700; }
+.ex-item.normal.sup-member.collapsed { padding-left: 34px; }
+.ex-item.normal.sup-member .chk-wrap.sup-shared { cursor: default; }
+
+/* ── СУПЕРСЕТ: визуальная группа из главы + участников ── */
+.ex-sup-group {
+  position: relative;
+  margin: 12px 10px 10px;
+  border: 1px dashed var(--gold);
+  border-radius: 14px;
+  padding: 3px 0;
+  background: rgba(200,169,110,0.045);
+}
+.ex-sup-group::before {
+  content: '↯ Суперсет';
+  position: absolute; top: -9px; left: 14px;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--gold); color: #fff;
+  border-radius: 7px; padding: 1px 8px; line-height: 1.5;
+  box-shadow: var(--shadow-sm); white-space: nowrap; z-index: 2;
+}
+.ex-sup-group .ex-item { border-bottom: 1px dashed var(--border2); border-radius: 0; }
+.ex-sup-group .ex-item:last-child { border-bottom: none; }
+.ex-sup-group .ex-item.editing:first-child { border-radius: 12px 12px 0 0; }
+.ex-sup-group .ex-item.editing:last-child { border-radius: 0 0 12px 12px; }
+.ex-sup-group .ex-item.sup-member { padding-left: 40px; }
+.ex-sup-group .ex-item.normal.sup-member { background: transparent; }
 .ex-item.editing { background: var(--goldbg); cursor: default; }
 .ex-item.editing.dragging { opacity: 0.4; background: var(--surface3); }
 .d-tab.editing.dragging { opacity: 0.6; transform: scale(1.08); z-index: 10; box-shadow: var(--shadow-md); }
@@ -739,17 +777,17 @@ body {
   white-space: nowrap;
 }
 .ex-timer-presets {
-  display: flex; gap: 12px; margin-top: 7px; flex-wrap: wrap; justify-content: center;
+  display: flex; gap: 8px; margin-top: 7px; flex-wrap: nowrap; justify-content: center;
 }
 .ex-ipreset {
-  padding: 8px 14px; border-radius: 8px;
+  padding: 7px 11px; border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--surface2);
   color: var(--text3);
   font-family: 'Archivo Narrow', sans-serif;
   font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
   cursor: pointer; transition: all .15s;
-  white-space: nowrap;
+  white-space: nowrap; flex-shrink: 1; min-width: 0;
 }
 .ex-ipreset:hover { border-color: var(--gold); color: var(--gold); transform: scale(1.07) translateY(-1px); }
 .ex-ipreset:active { background: var(--gold); color: #fff; transform: scale(0.93); }
@@ -947,6 +985,14 @@ body {
   accent-color: var(--green);
   cursor: pointer; flex-shrink: 0;
 }
+.ss-add-btn {
+  border: 1px dashed var(--border); background: none; border-radius: 7px;
+  color: var(--text3); font-family: 'Archivo Narrow', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 5px 9px; cursor: pointer; align-self: flex-start;
+  transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.ss-add-btn:hover { color: var(--gold); border-color: var(--gold); background: var(--goldbg); }
 
 /* ── EX HELP BUTTON ── */
 .ex-help-btn {
@@ -2468,6 +2514,7 @@ function getSets(w,d,i){
 
 function togWarmup(w,d,i,setIdx){
   if(editMode) return;
+  i = supGroupOf(d,i)[0];
   const cur = S[k(w,d,i)];
   // Подход должен быть отмечен чтобы пометить как разминочный
   if(!cur) return;
@@ -2479,6 +2526,7 @@ function togWarmup(w,d,i,setIdx){
   if(idx>=0) obj.warmup.splice(idx,1);
   else obj.warmup.push(setIdx);
   S[k(w,d,i)] = obj;
+  syncGroupDone(w,d,i);
   if(navigator.vibrate) navigator.vibrate([6,30,6]);
   save(); render();
 }
@@ -2645,15 +2693,18 @@ function cancelLp(e){
 }
 function togSkip(w,d,i){
   if(editMode) return;
+  i = supGroupOf(d,i)[0];
   const cur=S[k(w,d,i)];
   if(cur==='skipped'){ S[k(w,d,i)]=false; }
   else { S[k(w,d,i)]='skipped'; }
+  syncGroupDone(w,d,i);
   save();
   render();
 }
 
 function tog(w,d,i){
   if(editMode) return;
+  i = supGroupOf(d,i)[0];       // в суперсете вся группа управляется главой
   const cur=S[k(w,d,i)];
   if(cur==='skipped'){ S[k(w,d,i)]=false; save(); render(); return; }
   const wasDone=dayDone(w,d)===activeEx(S.days[d],w).length;
@@ -2675,6 +2726,7 @@ function tog(w,d,i){
       S[k(w,d,i)]=false;
     }
   }
+  syncGroupDone(w,d,i);
   // Показываем плашку если что-то отмечено (не снято)
   lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate(S[k(w,d,i)]?[18]:[12,40,12]);
@@ -2703,6 +2755,7 @@ function getExTP(w,d,i) { return loadExTP()[w+'-'+d+'-'+i] || null; }
 function setExTP(w,d,i,s) { const p=loadExTP(); p[w+'-'+d+'-'+i]=s; localStorage.setItem(EX_TP_KEY,JSON.stringify(p)); }
 
 function exTimerPreset(w,d,i,secs,btn){
+  i = supGroupOf(d,i)[0];       // в суперсете пресет один на группу
   setExTP(w,d,i,secs);
   if(navigator.vibrate) navigator.vibrate([12]);
   if (iRunning) iStop();
@@ -2783,6 +2836,7 @@ function removeSet(w,d,i){
 
 function togSet(w,d,i,setIdx){
   if(editMode) return;
+  i = supGroupOf(d,i)[0];       // в суперсете вся группа управляется главой
   const wasDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   const cur=S[k(w,d,i)];
   const total=cur&&cur!==true?cur.total:parseSets(S.days[d].ex[i].d);
@@ -2797,6 +2851,7 @@ function togSet(w,d,i,setIdx){
     obj.done=newDone;
     S[k(w,d,i)] = obj;
   }
+  syncGroupDone(w,d,i);
   lastTappedEx = S[k(w,d,i)] ? {d,i} : null;
   if(navigator.vibrate) navigator.vibrate([10]);
   const finalObj = S[k(w,d,i)];
@@ -2832,51 +2887,55 @@ function completeDay(){
     recordSession(W,D);save();render();
   });
 }
+// Перенос кастомных подходов/повторов/нагрузки с prevW на toW (done сбрасывается)
+function carryWeekData(prevW, toW){
+  if (toW <= prevW) return;
+  S.days.forEach((day, di) => {
+    if (day.extra) return;
+    day.ex.forEach((ex, ei) => {
+      const from = ex.addedAt || 1;
+      const until = ex.removedAt || Infinity;
+      if (toW < from || toW >= until) return;
+      const prevVal = S[k(prevW, di, ei)];
+      const newVal  = S[k(toW, di, ei)];
+      if (newVal) return;               // на новой неделе уже есть данные — не трогаем
+      if (prevVal && prevVal !== true) {
+        const carried = { done: 0, total: prevVal.total };
+        if (prevVal.reps != null) {
+          carried.reps = Array.isArray(prevVal.reps) ? [...prevVal.reps] : prevVal.reps;
+        }
+        if (prevVal.load != null) {
+          carried.load = Array.isArray(prevVal.load) ? [...prevVal.load] : prevVal.load;
+        }
+        if (carried.load == null) {
+          const globalLoad = S[`load_${S.days[di].uid}_e${ei}`];
+          if (globalLoad != null) carried.load = Array.isArray(globalLoad) ? [...globalLoad] : globalLoad;
+        }
+        if (prevVal.loadUnit) carried.loadUnit = prevVal.loadUnit;
+        S[k(toW, di, ei)] = carried;
+      }
+    });
+  });
+}
+
 function chWk(dir){
   const prevW = W;
   W = Math.max(1, Math.min(Math.min(99, S.maxWk||1), W + dir));
   D = 0; // всегда первый день
 
   // При переходе вперёд — переносим кастомные подходы/повторения с предыдущей недели
-  if (dir > 0 && W > prevW) {
-    S.days.forEach((day, di) => {
-      if (day.extra) return; // не переносим экстра-дни на другие недели
-      day.ex.forEach((ex, ei) => {
-        const from = ex.addedAt || 1;
-        const until = ex.removedAt || Infinity;
-        if (W < from || W >= until) return;
-        const prevVal = S[k(prevW, di, ei)];
-        const newVal  = S[k(W, di, ei)];
-        // Берём кастомные total и reps из прошлой недели
-        // но сбрасываем done (новая неделя — новые подходы)
-        if (prevVal && prevVal !== true) {
-          const carried = { done: 0, total: prevVal.total };
-          if (prevVal.reps != null) {
-            carried.reps = Array.isArray(prevVal.reps) ? [...prevVal.reps] : prevVal.reps;
-          }
-          if (prevVal.load != null) {
-            carried.load = Array.isArray(prevVal.load) ? [...prevVal.load] : prevVal.load;
-          }
-          if (carried.load == null) {
-            const globalLoad = S[`load_${S.days[di].uid}_e${ei}`];
-            if (globalLoad != null) carried.load = Array.isArray(globalLoad) ? [...globalLoad] : globalLoad;
-          }
-          if (prevVal.loadUnit) carried.loadUnit = prevVal.loadUnit;
-          // Не перезаписываем если уже есть данные на новой неделе
-          if (!newVal) S[k(W, di, ei)] = carried;
-        }
-      });
-    });
-  }
+  if (dir > 0 && W > prevW) carryWeekData(prevW, W);
 
   save(); render();
 }
 function selDay(i){D=i;editMode=false;save();render();}
 function toggleEditMode(){editMode=!editMode;render();}
 function addTrainingWeek(){
+  const prevW = W;
   W = Math.min(99, W + 1);
   if (W > (S.maxWk||0)) S.maxWk = W;
   D = 0;
+  carryWeekData(prevW, W);   // переносим настройки подходов с прошлой недели
   save(); render();
 }
 function removeWeek(){
@@ -2884,7 +2943,9 @@ function removeWeek(){
   showConfirm('Удалить неделю','Удалить неделю ' + W + '? Все данные недели будут потеряны.',function(){
     const wk = W;
     S.days.forEach((day,di)=>{
-      delete S[k(wk,di,0)];
+      day.ex.forEach((ex,ei)=>{
+        delete S[k(wk,di,ei)];
+      });
       Object.keys(localStorage).filter(k=>k.startsWith('reps_'+S.days[di].uid+'_e')||k.startsWith('load_'+S.days[di].uid+'_e')||k.startsWith('loadUnit_'+S.days[di].uid+'_e')||k.startsWith('exnote_'+wk+'_'+S.days[di].uid+'_e')).forEach(k=>localStorage.removeItem(k));
     });
     W = wk - 1;
@@ -3094,6 +3155,38 @@ const activeEx = (day, w) => day.ex.filter(e => {
   const until = e.removedAt || Infinity;
   return w >= from && w < until;
 });
+// Суперсеты: у главы группы флаг ss, у привязанных упражнений — sa
+const exActiveNow = e => (e.addedAt || 1) <= W && W < (e.removedAt || Infinity);
+function supGroups(di){
+  const ex = S.days[di].ex, groups = [];
+  let open = false;
+  ex.forEach((e,i)=>{
+    if(!exActiveNow(e)) return;
+    if(e.ss){ open = true; groups.push([i]); }
+    else if(e.sa && open){ groups[groups.length-1].push(i); }
+    else { open = false; groups.push([i]); }
+  });
+  return groups;
+}
+function supGroupOf(di, ei){
+  const g = supGroups(di).find(g2 => g2.includes(ei));
+  return g || [ei];
+}
+// Общий прогресс группы: участникам копируем только done/total/skipped от головы,
+// сохраняя их собственные повторы и нагрузку
+function syncGroupDone(w, d, headIdx){
+  const grp = supGroupOf(d, headIdx);
+  if(grp.length < 2) return;
+  const hv = S[k(w, d, headIdx)];
+  grp.forEach(m => {
+    if(m === headIdx) return;
+    if(hv === true || hv === false || hv === 'skipped'){ S[k(w, d, m)] = hv; return; }
+    const mo = (S[k(w, d, m)] && S[k(w, d, m)] !== true) ? {...S[k(w, d, m)]} : _getRepObj(w, d, m);
+    mo.done = Math.min(hv.done, mo.total);
+    if(hv.warmup) mo.warmup = [...hv.warmup];
+    S[k(w, d, m)] = mo;
+  });
+}
 const dayDone=(w,d)=>{
   const ex = S.days[d].ex;
   return ex.filter((e,i)=>{
@@ -3145,6 +3238,7 @@ const EX_GROUPS = [
     'Жим штанги стоя', 'Жим гантелей на плечи', 'Жим Арнольда',
     'Махи в стороны (средняя дельта)',
     'Задняя дельта (махи в наклоне)', 'Выкруты с резиной',
+    'Лицевая тяга резинки (Face Pulls)',
   ]},
   { label: 'Руки', items: [
     'Сгибания на бицепс', 'Подтягивания обратным хватом',
@@ -3154,6 +3248,7 @@ const EX_GROUPS = [
   ]},
   { label: 'Ноги', items: [
     'Присед с гантелями', 'Приседания со штангой', 'Выпады',
+    'Болгарские выпады', 'Зашагивания на возвышенность',
     'Жим ногами', 'Румынская тяга', 'Становая тяга',
     'Ягодичный мостик', 'Икры стоя',
     'Растяжка сгибателей бедра',
@@ -3255,6 +3350,45 @@ function pickSuggest(di, ei, uid, val) {
   if (el) el.classList.remove('open');
 }
 
+function setExSuperset(di, ei, val){
+  const ex = S.days[di].ex;
+  const e = ex[ei];
+  if(!e) return;
+  if(e.sa){                   // участник группы: снять галочку = отвязать
+    if(!val){ delete e.sa; save(); render(); }
+    return;
+  }
+  if(val){                    // включить суперсет — глава группы + окно второго упражнения сразу под ней
+    e.ss = true;
+    // ближайшее активное упражнение сразу под главой
+    let ni = ei+1;
+    while(ni < ex.length && !exActiveNow(ex[ni])) ni++;
+    // если это ещё не участник этой группы — вставляем новое окно прямо под главой
+    if(!(ni < ex.length && ex[ni].sa)){
+      ex.splice(ei+1, 0, {n:'Новое упражнение', d:'', t:'key', addedAt:W, sa:true});
+      ni = ei+1;
+    }
+    save(); render();
+    setTimeout(()=>{
+      const inp = document.getElementById('exinput_'+di+'_'+ni);
+      if(inp){ inp.focus(); inp.scrollIntoView({behavior:'smooth', block:'center'}); }
+    }, 80);
+  } else {                    // выключить — отвязываем всех участников группы
+    const grp = supGroupOf(di, ei);
+    delete e.ss;
+    grp.forEach((m,mi)=>{ if(mi>0) delete ex[m].sa; });
+    save(); render();
+  }
+}
+
+function addSupMember(di, ei){
+  const ex = S.days[di].ex;
+  const grp = supGroupOf(di, ei);
+  const last = grp[grp.length-1];
+  ex.splice(last+1, 0, {n:'Новое упражнение', d:'', t:'key', addedAt:W, sa:true});
+  save(); render();
+}
+
 function renderExItem(e,di,ei){
   if(editMode){
     return `<div class="ex-item editing" draggable="true" data-di="${di}" data-ei="${ei}">
@@ -3286,7 +3420,12 @@ function renderExItem(e,di,ei){
             <input type="checkbox" ${e.showLoad?'checked':''} onchange="toggleExBlock(${di},${ei},'load',this.checked);render()">
             <span>Нагрузка (кг/сек/см)</span>
           </label>
+          ${!e.sa ? `<label class="edit-chk-label" title="Суперсет: привязывает второе упражнение, они отмечаются вместе, без отдыха. Снять — чтобы разбить группу">
+            <input type="checkbox" ${e.ss?'checked':''} onchange="setExSuperset(${di},${ei},this.checked)">
+            <span>Суперсет</span>
+          </label>` : ''}
         </div>
+        ${e.ss?`<button type="button" class="ss-add-btn" onclick="event.stopPropagation();addSupMember(${di},${ei})">+ Добавить упражнение в суперсет</button>`:''}
       </div>
       <div class="edit-actions">
         <span class="drag-handle" title="Перетащить">⠿</span>
@@ -3299,7 +3438,7 @@ function renderExItem(e,di,ei){
   const skipped=gotSkipped(W,di,ei);
   const sets=getSets(W,di,ei);
   const total=parseSets(e.d);
-  const showToast = !editMode;
+  const showToast = !editMode && supGroupOf(di,ei)[0]===ei;
   const key = W+'-'+di+'-'+ei;
   const expanded = S._exp && S._exp.includes(key);
   const collapseBtn = `<button class="collapse-btn${expanded?' expanded':''}" onclick="event.stopPropagation();toggleExCollapse('${key}')">▶</button>`;
@@ -3386,11 +3525,13 @@ function renderExItem(e,di,ei){
         </div>`
       : '';
   }
-  return `<div class="ex-item normal${chk?' chk':''}${partial?' partial':''}${skipped?' skipped':''}${expanded?'':' collapsed'}">
-    <div class="chk-wrap" onclick="tog(${W},${di},${ei})">
+  return `<div class="ex-item normal${supGroupOf(di,ei)[0]!==ei?' sup-member':''}${chk?' chk':''}${partial?' partial':''}${skipped?' skipped':''}${expanded?'':' collapsed'}">
+    ${supGroupOf(di,ei)[0]!==ei
+      ? `<div class="chk-wrap sup-shared"><span class="ex-num">↳ ${ei+1}</span></div>`
+      : `<div class="chk-wrap" onclick="tog(${W},${di},${ei})">
       <span class="ex-num">${ei+1}</span>
       <div class="chk-box" onpointerdown="event.stopPropagation();startLp(event,${W},${di},${ei})" onpointerup="cancelLp(event)" onpointerleave="cancelLp(event)" oncontextmenu="event.preventDefault();togSkip(${W},${di},${ei})">${skipped?'—':chk?'&#10003;':partial?`<span class="partial-num">${sets?sets.done:0}</span>`:''}</div>
-    </div>
+    </div>`}
     <div class="ei-body">
       <div class="name-pill" onclick="event.stopPropagation();toggleExCollapse('${key}')">
         ${collapseBtn}
@@ -3478,12 +3619,10 @@ function render(){
           <button class="edit-toggle-btn${editMode?' active':''}" onclick="toggleEditMode()">${editMode?'✓':'✎'}</button>
         </div>
       </div>
-      ${day.ex.some(e=>W>=(e.addedAt||1) && W<(e.removedAt||Infinity)) ? day.ex.map((e,i)=>{
-        const from = e.addedAt || 1;
-        const until = e.removedAt || Infinity;
-        if (W < from || W >= until) return '';
-        return renderExItem(e,D,i);
-      }).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
+      ${day.ex.some(e=>W>=(e.addedAt||1) && W<(e.removedAt||Infinity)) ? supGroups(D).map(g=>{
+            const inner = g.map(ei=>renderExItem(day.ex[ei],D,ei)).join('');
+            return g.length>1 ? `<div class="ex-sup-group">${inner}</div>` : inner;
+          }).join('') : `<div class="empty-day">Нет упражнений. Включите режим редактирования ✎ и добавьте.</div>`}
       ${editMode?'':`
       <div class="day-actions-toggle" onclick="this.classList.toggle('exp');this.nextElementSibling.classList.toggle('open')"><span class="arr">▶</span> дополнительно</div>
       <div class="day-actions" style="display:none;">
@@ -3494,7 +3633,9 @@ function render(){
     </div>`;
 
   const rmdCfg = loadAppCfg();
-  const showRmd = rmdCfg.showReminder === true && !editMode && (rmdCfg.reminderText || rmdCfg.reminderImg);
+  const todayIso = new Date();
+  const todayStr = todayIso.getFullYear()+'-'+String(todayIso.getMonth()+1).padStart(2,'0')+'-'+String(todayIso.getDate()).padStart(2,'0');
+  const showRmd = rmdCfg.showReminder === true && !editMode && (rmdCfg.reminderText || rmdCfg.reminderImg) && rmdCfg.reminderHideDay !== todayStr;
   const rmdStyle = (rmdCfg.reminderBorderW || rmdCfg.reminderBorderC)
     ? ` style="border-width:${rmdCfg.reminderBorderW||1}px;border-color:${rmdCfg.reminderBorderC||'var(--border)'};"`
     : '';
@@ -3508,6 +3649,7 @@ function render(){
         <div class="reminder-label"${rmdLabelStyle}>Напоминание</div>
         ${rmdCfg.reminderImg ? `<img class="reminder-img" src="${esc(rmdCfg.reminderImg)}" alt="Напоминание">` : ''}
         ${rmdCfg.reminderText ? `<div class="reminder-word"${rmdTextStyle}>${esc(rmdCfg.reminderText)}</div>` : ''}
+        <button class="reminder-dismiss" onclick="dismissReminderForDay()" title="Скрыть до конца дня">⊗</button>
       </div>`
     : '';
   document.getElementById('day-content').innerHTML= showRmd
@@ -3531,11 +3673,31 @@ function render(){
 }
 
 function triggerReminderPulse(){
+  // Автовключение: если напоминание скрыто до конца дня с прошлой тренировки — включаем
+  const cfg = loadAppCfg();
+  if (cfg.reminderHideDay) {
+    const now = new Date();
+    const todayStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    if (cfg.reminderHideDay !== todayStr) {
+      delete cfg.reminderHideDay;
+      saveAppCfg(cfg);
+      renderAppCfg(cfg);
+    }
+  }
   const el = document.getElementById('reminder-block');
   if (!el) return;
   el.classList.add('pulse');
   clearTimeout(el._pulseTimer);
   el._pulseTimer = setTimeout(()=>el.classList.remove('pulse'), 3000);
+}
+
+function dismissReminderForDay(){
+  const cfg = loadAppCfg();
+  const now = new Date();
+  cfg.reminderHideDay = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  saveAppCfg(cfg);
+  renderAppCfg(cfg);
+  render();
 }
 
 // ══════════════════════════════════════
@@ -4115,6 +4277,7 @@ function applyAppSettings() {
     reminderTextC: document.getElementById('cfg-reminder-word-c') ? document.getElementById('cfg-reminder-word-c').value : '',
     reminderLabelC: document.getElementById('cfg-reminder-label-c') ? document.getElementById('cfg-reminder-label-c').value : '',
     reminderLabelShow: document.getElementById('cfg-show-reminder-label') ? document.getElementById('cfg-show-reminder-label').checked : true,
+    reminderHideDay: cur.reminderHideDay || '',
   };
   saveAppCfg(cfg);
   renderAppCfg(cfg);
@@ -4469,6 +4632,21 @@ const EX_DB = {
     how: 'Стой прямо, ноги вместе. Сделай широкий шаг вперёд. Опусти заднее колено вниз, не касаясь пола. Переднее колено над щиколоткой, не выходит за носок. Оттолкнись передней ногой и вернись в исходное положение.',
     tips: ['Держи корпус вертикально — не наклоняйся вперёд', 'Шаг достаточно широкий, чтобы голень была вертикальной', 'Вариант: выпады на месте или обратные выпады — мягче для колен', 'Одинаково прорабатывай обе стороны'],
     alts: ['Присед с гантелями', 'Приседания со штангой', 'Жим ногами', 'Румынская тяга']
+  },
+  'Болгарские выпады': {
+    how: 'Встань спиной к скамье или возвышенности на расстоянии шага. Заднюю ногу положи стопой на скамью (подъём стопы на поверхность). Гантели в руках или руки на поясе. Согни переднюю ногу и опустись вниз до параллели бедра, заднее колено почти касается пола. Оттолкнись передней пяткой и вернись вверх.',
+    tips: ['Передняя голень вертикальна — колено не заваливается вперёд', 'Опускайся до параллели бедра передней ноги', 'Корпус чуть наклонён вперёд для устойчивости', 'Сильнее нагрузка на переднюю ногу — это главное отличие от обычных выпадов'],
+    alts: ['Выпады', 'Присед с гантелями', 'Зашагивания на возвышенность', 'Приседания со штангой']
+  },
+  'Зашагивания на возвышенность': {
+    how: 'Встань перед скамьёй, ящиком или ступенью. Поставь всю стопу на возвышенность и оттолкнись работающей ногой, выпрямляя её вверх. Поднимись полностью, не опираясь на нижнюю ногу. Медленно спустись, контролируя движение, и смени ногу.',
+    tips: ['Дави всем центром стопы, а не носком', 'Не отталкивайся нижней ногой от пола — она просто шагает', 'Высота: бедро рабочей ноги в верхней точке выше колена', 'Гантели в руках — для прогрессии нагрузки'],
+    alts: ['Выпады', 'Болгарские выпады', 'Присед с гантелями', 'Ягодичный мостик']
+  },
+  'Лицевая тяга резинки (Face Pulls)': {
+    how: 'Прикрепи резину на уровне лица или чуть выше (стойка, дверной якорь). Возьми концы обеими руками, сделай шаг назад до натяжения. Тяни руки к лицу, разводя локти в стороны и назад, и в конце движения разведи кисти наружу. Задняя дельта и ротаторы работают. Медленно верни в исходное.',
+    tips: ['В конечной точке локти разведены в стороны, кисти у висков', 'Не тяни корпусом — работают только руки', 'Финальное разведение кистей включает заднюю дельту', 'Лёгкое натяжение на всём протяжении движения'],
+    alts: ['Задняя дельта (махи в наклоне)', 'Махи в стороны (средняя дельта)', 'Шраги', 'Пулловер с резиной стоя']
   },
   'Горизонтальная тяга': {
     how: 'Тяга горизонтального блока, гантелей в наклоне или резины. Спина прямая, небольшой наклон вперёд. Тяни рукоять/гантели к поясу, ведя локти вдоль тела назад. В конечной точке сведи лопатки. Медленно возвращай вперёд.',
