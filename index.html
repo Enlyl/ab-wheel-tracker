@@ -725,6 +725,8 @@ body {
 .cat-tag { display:inline-flex; align-items:center; gap:4px; background:var(--surface3); border:1px solid var(--border); border-radius:12px; padding:3px 8px; font-size:12px; color:var(--text); }
 .cat-tag-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:11px; padding:0; line-height:1; }
 .cat-tag-del:hover { color:#e05a3a; }
+.cat-group-tags { display:inline-flex; gap:4px; margin-left:8px; flex-wrap:wrap; }
+.cat-group-tag { font-size:10px; color:var(--gold); background:rgba(200,169,110,0.15); border:1px solid var(--gold); border-radius:6px; padding:1px 6px; white-space:nowrap; opacity:.85; }
 
 .ex-head-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 .ex-head-title-edit {
@@ -2160,7 +2162,7 @@ body {
         <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
           <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Обводка</span>
           <input type="number" id="cfg-reminder-border-w" min="0" max="8" step="1" placeholder="1" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
-          <input type="color" id="cfg-reminder-border-c" value="#888" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
+          <input type="color" id="cfg-reminder-border-c" value="#888888" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
           <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-border-w').value='';document.getElementById('cfg-reminder-border-c').value='#888';applyAppSettings()">Сбросить</span>
         </div>
       </div>
@@ -2377,6 +2379,123 @@ const WEEKS_DEFAULT=[
   {l:'Нед. 9+', d:'Standing rollout полный: попытки без помощи',p:100,c:'#c8a96e'},
 ];
 
+const CYCLE_PRESETS = {
+  strength: {
+    id: 'strength',
+    name: 'Сила',
+    icon: '💪',
+    desc: 'Низкие повторы, высокие веса, длинные отдыхи. Фокус на Standing Rollout негативе.',
+    days: [
+      {id:'A',day:'Пн',role:'Push',cls:'on-a',title:'Push + передний кор',sub:'Тяжёлые прессы, антиэкстензия',ex:[
+        {n:'Присед со штангой',d:'5 × 5',t:'aux'},
+        {n:'Жим лёжа',d:'5 × 5',t:'aux'},
+        {n:'Жим штанги стоя',d:'5 × 5',t:'aux'},
+        {n:'Hollow Body Hold + Dead Bug',d:'Суперсет — 4 × 45 с + 12/сторона',t:'key'},
+        {n:'Подтягивания',d:'4 × 5–8',t:'aux'},
+      ]},
+      {id:'B',day:'Ср',role:'Pull',cls:'on-b',title:'Pull + задний кор',sub:'Тяги, стабильность лопаток',ex:[
+        {n:'Румынская тяга',d:'5 × 5',t:'aux'},
+        {n:'Тяга штанги в наклоне',d:'5 × 5',t:'aux'},
+        {n:'Пулловер с резиной стоя',d:'4 × 10 — имитирует возврат',t:'key'},
+        {n:'Body Saw',d:'4 × 8–10',t:'key'},
+        {n:'Face Pulls',d:'3 × 15',t:'aux'},
+      ]},
+      {id:'C',day:'Пт',role:'Skill',cls:'on-c',title:'Навык + сила',sub:'Свежая ЦНС — главный день',ex:[
+        {n:'Раскрытие грудного отдела на ролле',d:'2 мин',t:'mob'},
+        {n:'Wall Rollout стоя',d:'5 × 5 — угол 45°',t:'key'},
+        {n:'Negative Standing Rollout',d:'5 × 5–6 — 7 сек вниз',t:'key'},
+        {n:'Kneeling Rollout дальняя амплитуда',d:'4 × 6',t:'key'},
+        {n:'Планка с весом',d:'3 × 60 с',t:'key'},
+      ]},
+    ],
+    weeks: [
+      {l:'Нед. 1–2',d:'Wall Rollout 45°, 5×5',p:20,c:'#c45faa'},
+      {l:'Нед. 3–4',d:'Wall Rollout 60°, 5×5',p:40,c:'#b08840'},
+      {l:'Нед. 5–6',d:'Negative 7 сек, 5×5',p:60,c:'#e07a3a'},
+      {l:'Нед. 7–8',d:'Negative до пола, 5×5',p:80,c:'#d45a5a'},
+      {l:'Нед. 9+', d:'Standing Rollout 5×3',p:100,c:'#c45faa'},
+    ]
+  },
+  hypertrophy: {
+    id: 'hypertrophy',
+    name: 'Гипертрофия',
+    icon: '📏',
+    desc: 'Средние повторы, накачка, сокращённые отдыхи. Объёмная работа для пресса.',
+    days: [
+      {id:'A',day:'Пн',role:'Push',cls:'on-a',title:'Push + передний кор',sub:'Накачка груди/плеч/трицепс',ex:[
+        {n:'Присед с гантелями',d:'3 × 12',t:'aux'},
+        {n:'Отжимания',d:'3 × 15–20',t:'aux'},
+        {n:'Разведение гантелей лёжа',d:'3 × 15',t:'aux'},
+        {n:'Hollow Body Hold',d:'4 × 45 с',t:'key'},
+        {n:'Подъём ног в висе',d:'3 × 12',t:'key'},
+        {n:'Планка',d:'3 × 60 с',t:'key'},
+      ]},
+      {id:'B',day:'Ср',role:'Pull',cls:'on-b',title:'Pull + задний кор',sub:'Накачка спины/задних дельт',ex:[
+        {n:'Выпады',d:'3 × 12 на ногу',t:'aux'},
+        {n:'Горизонтальная тяга',d:'3 × 12',t:'aux'},
+        {n:'Тяга верхнего блока',d:'3 × 12',t:'aux'},
+        {n:'Body Saw',d:'3 × 12',t:'key'},
+        {n:'Bird Dog',d:'3 × 12/сторона',t:'aux'},
+        {n:'Обратная планка',d:'3 × 45 с',t:'key'},
+      ]},
+      {id:'C',day:'Пт',role:'Skill',cls:'on-c',title:'Навык + объём',sub:'Качественные повторения',ex:[
+        {n:'Раскрытие грудного отдела на ролле',d:'2 мин',t:'mob'},
+        {n:'Выкруты с резиной',d:'2 × 20',t:'mob'},
+        {n:'Wall Rollout стоя',d:'4 × 10',t:'key'},
+        {n:'Kneeling Rollout',d:'4 × 12',t:'key'},
+        {n:'Dead Bug',d:'3 × 15/сторона',t:'key'},
+        {n:'Пулловер с резиной стоя',d:'3 × 15',t:'aux'},
+      ]},
+    ],
+    weeks: [
+      {l:'Нед. 1–2',d:'Wall Rollout 4×10, накачка',p:20,c:'#5DCAA5'},
+      {l:'Нед. 3–4',d:'Wall Rollout 4×12',p:40,c:'#2aaa72'},
+      {l:'Нед. 5–6',d:'Kneeling Rollout 4×12',p:60,c:'#c8a96e'},
+      {l:'Нед. 7–8',d:'Negative 4×10',p:80,c:'#b08840'},
+      {l:'Нед. 9+', d:'Standing Rollout 4×8',p:100,c:'#5DCAA5'},
+    ]
+  },
+  mobility: {
+    id: 'mobility',
+    name: 'Мобильность',
+    icon: '🧘',
+    desc: 'Мягкий вход, акцент на подвижность и контроль. Для восстановления и новичков.',
+    days: [
+      {id:'A',day:'Пн',role:'Flow',cls:'on-a',title:'Поток + кор',sub:'Плавные цепочки движений',ex:[
+        {n:'Cat-Camel',d:'2 × 10',t:'mob'},
+        {n:'Bird Dog',d:'3 × 8/сторона',t:'key'},
+        {n:'Dead Bug',d:'3 × 8/сторона',t:'key'},
+        {n:'Glute Bridge',d:'3 × 15',t:'aux'},
+        {n:'Планка',d:'3 × 30 с',t:'key'},
+        {n:'Side Plank',d:'3 × 20 с/сторона',t:'key'},
+      ]},
+      {id:'B',day:'Ср',role:'Flow',cls:'on-b',title:'Мобильность + кор',sub:'Раскрытие, ротация, контроль',ex:[
+        {n:'Thoracic Rotation',d:'2 × 10/сторона',t:'mob'},
+        {n:'Hip 90/90',d:'2 × 45 с/сторона',t:'mob'},
+        {n:'Hollow Body Hold',d:'3 × 30 с',t:'key'},
+        {n:'Обратная планка',d:'3 × 30 с',t:'key'},
+        {n:'Scapular Push-ups',d:'3 × 10',t:'aux'},
+        {n:'Face Pulls',d:'2 × 15',t:'aux'},
+      ]},
+      {id:'C',day:'Пт',role:'Skill',cls:'on-c',title:'Навык Rollout',sub:'Мягкая прогрессия',ex:[
+        {n:'Раскрытие грудного отдела на ролле',d:'3 мин',t:'mob'},
+        {n:'Child Pose + Reach',d:'2 × 45 с',t:'mob'},
+        {n:'Wall Rollout стоя',d:'3 × 8 — очень плавно',t:'key'},
+        {n:'Kneeling Rollout',d:'3 × 8 — контроль',t:'key'},
+        {n:'Dead Bug',d:'3 × 10/сторона',t:'key'},
+        {n:'Breathing + Brace',d:'5 мин',t:'mob'},
+      ]},
+    ],
+    weeks: [
+      {l:'Нед. 1–2',d:'Wall Rollout 3×8, контроль',p:15,c:'#4a9fd4'},
+      {l:'Нед. 3–4',d:'Wall Rollout 3×10',p:30,c:'#7b6fe8'},
+      {l:'Нед. 5–6',d:'Kneeling Rollout 3×8',p:50,c:'#5DCAA5'},
+      {l:'Нед. 7–8',d:'Kneeling Rollout 3×10',p:70,c:'#2aaa72'},
+      {l:'Нед. 9+', d:'Standing Rollout 3×5',p:100,c:'#4a9fd4'},
+    ]
+  }
+};
+
 function loadWeeks(){
   try{const w=JSON.parse(localStorage.getItem('abw_weeks')||'null');return w&&w.length?w:JSON.parse(JSON.stringify(WEEKS_DEFAULT));}
   catch(e){return JSON.parse(JSON.stringify(WEEKS_DEFAULT));}
@@ -2419,6 +2538,17 @@ if(!S.D) S.D=0;
   localStorage.setItem('abw8_migrated_v2', '1');
 })();
 if(!S.theme) S.theme='light';
+
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+if (!S.cycles) S.cycles = [];
+if (!S.cycleStarted) S.cycleStarted = todayISO();
+
+// Safety: если S.days пуст/повреждён — восстановить из DEFAULT_DAYS
+if (!S.days || !S.days.length || !S.days[0]?.ex?.length) {
+  S.days = JSON.parse(JSON.stringify(DEFAULT_DAYS));
+  S.days.forEach(d => { if (!d.uid) d.uid = crypto.randomUUID(); });
+}
 
 const maxWks = () => Math.max(W, ...S.days.filter(d=>d.week).map(d=>d.week));
 
@@ -2965,6 +3095,125 @@ function closeConfirm(){
   document.getElementById('confirm-overlay').classList.remove('open');
   document.getElementById('confirm-popup').classList.remove('open');
 }
+
+function completeCurrentCycle(){
+  showConfirm('Завершить цикл', 'Сохранить текущий цикл в архив и начать новый?<br><small>История и замеры останутся общими.</small>', () => {
+    const archive = {
+      id: 'cycle_' + (S.cycles.length + 1),
+      started: S.cycleStarted || todayISO(),
+      ended: todayISO(),
+      weeks: maxWks(),
+      WEEKS: JSON.parse(JSON.stringify(WEEKS)),
+      days: JSON.parse(JSON.stringify(S.days)),
+      W, D, theme: S.theme
+    };
+    S.cycles.push(archive);
+    window._pendingArchive = archive;
+    showCycleConfirmInput();
+  });
+}
+
+function cancelPresetPicker(){
+  if (window._pendingArchive) {
+    const a = window._pendingArchive;
+    S.cycles.pop();
+    S.days = a.days;
+    WEEKS = a.WEEKS;
+    saveWeeks(WEEKS);
+    S.W = a.W; S.D = a.D;
+    S.cycleStarted = a.started;
+    S.theme = a.theme;
+    delete window._pendingArchive;
+    save(); render();
+  }
+  closeHelp();
+}
+
+function showCycleConfirmInput(){
+  const overlay = document.getElementById('confirm-overlay');
+  const popup = document.getElementById('confirm-popup');
+  document.getElementById('confirm-title').textContent = 'Завершить цикл';
+  document.getElementById('confirm-text').innerHTML = `
+    <div style="text-align:left;margin-bottom:12px;">
+      Сохранить текущий цикл в архив и начать новый?<br>
+      <small>История и замеры останутся общими.</small>
+    </div>
+    <div style="margin-bottom:8px;padding:8px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text2);text-align:center;">
+      Для подтверждения введите: <b>go</b> или <b>поехали</b>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+      <input type="text" id="cycle-confirm-input" placeholder="go / поехали" style="width:100%;max-width:240px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;text-align:center;">
+      <div id="cycle-confirm-hint" style="font-size:11px;color:var(--text3);min-height:14px;"></div>
+    </div>`;
+  const input = document.getElementById('cycle-confirm-input');
+  const hint = document.getElementById('cycle-confirm-hint');
+  const okBtn = document.getElementById('confirm-ok');
+  okBtn.disabled = true;
+  okBtn.style.opacity = '0.5';
+  okBtn.onclick = function(){
+    closeConfirm();
+    if (window._pendingArchive) {
+      delete window._pendingArchive;
+      showPresetPicker();
+    }
+  };
+  input.oninput = function(){
+    const val = this.value.trim().toLowerCase();
+    const ok = val === 'go' || val === 'поехали';
+    okBtn.disabled = !ok;
+    okBtn.style.opacity = ok ? '1' : '0.5';
+    hint.textContent = ok ? '' : 'Введите "go" или "поехали"';
+    hint.style.color = ok ? 'var(--green)' : 'var(--text3)';
+  };
+  overlay.classList.add('open');
+  popup.classList.add('open');
+  setTimeout(() => input.focus(), 50);
+}
+
+function showPresetPicker(){
+  const overlay = document.getElementById('help-overlay');
+  const sheet   = document.getElementById('help-sheet');
+  const body    = document.getElementById('help-body');
+  body.innerHTML = `
+    <div class="help-section">
+      <div class="help-section-title">Новый тренировочный цикл</div>
+      ${Object.values(CYCLE_PRESETS).map(p => `
+        <div class="prog-item" style="cursor:pointer;padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);margin-bottom:12px;" onclick="startNewCycle('${p.id}')">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="font-size:28px;">${p.icon}</span>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:15px;">${p.name}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:4px;">${p.desc}</div>
+              <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+                ${p.days.map(d => `<span class="tag t-${d.cls.replace('on-','')}">${d.id}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+      <div style="margin-top:16px;text-align:center;">
+        <button class="catalog-add-btn catalog-edit-btn" onclick="cancelPresetPicker()">Отмена</button>
+      </div>
+    </div>`;
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+}
+
+function startNewCycle(presetId){
+  const p = CYCLE_PRESETS[presetId];
+  if (!p) return;
+  delete window._pendingArchive;
+  closeHelp();
+  S.days = JSON.parse(JSON.stringify(p.days));
+  S.days.forEach(d => { if (!d.uid) d.uid = crypto.randomUUID(); });
+  WEEKS = JSON.parse(JSON.stringify(p.weeks));
+  saveWeeks(WEEKS);
+  S.W = 1; S.D = 0;
+  S.cycleStarted = todayISO();
+  editMode = false;
+  save(); render();
+}
+
 function toggleAllEx(){
   const keys = S.days[D].ex.map((_, i) => W+'-'+D+'-'+i);
   if (!S._exp) S._exp = [];
@@ -3668,6 +3917,45 @@ function render(){
       <div class="pi-desc">${w.d}</div>
     </div>`;
   }).join('');
+
+  // Archive cycles
+  const arch = S.cycles || [];
+  if (arch.length) {
+    const archHTML = arch.map((c, idx) => {
+      const prog = c.WEEKS.map((w, i) => {
+        const cur = i === Math.min(Math.ceil(c.W/2)-1, c.WEEKS.length-1);
+        const past = i < Math.min(Math.ceil(c.W/2)-1, c.WEEKS.length-1);
+        return `<div class="prog-item${cur?' now':''}" style="opacity:${past?'.6':'1'};">
+          <div class="pi-top">
+            <span class="pi-name">${w.l}${cur?'<span class="now-pill">тогда</span>':''}</span>
+            <span class="pi-status${past?' ok':''}">${past?'✓ Готово':cur?'Было текущим':'Впереди было'}</span>
+          </div>
+          <div class="bar-bg ${w.barStyle?'style-'+w.barStyle:''}" style="height:${w.barH||3}px;border-radius:${w.barStyle==='rounded'?'999px':'2px'}"><div class="bar-fill ${w.barStyle?'style-'+w.barStyle:''}" style="width:${i<=Math.min(Math.ceil(c.W/2)-1, c.WEEKS.length-1)?w.p:0}%;background:${w.c}"></div></div>
+          <div class="pi-desc">${w.d}</div>
+        </div>`;
+      }).join('');
+      return `<details class="cycle-archive" style="margin-top:18px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);overflow:hidden;">
+        <summary style="padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;">
+          <span style="font-size:20px;">📦</span>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;">Цикл ${idx+1} <span style="font-weight:400;color:var(--text2);">(${c.started} — ${c.ended}, ${c.weeks} нед)</span></div>
+            <div style="font-size:11px;color:var(--text3);">Неделя ${c.W} / День ${c.D+1} • Тема: ${c.theme}</div>
+          </div>
+          <span style="font-size:12px;color:var(--text3);">▼</span>
+        </summary>
+        <div style="padding:0 16px 16px;">${prog}</div>
+      </details>`;
+    }).join('');
+    document.getElementById('prog-list').innerHTML += `<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);"><div style="font-weight:700;margin-bottom:12px;font-size:13px;color:var(--text2);">📚 Архив циклов</div>${archHTML}</div>`;
+  }
+
+  // Complete cycle button under roadmap
+  const cycleBtn = document.getElementById('complete-cycle-btn');
+  if (cycleBtn) cycleBtn.remove();
+  const btnWrap = document.createElement('div');
+  btnWrap.style.cssText = 'margin-top:20px;padding:12px 16px;background:var(--surface2);border:1px solid var(--gold);border-radius:12px;';
+  btnWrap.innerHTML = `<button id="complete-cycle-btn" class="ipreset" style="width:100%;padding:12px;border:none;background:transparent;color:var(--gold);font:inherit;cursor:pointer;" onclick="completeCurrentCycle()">🏁 Завершить цикл и начать новый</button>`;
+  document.getElementById('prog-list').parentElement.appendChild(btnWrap);
 
   renderMotiv();
 }
@@ -5338,6 +5626,10 @@ function editExNote(w,d,i) {
   const sheet   = document.getElementById('exnote-sheet');
   document.getElementById('exnote-name').textContent = ex.n;
   document.getElementById('exnote-tag').innerHTML = tagH(ex.t||'key');
+  // Store w,d,i for reliable save
+  overlay.dataset.noteW = w;
+  overlay.dataset.noteD = d;
+  overlay.dataset.noteI = i;
   const ta = document.getElementById('exnote-textarea');
   ta.value = S[exNoteKey(w,d,i)] || '';
   overlay.classList.add('open');
@@ -5347,25 +5639,20 @@ function editExNote(w,d,i) {
 }
 
 function closeExNote() {
-  // Save on close
   const overlay = document.getElementById('exnote-overlay');
   const sheet   = document.getElementById('exnote-sheet');
   if (overlay.classList.contains('open')) {
     const ta = document.getElementById('exnote-textarea');
-    const name = document.getElementById('exnote-name').textContent;
-    // Find the exercise to get w,d,i — scan all days in current week
-    for (let d = 0; d < S.days.length; d++) {
-      for (let i = 0; i < S.days[d].ex.length; i++) {
-        if (S.days[d].ex[i].n === name) {
-          const val = ta.value;
-          const key = exNoteKey(W, d, i);
-          if (val.trim()) { S[key] = val; } else { delete S[key]; }
-          save();
-          const el = document.getElementById('exnote-saved');
-          if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
-          break;
-        }
-      }
+    const w = parseInt(overlay.dataset.noteW, 10);
+    const d = parseInt(overlay.dataset.noteD, 10);
+    const i = parseInt(overlay.dataset.noteI, 10);
+    if (!isNaN(w) && !isNaN(d) && !isNaN(i)) {
+      const val = ta.value;
+      const key = exNoteKey(w, d, i);
+      if (val.trim()) { S[key] = val; } else { delete S[key]; }
+      save();
+      const el = document.getElementById('exnote-saved');
+      if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
     }
   }
   overlay.classList.remove('open');
@@ -5375,23 +5662,22 @@ function closeExNote() {
 // Auto-save on input
 (function(){
   const ta = document.getElementById('exnote-textarea');
-  if (ta) {
+  const overlay = document.getElementById('exnote-overlay');
+  if (ta && overlay) {
     let timer;
     ta.addEventListener('input', () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        const name = document.getElementById('exnote-name').textContent;
-        for (let d = 0; d < S.days.length; d++) {
-          for (let i = 0; i < S.days[d].ex.length; i++) {
-            if (S.days[d].ex[i].n === name) {
-              const val = ta.value;
-              S[exNoteKey(W, d, i)] = val.trim() ? val : undefined;
-              save();
-              const el = document.getElementById('exnote-saved');
-              if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
-              break;
-            }
-          }
+        const w = parseInt(overlay.dataset.noteW, 10);
+        const d = parseInt(overlay.dataset.noteD, 10);
+        const i = parseInt(overlay.dataset.noteI, 10);
+        if (!isNaN(w) && !isNaN(d) && !isNaN(i)) {
+          const val = ta.value;
+          const key = exNoteKey(w, d, i);
+          if (val.trim()) { S[key] = val; } else { delete S[key]; }
+          save();
+          const el = document.getElementById('exnote-saved');
+          if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
         }
       }, 500);
     });
@@ -5539,6 +5825,65 @@ function openCatalog(filter) {
   const body    = document.getElementById('catalog-body');
   const edits = loadCatEdits();
   const q = (filter||'').trim().toLowerCase();
+
+  // Build deduplicated item map: normName -> { name, displayName, groups, inDay, isCustom, editData }
+  const itemMap = new Map();
+  const norm = s => s.trim().toLowerCase();
+
+  // Built-in exercises from EX_GROUPS
+  EX_GROUPS.forEach(g => {
+    g.items.forEach(name => {
+      const n = norm(name);
+      const ed = edits[name];
+      const displayName = ed ? ed.n : name;
+      const inDay = S.days[D].ex.findIndex(e => norm(e.n) === n) >= 0;
+      if (!itemMap.has(n)) {
+        itemMap.set(n, { name, displayName, groups: [g.label], inDay, isCustom: false, editData: ed });
+      } else {
+        itemMap.get(n).groups.push(g.label);
+      }
+    });
+  });
+
+  // Custom exercises from edits
+  Object.keys(edits).forEach(key => {
+    const ed = edits[key];
+    const name = ed.n || key;
+    const n = norm(name);
+    const group = ed.g || 'other';
+    const inDay = S.days[D].ex.findIndex(e => norm(e.n) === n) >= 0;
+    if (!itemMap.has(n)) {
+      itemMap.set(n, { name: key, displayName: name, groups: [group], inDay, isCustom: true, editData: ed });
+    } else {
+      const existing = itemMap.get(n);
+      if (!existing.groups.includes(group)) existing.groups.push(group);
+      existing.isCustom = true;
+      existing.editData = ed;
+      existing.displayName = name;
+      existing.name = key;
+    }
+  });
+
+  // Filter by query
+  const filtered = [...itemMap.values()].filter(item => {
+    if (!q) return true;
+    return item.displayName.toLowerCase().includes(q) || item.name.toLowerCase().includes(q);
+  });
+
+  // Group filtered items by primary group (first in EX_GROUPS order, then custom groups)
+  const groupOrder = [...EX_GROUPS.map(g => g.label), 'other', ...[...new Set(filtered.flatMap(i => i.groups).filter(g => !EX_GROUPS.map(x=>x.label).includes(g) && g !== 'other'))]];
+  const grouped = {};
+  filtered.forEach(item => {
+    const primary = item.groups.find(g => groupOrder.includes(g)) || item.groups[0];
+    if (!grouped[primary]) grouped[primary] = [];
+    grouped[primary].push(item);
+  });
+
+  // Render
+  const groupTags = groups => groups.length > 1
+    ? `<span class="cat-group-tags">${groups.map(g => `<span class="cat-group-tag">${esc(g)}</span>`).join('')}</span>`
+    : '';
+
   body.innerHTML = `
     <div class="help-section">
       <div style="display:flex;align-items:center;gap:8px;padding:0 0 6px;">
@@ -5548,36 +5893,17 @@ function openCatalog(filter) {
       </div>
     </div>
     <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>` +
-    EX_GROUPS.map(g => {
-      const customInGroup = Object.keys(edits).filter(k => !EX_ALL_FLAT.includes(k) && edits[k].g === g.label);
-      const groupItems = g.items.filter(name => !q || name.toLowerCase().includes(q) || (edits[name]&&edits[name].n.toLowerCase().includes(q)));
-      const groupCustom = customInGroup.filter(name => !q || name.toLowerCase().includes(q) || (edits[name]&&edits[name].n.toLowerCase().includes(q)));
-      if (!groupItems.length && !groupCustom.length) return '';
+    groupOrder.map(groupLabel => {
+      const items = grouped[groupLabel];
+      if (!items || !items.length) return '';
       return `
     <div class="help-section">
-      <div class="help-section-title cat-group-title">${g.label}</div>
-      ${groupItems.map(name => {
-        const ed = edits[name];
-        const displayName = ed ? ed.n : name;
-        const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
-        const ri = `cat_${g.label}_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
-        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}" data-group="${esc(g.label)}">
+      <div class="help-section-title cat-group-title">${esc(groupLabel)}</div>
+      ${items.map(item => {
+        const ri = item.isCustom ? `cat_custom_${item.name.replace(/[^a-zа-яё0-9]/gi,'_')}` : `cat_${groupLabel}_${item.name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
+        return `<div class="catalog-ex-row${item.inDay?' exists':''}" data-name="${esc(item.name)}" data-rid="${ri}" data-group="${esc(groupLabel)}">
           <div class="catalog-ex-view">
-            <span class="catalog-ex-name">${esc(displayName)}</span>
-            <div class="catalog-ex-actions">
-              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
-              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-      ${groupCustom.map(name => {
-        const ed = edits[name];
-        const inDay = S.days[D].ex.findIndex(e => e.n.trim().toLowerCase() === name.trim().toLowerCase()) >= 0;
-        const ri = `cat_custom_${name.replace(/[^a-zа-яё0-9]/gi,'_')}`;
-        return `<div class="catalog-ex-row${inDay?' exists':''}" data-name="${esc(name)}" data-rid="${ri}" data-group="${esc(g.label)}">
-          <div class="catalog-ex-view">
-            <span class="catalog-ex-name">${esc(ed.n||name)}</span>
+            <span class="catalog-ex-name">${esc(item.displayName)} ${groupTags(item.groups)}</span>
             <div class="catalog-ex-actions">
               <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
               <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
@@ -5586,29 +5912,17 @@ function openCatalog(filter) {
         </div>`;
       }).join('')}
     </div>`;
-    }).join('') +
-  (() => {
-    const otherCustom = Object.keys(edits).filter(k => !EX_ALL_FLAT.includes(k) && (!edits[k].g || edits[k].g === 'other'));
-    const filteredOther = otherCustom.filter(name => !q || name.toLowerCase().includes(q) || (edits[name]&&edits[name].n.toLowerCase().includes(q)));
-    if (!filteredOther.length) return '';
-    return `<div class="help-section">
-      <div class="help-section-title cat-group-title" style="color:var(--text2);">Другое</div>
-      ${filteredOther.map(name => {
-        const ed = edits[name];
-        return `<div class="catalog-ex-row" data-name="${esc(name)}" data-rid="cat_other_${name.replace(/[^a-zа-яё0-9]/gi,'_')}" data-group="other">
-          <div class="catalog-ex-view">
-            <span class="catalog-ex-name">${esc(ed.n||name)}</span>
-            <div class="catalog-ex-actions">
-              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
-              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  })();
+    }).join('');
+
   overlay.classList.add('open');
   sheet.classList.add('open');
+  setTimeout(() => {
+    const inp = document.getElementById('cat-search');
+    if (inp) {
+      inp.focus();
+      inp.setSelectionRange(inp.value.length, inp.value.length);
+    }
+  }, 0);
 }
 
 function catalogShowCreateForm() {
@@ -5768,26 +6082,12 @@ function catalogDeleteEx(btn) {
     openCatalog();
   });
 }
-function catalogDeleteExDirect(di,ei){
-  const len=S.days[di].ex.length;
-  for(let w=1;w<=maxWks();w++){
-    delete S[k(w,di,ei)];
-    for(let i=ei;i<len-1;i++){ S[k(w,di,i)]=S[k(w,di,i+1)]; }
-    delete S[k(w,di,len-1)];
+function catalogDeleteExDirect(di, ei) {
+  const ex = S.days[di].ex[ei];
+  if (ex) {
+    ex.removedAt = W;
   }
-  delete S[`reps_${S.days[di].uid}_e${ei}`];
-  delete S[`load_${S.days[di].uid}_e${ei}`];
-  delete S[`loadUnit_${S.days[di].uid}_e${ei}`];
-  for(let i=ei;i<len-1;i++){
-    S[`reps_${S.days[di].uid}_e${i}`]=S[`reps_${S.days[di].uid}_e${i+1}`];
-    S[`load_${S.days[di].uid}_e${i}`]=S[`load_${S.days[di].uid}_e${i+1}`];
-    S[`loadUnit_${S.days[di].uid}_e${i}`]=S[`loadUnit_${S.days[di].uid}_e${i+1}`];
-  }
-  delete S[`reps_${S.days[di].uid}_e${len-1}`];
-  delete S[`load_${S.days[di].uid}_e${len-1}`];
-  delete S[`loadUnit_${S.days[di].uid}_e${len-1}`];
-  S.days[di].ex.splice(ei,1);
-  save();render();
+  save(); render();
 }
 
 function catalogAddAlt(ri) {

@@ -2,7 +2,7 @@
 
 ## What this is
 
-Single‑file PWA (`index.html`, ~268 KB). Vanilla HTML/CSS/JS, no frameworks, no build step. Russian UI. Tracks an ab‑wheel rollout program (standing rollout progression) with exercise history, body measurements, inline timer, and a roadmap.
+Single‑file PWA (`index.html`, ~349 KB). Vanilla HTML/CSS/JS, no frameworks, no build step. Russian UI. Tracks an ab‑wheel rollout program (standing rollout progression) with exercise history, body measurements, inline timer, and a roadmap.
 
 ## Key architecture
 
@@ -10,17 +10,23 @@ Single‑file PWA (`index.html`, ~268 KB). Vanilla HTML/CSS/JS, no frameworks, n
 - **All state persisted in `localStorage`** under these keys:
   - `abw8` — main app state (weeks, days, exercises, current week/day, theme, edit state)
   - `abw_weeks` — roadmap progression (p/100, colors, label, description)
-  - `abw_app_cfg` — user‑editable title/subtitle/footer text plus font weight/color per field
+  - `abw_app_cfg` — user‑editable title/subtitle/footer text plus font weight/color per field; also `reminderHideDay`, `reminderPos`, `reminderBorderW`, `reminderBorderC`, `reminderTextC`, `reminderLabelC`, `reminderLabelShow`, `showSW`, `showReminder`
   - `abw_history` — session history (date, exercises with sets/reps/notes)
   - `abw_measurements` — weight/chest/waist/biceps entries with date
   - `abw_sw` — stopwatch state (persisted across page reloads)
   - `catEdits` — user additions/edits to the exercise catalog
-- **Boot sequence** (at file bottom, lines ~3535–3619): `renderAppCfg(loadAppCfg())` → `render()` → `initSW()`
+  - `abw_ex_timer_presets` — per-exercise timer presets
+- **Boot sequence** (top-level script order):
+  1. `renderAppCfg(loadAppCfg())` — line 4483
+  2. `initSW()` — line 4565 (async, registers service worker)
+  3. `swRestore()` — line 6658 (restores stopwatch from `abw_sw`)
+  4. `render()` — line 6853 (full UI render)
 - **Migrations**: a version check (`abw_v4_iso_migrated`) runs once to fix UTC dates in history to local dates.
 
 ## UI patterns
 
 - **Bottom sheets** for all modals (settings, measurements, history, catalog, weeks editor, theme picker). Each has an overlay div + sheet div; `.open` class controls visibility.
+- **Catalog entry**: topbar `☰` button (title «Каталог упражнений») → `openCatalog()` — bottom sheet with search, create, edit, delete.
 - **Edit mode** (toggle ✎ in day header): enables exercise reordering (drag), add/delete, tag change, set editor (+/−), and block toggles (sets/reps/load).
 - **Theme system**: 7 themes (`THEME_ORDER`): `light`, `dark`, `cyberpunk`, `matrix`, `synthwave`, `terminal`, `holo`. Applied via `data-theme` attribute on `<html>`. CSS custom properties for all colors. Theme icons in `THEME_ICONS`.
 - **Swipeable day tabs** — CSS transition on `.d-tab` for tab switching animation.
@@ -41,11 +47,12 @@ Single‑file PWA (`index.html`, ~268 KB). Vanilla HTML/CSS/JS, no frameworks, n
 |-----|----------|---------------|
 | `abw8` | `{W, D, days[], theme, ...}` | Yes (restored into `S`) |
 | `abw_weeks` | `[{l, d, p, c}]` | Yes (restored into `WEEKS`) |
-| `abw_app_cfg` | `{topbar, heroTitle, progTitle, progSub, footer, *Weight, *Color}` | Yes |
+| `abw_app_cfg` | `{topbar, heroTitle, progTitle, progSub, footer, *Weight, *Color, reminderHideDay, reminderPos, reminderBorderW, reminderBorderC, reminderTextC, reminderLabelC, reminderLabelShow, showSW, showReminder}` | Yes |
 | `abw_history` | `[{date, iso, time, days[{ex[{n, sets, reps, load, note}]}]}]` | No (loaded on demand via `openHistory()`) |
 | `abw_measurements` | `[{date, iso, time, weight?, chest?, waist?, biceps?}]` | No (loaded on demand via `openMeasurements()`) |
 | `abw_sw` | `{running, elapsed, started}` | Yes (restores running stopwatch) |
-| `catEdits` | `{[exId]: {n, d, t, ...}}` | No (loaded on demand) |
+| `catEdits` | `{[exId]: {n, d, t, g, how, tips, alts}}` | No (loaded on demand via `openCatalog()`) |
+| `abw_ex_timer_presets` | `{'w-d-i': secs}` | No (loaded on demand) |
 
 ## Key functions
 
@@ -56,6 +63,8 @@ Single‑file PWA (`index.html`, ~268 KB). Vanilla HTML/CSS/JS, no frameworks, n
 - `recordSession()` — saves current day progress to history
 - `loadHistory()` / `saveHistory(h)` — history read/write
 - `exportData()` / `handleImportFile(e)` — full localStorage dump/restore
+- **Catalog**: `openCatalog()` (entry via topbar ☰), `catalogShowCreateForm()`, `catalogSaveNew()`, `catalogEditRow()`, `catalogSaveEdit()`, `catalogDeleteEx()`, `catalogDeleteExDirect()` (soft-delete via `removedAt`), `catalogAddAlt()`/`catalogRemoveAlt()`
+- **Exercise notes**: `editExNote(w,d,i)` (stores indices in overlay dataset), `closeExNote()`, auto-save on input — all keyed by exact `w,d,i`, not by name
 
 ## Measurements chart
 
