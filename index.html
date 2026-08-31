@@ -3367,7 +3367,7 @@ function showCycleSetup(){
         </div>
         <div class="cs-segments" role="radiogroup" aria-label="Дней в неделю">
           ${[1,2,3,4,5,6,7].map(d => `
-            <button type="button" class="cs-seg${d===3?' active':''}" data-days="${d}" onclick="csPickDays(this)" role="radio" aria-checked="${d===3?'true':'false'}">
+            <button type="button" class="cs-seg${d===1?' active':''}" data-days="${d}" onclick="csPickDays(this)" role="radio" aria-checked="${d===1?'true':'false'}">
               <span class="cs-seg-num">${d}</span>
               <span class="cs-seg-dot"></span>
             </button>
@@ -3397,7 +3397,7 @@ function showCycleSetup(){
     </div>`;
   overlay.classList.add('open');
   sheet.classList.add('open');
-  _csSelectedDays = DEFAULT_DAY_PATTERNS[3].slice();
+  _csSelectedDays = DEFAULT_DAY_PATTERNS[1].slice();
   _csDaysTouched = false;
   csRefreshPreview();
   csSyncWeeks(8);
