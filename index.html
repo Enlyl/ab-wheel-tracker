@@ -3447,28 +3447,27 @@ function csPickDays(btn){
   btn.parentElement.querySelectorAll('.cs-seg').forEach(s => { s.classList.remove('active'); s.setAttribute('aria-checked','false'); });
   btn.classList.add('active');
   btn.setAttribute('aria-checked','true');
-  // При выборе числа пересоздаём выборку по дефолту (если пользователь ещё не трогал)
+  // Если пользователь ещё не трогал дни вручную — ставим дефолт
   if(!_csDaysTouched){
     _csSelectedDays = DEFAULT_DAY_PATTERNS[n].slice();
   } else {
-    // если вручную было выбрано больше — обрежем; если меньше — дополним по дефолту
+    // Ручной выбор: оставляем текущие дни (отсортированные) и дополняем/обрезаем по дефолту
     if(_csSelectedDays.length > n){
       _csSelectedDays = _csSelectedDays.slice(0, n);
     } else if(_csSelectedDays.length < n){
-      const need = n - _csSelectedDays.length;
-      const used = new Set(_csSelectedDays);
-      for(let i = 0; i < 7 && need > 0; i++){
-        if(!used.has(i) && !DEFAULT_DAY_PATTERNS[n].includes(i)){
-          _csSelectedDays.push(i); need--;
-        }
-      }
-      // если всё ещё мало — добиваем дефолтными
+      // Сначала дефолтные дни, которых не хватает
       for(const di of DEFAULT_DAY_PATTERNS[n]){
         if(_csSelectedDays.length >= n) break;
         if(!_csSelectedDays.includes(di)) _csSelectedDays.push(di);
       }
+      // Если всё ещё мало — добиваем следующими свободными днями недели
+      for(let i = 0; i < 7 && _csSelectedDays.length < n; i++){
+        if(!_csSelectedDays.includes(i)) _csSelectedDays.push(i);
+      }
     }
   }
+  // Гарантируем сортировку по дню недели (Пн→Вс)
+  _csSelectedDays.sort((a, b) => a - b);
   csRefreshPreview();
 }
 function csToggleDay(btn){
@@ -3482,6 +3481,7 @@ function csToggleDay(btn){
     _csSelectedDays.push(idx);
   }
   _csDaysTouched = true;
+  _csSelectedDays.sort((a, b) => a - b);
   // если количество дней перестало совпадать с сегментом — обновим сегмент
   const segN = +document.querySelector('.cs-seg.active').dataset.days;
   if(_csSelectedDays.length !== segN){
