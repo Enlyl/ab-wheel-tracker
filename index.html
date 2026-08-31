@@ -3400,6 +3400,7 @@ function showCycleSetup(){
   _csSelectedDays = DEFAULT_DAY_PATTERNS[3].slice();
   _csDaysTouched = false;
   csRefreshPreview();
+  csSyncWeeks(8);
   setTimeout(()=>document.getElementById('cy-weeks').focus(), 80);
 }
 
@@ -3410,11 +3411,7 @@ function csPickGoal(btn){
 }
 function csPickWeeks(btn){
   const v = +btn.dataset.weeks;
-  document.getElementById('cy-weeks').value = v;
-  btn.parentElement.querySelectorAll('.cs-pill').forEach(p => { p.classList.remove('active'); p.setAttribute('aria-checked','false'); });
-  btn.classList.add('active');
-  btn.setAttribute('aria-checked','true');
-  csRefreshPreview();
+  csSyncWeeks(v);
 }
 function csSyncWeeks(v){
   document.getElementById('cy-weeks-num').textContent = v;
