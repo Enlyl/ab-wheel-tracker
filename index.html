@@ -1240,7 +1240,7 @@ body {
 /* сегменты дней */
 .cs-segments {
   display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 .cs-seg {
   appearance: none; cursor: pointer;
@@ -1272,18 +1272,49 @@ body {
 .cs-seg.active .cs-seg-num { color: #1a1a1a; }
 .cs-seg.active .cs-seg-dot { background: #1a1a1a; opacity: 1; width: 5px; height: 5px; }
 .cs-seg:active { transform: scale(0.93); }
-.cs-days-preview { display: flex; justify-content: center; margin-top: 6px; }
-.cs-days-row { display: flex; gap: 4px; }
-.cs-day {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 3px 7px; border-radius: 5px;
-  background: var(--surface3); color: var(--text3);
-  transition: all .25s;
+
+/* крупные кнопки дней недели */
+.cs-week-row {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  margin-bottom: 8px;
 }
-.cs-day.on {
-  background: var(--goldbg); color: var(--gold);
-  box-shadow: inset 0 0 0 1px rgba(200,169,110,0.4);
+.cs-week {
+  appearance: none; cursor: pointer;
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 13px 0;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  color: var(--text3);
+  transition: all .2s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
+.cs-week:hover { border-color: var(--gold); color: var(--text); }
+.cs-week.on {
+  background: linear-gradient(180deg, var(--goldbg), transparent);
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold), 0 3px 10px rgba(200,169,110,0.18);
+}
+.cs-week.on::after {
+  content: '';
+  position: absolute; left: 50%; bottom: 5px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold);
+  transform: translateX(-50%);
+}
+.cs-week:active { transform: scale(0.95); }
+
+.cs-label-hint {
+  font-size: 10px; color: var(--text3);
+  font-style: italic;
+}
+.cs-label-hint:has(+ .cs-week-row .cs-week:not(.on)),
+.cs-label-hint  { color: var(--text3); }
+
+.cs-days-preview { display: none; }
 
 /* превью результата */
 .cs-preview {
@@ -3332,6 +3363,7 @@ function showCycleSetup(){
       <div class="cs-block">
         <div class="cs-label-row">
           <span class="cs-label">Тренировочных дней в неделю</span>
+          <span class="cs-label-hint" id="cs-days-hint">Можно выбрать дни вручную</span>
         </div>
         <div class="cs-segments" role="radiogroup" aria-label="Дней в неделю">
           ${[1,2,3,4,5,6,7].map(d => `
@@ -3341,6 +3373,7 @@ function showCycleSetup(){
             </button>
           `).join('')}
         </div>
+        <div class="cs-week-row" id="cs-week-row" role="group" aria-label="Дни недели"></div>
         <div class="cs-days-preview" id="cs-days-preview"></div>
       </div>
 
@@ -3364,6 +3397,8 @@ function showCycleSetup(){
     </div>`;
   overlay.classList.add('open');
   sheet.classList.add('open');
+  _csSelectedDays = DEFAULT_DAY_PATTERNS[3].slice();
+  _csDaysTouched = false;
   csRefreshPreview();
   setTimeout(()=>document.getElementById('cy-weeks').focus(), 80);
 }
@@ -3394,55 +3429,120 @@ function csSyncWeeks(v){
   });
   csRefreshPreview();
 }
+const DAYS_FULL = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+const DEFAULT_DAY_PATTERNS = {
+  1: [0],
+  2: [0, 3],
+  3: [0, 1, 2],
+  4: [0, 1, 2, 3],
+  5: [0, 1, 2, 3, 4],
+  6: [0, 1, 2, 3, 4, 5],
+  7: [0, 1, 2, 3, 4, 5, 6],
+};
+let _csSelectedDays = [0, 1, 2];   // текущий выбор дней
+let _csDaysTouched = false;        // пользователь кликал по дням вручную
+
 function csPickDays(btn){
+  const n = +btn.dataset.days;
   btn.parentElement.querySelectorAll('.cs-seg').forEach(s => { s.classList.remove('active'); s.setAttribute('aria-checked','false'); });
   btn.classList.add('active');
   btn.setAttribute('aria-checked','true');
+  // При выборе числа пересоздаём выборку по дефолту (если пользователь ещё не трогал)
+  if(!_csDaysTouched){
+    _csSelectedDays = DEFAULT_DAY_PATTERNS[n].slice();
+  } else {
+    // если вручную было выбрано больше — обрежем; если меньше — дополним по дефолту
+    if(_csSelectedDays.length > n){
+      _csSelectedDays = _csSelectedDays.slice(0, n);
+    } else if(_csSelectedDays.length < n){
+      const need = n - _csSelectedDays.length;
+      const used = new Set(_csSelectedDays);
+      for(let i = 0; i < 7 && need > 0; i++){
+        if(!used.has(i) && !DEFAULT_DAY_PATTERNS[n].includes(i)){
+          _csSelectedDays.push(i); need--;
+        }
+      }
+      // если всё ещё мало — добиваем дефолтными
+      for(const di of DEFAULT_DAY_PATTERNS[n]){
+        if(_csSelectedDays.length >= n) break;
+        if(!_csSelectedDays.includes(di)) _csSelectedDays.push(di);
+      }
+    }
+  }
+  csRefreshPreview();
+}
+function csToggleDay(btn){
+  const idx = +btn.dataset.idx;
+  const n = +document.querySelector('.cs-seg.active')?.dataset.days || 0;
+  if(_csSelectedDays.includes(idx)){
+    if(_csSelectedDays.length <= 1) return;  // минимум 1 день
+    _csSelectedDays = _csSelectedDays.filter(d => d !== idx);
+  } else {
+    if(_csSelectedDays.length >= 7) return;
+    _csSelectedDays.push(idx);
+  }
+  _csDaysTouched = true;
+  // если количество дней перестало совпадать с сегментом — обновим сегмент
+  const segN = +document.querySelector('.cs-seg.active').dataset.days;
+  if(_csSelectedDays.length !== segN){
+    document.querySelectorAll('.cs-seg').forEach(s => { s.classList.remove('active'); s.setAttribute('aria-checked','false'); });
+    // ищем сегмент по длине, иначе выделяем ближайший
+    const match = document.querySelector(`.cs-seg[data-days="${_csSelectedDays.length}"]`);
+    if(match){
+      match.classList.add('active'); match.setAttribute('aria-checked','true');
+    } else {
+      const nearest = [...document.querySelectorAll('.cs-seg')].sort((a,b)=>Math.abs(+a.dataset.days-_csSelectedDays.length)-Math.abs(+b.dataset.days-_csSelectedDays.length))[0];
+      if(nearest){ nearest.classList.add('active'); nearest.setAttribute('aria-checked','true'); }
+    }
+  }
   csRefreshPreview();
 }
 function csRefreshPreview(){
   const w = +document.getElementById('cy-weeks').value;
-  const d = +document.querySelector('.cs-seg.active')?.dataset.days || 0;
   document.getElementById('cs-pv-weeks').textContent = w;
-  document.getElementById('cs-pv-days').textContent  = d;
-  document.getElementById('cs-pv-total').textContent = w * d;
-  // превью дней
+  document.getElementById('cs-pv-days').textContent  = _csSelectedDays.length;
+  document.getElementById('cs-pv-total').textContent = w * _csSelectedDays.length;
+  // рендер ряда дней
   const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-  const dots = days.map((dw, i) => `<span class="cs-day${i<d?' on':''}">${dw}</span>`).join('');
-  document.getElementById('cs-days-preview').innerHTML = `<div class="cs-days-row">${dots}</div>`;
+  const row = days.map((dw, i) => {
+    const on = _csSelectedDays.includes(i);
+    return `<button type="button" class="cs-week${on?' on':''}" data-idx="${i}" onclick="csToggleDay(this)" title="${DAYS_FULL[i]}">${dw}</button>`;
+  }).join('');
+  document.getElementById('cs-week-row').innerHTML = row;
+  // подсказка
+  const hint = document.getElementById('cs-days-hint');
+  if(hint) hint.textContent = _csDaysTouched ? 'Ручной выбор' : 'Можно выбрать дни вручную';
 }
 
 function applyCycleSetup(){
   const err = document.getElementById('cy-error');
   err.textContent = '';
   const weeks = parseInt(document.getElementById('cy-weeks').value, 10);
-  const days  = parseInt(document.querySelector('.cs-seg.active')?.dataset.days || '0', 10);
+  const days  = _csSelectedDays.length;
   const goal  = document.querySelector('.cs-chip.active')?.dataset.goal || 'general';
   if (!(weeks >= 1 && weeks <= 52)){ err.textContent = 'Введите длительность от 1 до 52 недель'; return; }
   if (!(days  >= 1 && days  <= 7)) { err.textContent = 'Выберите число дней от 1 до 7'; return; }
   delete window._pendingArchive;
   closeHelp();
-  startNewCycle({ goal, weeks, days });
+  startNewCycle({ goal, weeks, days, dayIndices: _csSelectedDays.slice() });
 }
 
 function startNewCycle(opts){
-  const daysOfWeek = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-  const dayCls     = ['on-a','on-b','on-c','on-d','on-e','on-f','on-g'];
-  const newDays = [];
-  for (let i = 0; i < opts.days; i++) {
-    newDays.push({
-      uid: crypto.randomUUID(),
-      id: String.fromCharCode(65 + i),
-      day: daysOfWeek[i],
-      role: 'День ' + (i + 1),
-      cls: dayCls[i] || 'on-a',
-      title: 'День ' + (i + 1),
-      sub: '',
-      ex: []
-    });
-  }
+  const dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const dayCls   = ['on-a','on-b','on-c','on-d','on-e','on-f','on-g'];
+  const indices  = (opts.dayIndices && opts.dayIndices.length) ? opts.dayIndices : opts.dayIndices || Array.from({length: opts.days}, (_,i)=>i);
+  const newDays = indices.map((dowIdx, i) => ({
+    uid: crypto.randomUUID(),
+    id: String.fromCharCode(65 + i),
+    day: dayNames[dowIdx] || ('День ' + (i+1)),
+    role: 'День ' + (i + 1),
+    cls: dayCls[dowIdx] || 'on-a',
+    title: 'День ' + (i + 1),
+    sub: '',
+    ex: []
+  }));
   S.days = newDays;
-  S.cyclePlan = { goal: opts.goal, weeks: opts.weeks, daysPerWeek: opts.days };
+  S.cyclePlan = { goal: opts.goal, weeks: opts.weeks, daysPerWeek: opts.days, dayIndices: indices };
   S.cycleStarted = todayISO();
   WEEKS = buildWeeksForPlan(opts.weeks);
   saveWeeks(WEEKS);
