@@ -1581,6 +1581,84 @@ body {
 /* Cycle archive — ensure details collapse when closed */
 details.cycle-archive:not([open]) > *:not(summary) { display: none; }
 details.cycle-archive { overflow: hidden; }
+details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
+
+/* Кнопки в карточке архивного цикла */
+.ca-btn {
+  appearance: none; cursor: pointer; font-family: inherit;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 12px; font-weight: 600;
+  background: var(--surface); color: var(--text2);
+  border: 1.5px solid var(--border);
+  transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.ca-btn:hover { color: var(--text); }
+.ca-btn-export { border-color: var(--gold); color: var(--gold); }
+.ca-btn-export:hover { background: var(--goldbg); }
+.ca-btn-delete { border-color: rgba(224,90,58,0.5); color: #e07a3a; }
+.ca-btn-delete:hover { background: rgba(224,90,58,0.1); }
+.ca-btn:active { transform: scale(0.97); }
+
+/* Панель «Управление циклом» — сворачиваемая */
+.cycle-control {
+  margin-top: 18px;
+  border: 1.5px solid var(--gold);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--goldbg), transparent 70%), var(--surface2);
+  overflow: hidden;
+  transition: all .2s ease;
+}
+.cycle-control[open] { box-shadow: 0 6px 22px rgba(200,169,110,0.15); }
+.cycle-control > summary {
+  list-style: none; cursor: pointer;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  user-select: none;
+  transition: background .15s;
+}
+.cycle-control > summary::-webkit-details-marker { display: none; }
+.cycle-control > summary:hover { background: rgba(200,169,110,0.06); }
+.cc-icon { font-size: 20px; }
+.cc-title {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--text);
+  flex: 1;
+}
+.cc-hint { font-size: 11px; color: var(--text3); }
+.cc-hint-small { font-size: 11px; color: var(--text3); line-height: 1.4; }
+.cc-arrow { font-size: 12px; color: var(--gold); transition: transform .25s ease; }
+.cycle-control[open] .cc-arrow { transform: rotate(180deg); }
+.cc-body {
+  padding: 4px 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  border-top: 1px dashed var(--border);
+}
+.cc-btn {
+  appearance: none; cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 16px;
+  border-radius: 11px;
+  font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
+  transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.cc-btn-primary {
+  background: var(--gold); color: #1a1a1a; border: 1.5px solid var(--gold);
+  box-shadow: 0 4px 16px rgba(200,169,110,0.30);
+}
+.cc-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,169,110,0.42); }
+.cc-btn-primary:active { transform: translateY(0) scale(0.98); }
+.cc-sub {
+  font-size: 11px; color: var(--text3); line-height: 1.45;
+  text-align: center; padding: 0 4px;
+}
+.cc-divider {
+  height: 1px; background: var(--border);
+  margin: 4px 0;
+}
 
 /* ── DARK GLOW ACCENTS ── */
 [data-theme="dark"] .stat-n { color: var(--text); }
@@ -3243,11 +3321,77 @@ function completeCurrentCycle(){
       weeks: maxWks(),
       WEEKS: JSON.parse(JSON.stringify(WEEKS)),
       days: JSON.parse(JSON.stringify(S.days)),
+      cyclePlan: S.cyclePlan || null,
       W, D, theme: S.theme
     };
     S.cycles.push(archive);
     window._pendingArchive = archive;
     showCycleConfirmInput();
+  });
+}
+
+function exportCycleJSON(idx){
+  const c = S.cycles && S.cycles[idx];
+  if(!c){ return; }
+  // Соберём тренировки и замеры, попавшие в окно дат цикла
+  const startTs = new Date(c.started).getTime();
+  const endTs   = new Date(c.ended).getTime() + 86400000; // включая конечный день
+  const history = loadHistory().filter(h => {
+    const t = h.iso ? new Date(h.iso).getTime() : 0;
+    return t >= startTs && t <= endTs;
+  });
+  const measurements = (loadMeasurements ? loadMeasurements() : JSON.parse(localStorage.getItem('abw_measurements')||'[]'))
+    .filter(m => {
+      const t = m.iso ? new Date(m.iso).getTime() : 0;
+      return t >= startTs && t <= endTs;
+    });
+  const exportData = {
+    meta: {
+      app: 'Boss of the Gym',
+      exportedAt: new Date().toISOString(),
+      schema: 1
+    },
+    cycle: {
+      id: c.id,
+      index: idx + 1,
+      started: c.started,
+      ended: c.ended,
+      weeks: c.weeks,
+      finalWeek: c.W,
+      finalDayIndex: c.D,
+      theme: c.theme,
+      cyclePlan: c.cyclePlan || null
+    },
+    days: c.days,
+    weeks: c.WEEKS,
+    summary: {
+      totalSessions: history.length,
+      totalMeasurements: measurements.length,
+      periodStart: c.started,
+      periodEnd: c.ended
+    },
+    sessions: history,
+    measurements: measurements
+  };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fn = `cycle_${idx+1}_${c.started}_${c.ended}.json`;
+  a.href = url; a.download = fn;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  if(navigator.vibrate) navigator.vibrate([10, 20, 10]);
+}
+
+function deleteArchivedCycle(idx){
+  const c = S.cycles && S.cycles[idx];
+  if(!c) return;
+  const label = `Цикл ${idx+1} (${c.started} — ${c.ended}, ${c.weeks} нед)`;
+  showConfirm('Удалить цикл из архива', `Удалить ${label}?<br><small>Текущий цикл и общая история не пострадают.</small>`, () => {
+    S.cycles.splice(idx, 1);
+    save();
+    render();
   });
 }
 
@@ -4288,30 +4432,66 @@ function render(){
           <div class="pi-desc">${w.d}</div>
         </div>`;
       }).join('');
-      return `<details class="cycle-archive" style="margin-top:18px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);overflow:hidden;">
+      return `<details class="cycle-archive" style="margin-top:10px;border:1px solid var(--border);border-radius:12px;background:var(--surface2);overflow:hidden;">
         <summary style="padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;user-select:none;">
           <span style="font-size:20px;">📦</span>
           <div style="flex:1;">
             <div style="font-weight:700;font-size:14px;">Цикл ${idx+1} <span style="font-weight:400;color:var(--text2);">(${c.started} — ${c.ended}, ${c.weeks} нед)</span></div>
             <div style="font-size:11px;color:var(--text3);">Неделя ${c.W} / День ${c.D+1} • Тема: ${c.theme}</div>
           </div>
-          <span style="font-size:12px;color:var(--text3);">▼</span>
+          <span class="cycle-arch-arrow" style="font-size:12px;color:var(--text3);transition:transform .2s;">▼</span>
         </summary>
-        <div style="padding:0 16px 16px;">${prog}</div>
+        <div style="padding:0 16px 16px;">
+          ${prog}
+          <div class="cycle-arch-actions" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="ca-btn ca-btn-export" onclick="exportCycleJSON(${idx})" title="Скачать все данные этого цикла в JSON">
+              <span style="font-size:14px;">⬇</span>
+              <span>Экспорт JSON</span>
+            </button>
+            <button type="button" class="ca-btn ca-btn-delete" onclick="deleteArchivedCycle(${idx})" title="Удалить этот цикл из архива">
+              <span style="font-size:14px;">🗑</span>
+              <span>Удалить</span>
+            </button>
+          </div>
+        </div>
       </details>`;
     }).join('');
-    document.getElementById('prog-list').innerHTML += `<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);"><div style="font-weight:700;margin-bottom:12px;font-size:13px;color:var(--text2);">📚 Архив циклов</div>${archHTML}</div>`;
+    document.getElementById('prog-list').innerHTML += archHTML;
   }
 
-  // Complete cycle button under roadmap (создаём один раз, на каждом render() переиспользуем)
+  // Панель управления циклом: «Завершить цикл» и «Архив» (сворачиваемая)
   const progList = document.getElementById('prog-list');
-  let btnWrap = document.getElementById('complete-cycle-wrap');
-  if(!btnWrap){
-    btnWrap = document.createElement('div');
-    btnWrap.id = 'complete-cycle-wrap';
-    btnWrap.style.cssText = 'margin-top:20px;padding:12px 16px;background:var(--surface2);border:1px solid var(--gold);border-radius:12px;';
-    btnWrap.innerHTML = `<button id="complete-cycle-btn" class="ipreset" style="width:100%;padding:12px;border:none;background:transparent;color:var(--gold);font:inherit;cursor:pointer;" onclick="completeCurrentCycle()">🏁 Завершить цикл и начать новый</button>`;
-    progList.parentElement.appendChild(btnWrap);
+  let cyclePanel = document.getElementById('cycle-control-panel');
+  if(!cyclePanel){
+    cyclePanel = document.createElement('details');
+    cyclePanel.id = 'cycle-control-panel';
+    cyclePanel.className = 'cycle-control';
+    cyclePanel.innerHTML = `
+      <summary>
+        <span class="cc-icon">⚙️</span>
+        <span class="cc-title">Управление циклом</span>
+        <span class="cc-hint">завершить • архив</span>
+        <span class="cc-arrow">▼</span>
+      </summary>
+      <div class="cc-body">
+        <button type="button" class="cc-btn cc-btn-primary" onclick="completeCurrentCycle()">
+          <span style="font-size:18px;">🏁</span>
+          <span>Завершить цикл и начать новый</span>
+        </button>
+        <div class="cc-sub">Сохраняет текущий цикл в архив, обнуляет прогресс, открывает форму нового цикла.</div>
+        ${arch.length ? `<div class="cc-divider"></div>
+        <div class="cc-sub" style="margin-bottom:8px;">📚 Архив циклов (${arch.length})</div>
+        <div class="cc-hint-small">Раскройте «Управление циклом» ещё раз — кнопки «Экспорт JSON» и «Удалить» появятся внутри каждого цикла выше.</div>` : `<div class="cc-sub" style="opacity:.7;">📚 Архив пуст. Завершённые циклы появятся здесь.</div>`}
+      </div>`;
+    progList.parentElement.appendChild(cyclePanel);
+  } else {
+    // обновим счётчик архива без пересоздания панели
+    const archCount = cyclePanel.querySelector('.cc-sub');
+    if(archCount){
+      const newArch = (S.cycles || []).length;
+      const sub = cyclePanel.querySelectorAll('.cc-sub');
+      sub.forEach(el => { if(el.textContent.includes('Архив циклов')) el.textContent = `📚 Архив циклов (${newArch})`; });
+    }
   }
 
   renderMotiv();
