@@ -1113,6 +1113,226 @@ body {
 .help-body { padding: 18px 20px 24px; }
 .help-section { margin-bottom: 18px; }
 .help-section:last-child { margin-bottom: 0; }
+
+/* ══════ Cycle Setup (новый цикл) ══════ */
+.cycle-setup {
+  padding: 4px 4px 0;
+  animation: csFadeIn .35s ease;
+}
+@keyframes csFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cs-head { margin-bottom: 18px; }
+.cs-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 4px;
+}
+.cs-title {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 22px; font-weight: 700; line-height: 1.15;
+  color: var(--text); margin-bottom: 6px;
+}
+.cs-sub {
+  font-size: 12px; color: var(--text2); line-height: 1.45;
+}
+.cs-block { margin-bottom: 18px; }
+.cs-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 9px;
+}
+.cs-label-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 9px; }
+.cs-label-unit { font-size: 11px; color: var(--text3); font-weight: 500; }
+
+/* цели — чипы */
+.cs-goals {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.cs-chip {
+  appearance: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  color: var(--text2);
+  font-family: inherit; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all .18s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative; overflow: hidden;
+}
+.cs-chip-i { font-size: 22px; line-height: 1; filter: grayscale(0.3) opacity(0.7); transition: all .18s; }
+.cs-chip-l { font-size: 11px; }
+.cs-chip:hover { border-color: var(--gold); color: var(--text); }
+.cs-chip:hover .cs-chip-i { filter: none; opacity: 1; }
+.cs-chip.active {
+  background: linear-gradient(180deg, var(--goldbg), transparent);
+  border-color: var(--gold);
+  color: var(--text);
+  box-shadow: 0 4px 14px rgba(200,169,110,0.18), inset 0 0 0 1px var(--gold);
+}
+.cs-chip.active .cs-chip-i { filter: none; opacity: 1; transform: scale(1.08); }
+.cs-chip:active { transform: scale(0.97); }
+
+/* пресеты недель */
+.cs-presets {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  margin-bottom: 12px;
+}
+.cs-pill {
+  appearance: none; cursor: pointer;
+  padding: 9px 0;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text2);
+  font-family: 'Archivo Narrow', sans-serif; font-size: 15px; font-weight: 700;
+  transition: all .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.cs-pill:hover { border-color: var(--gold); color: var(--text); }
+.cs-pill.active {
+  background: var(--gold); border-color: var(--gold); color: #1a1a1a;
+  box-shadow: 0 3px 10px rgba(200,169,110,0.35);
+}
+.cs-pill:active { transform: scale(0.95); }
+
+/* слайдер */
+.cs-slider-wrap { display: flex; align-items: center; gap: 14px; }
+.cs-slider {
+  flex: 1; appearance: none; -webkit-appearance: none;
+  height: 6px; border-radius: 999px; outline: none;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold) var(--p, 14%), var(--surface3) var(--p, 14%), var(--surface3) 100%);
+  cursor: pointer;
+}
+.cs-slider::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold);
+  border: 3px solid var(--bg);
+  box-shadow: 0 2px 8px rgba(200,169,110,0.45);
+  cursor: grab;
+  transition: transform .12s;
+}
+.cs-slider::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.15); }
+.cs-slider::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold); border: 3px solid var(--bg);
+  box-shadow: 0 2px 8px rgba(200,169,110,0.45);
+  cursor: grab;
+}
+.cs-readout {
+  min-width: 58px; text-align: center;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 8px;
+  font-family: 'Archivo Narrow', sans-serif;
+}
+.cs-readout-num { font-size: 18px; font-weight: 700; color: var(--gold); }
+.cs-readout-unit { font-size: 9px; color: var(--text3); display: block; margin-top: -3px; letter-spacing: 0.08em; text-transform: uppercase; }
+.cs-ticks { display: flex; justify-content: space-between; padding: 6px 4px 0; font-size: 10px; color: var(--text3); }
+
+/* сегменты дней */
+.cs-segments {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+  margin-bottom: 10px;
+}
+.cs-seg {
+  appearance: none; cursor: pointer;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 9px 0 7px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  transition: all .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.cs-seg-num {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 17px; font-weight: 700; color: var(--text2);
+  transition: color .18s;
+}
+.cs-seg-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--text3); opacity: 0.4;
+  transition: all .18s;
+}
+.cs-seg:hover { border-color: var(--gold); }
+.cs-seg:hover .cs-seg-num { color: var(--text); }
+.cs-seg.active {
+  background: var(--gold); border-color: var(--gold);
+  box-shadow: 0 3px 10px rgba(200,169,110,0.35);
+}
+.cs-seg.active .cs-seg-num { color: #1a1a1a; }
+.cs-seg.active .cs-seg-dot { background: #1a1a1a; opacity: 1; width: 5px; height: 5px; }
+.cs-seg:active { transform: scale(0.93); }
+.cs-days-preview { display: flex; justify-content: center; margin-top: 6px; }
+.cs-days-row { display: flex; gap: 4px; }
+.cs-day {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 7px; border-radius: 5px;
+  background: var(--surface3); color: var(--text3);
+  transition: all .25s;
+}
+.cs-day.on {
+  background: var(--goldbg); color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(200,169,110,0.4);
+}
+
+/* превью результата */
+.cs-preview {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 12px;
+  margin: 20px 0 4px;
+  background: linear-gradient(135deg, var(--surface2), var(--surface3));
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-family: 'Archivo Narrow', sans-serif;
+}
+.cs-preview-item { display: flex; flex-direction: column; align-items: center; gap: 0; min-width: 56px; }
+.cs-preview-num { font-size: 24px; font-weight: 700; line-height: 1; color: var(--text); transition: color .25s; }
+.cs-preview-l { font-size: 9px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; }
+.cs-preview-x, .cs-preview-eq { font-size: 18px; color: var(--text3); font-weight: 300; }
+.cs-preview-total .cs-preview-num { color: var(--gold); }
+.cs-preview-total .cs-preview-l { color: var(--gold); }
+
+/* ошибка и кнопки */
+.cs-error {
+  font-size: 12px; color: var(--red); min-height: 18px;
+  text-align: center; margin-top: 8px;
+  transition: opacity .2s;
+}
+.cs-actions { display: flex; gap: 10px; margin-top: 14px; }
+.cs-btn {
+  flex: 1; appearance: none; cursor: pointer;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.02em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.cs-btn-primary {
+  background: var(--gold); color: #1a1a1a; border: 1.5px solid var(--gold);
+  box-shadow: 0 4px 16px rgba(200,169,110,0.30);
+}
+.cs-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,169,110,0.42); }
+.cs-btn-primary:active { transform: translateY(0) scale(0.98); }
+.cs-btn-primary svg { transition: transform .2s; }
+.cs-btn-primary:hover svg { transform: translateX(2px); }
+.cs-btn-ghost {
+  background: transparent; color: var(--text2); border: 1.5px solid var(--border);
+}
+.cs-btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: var(--text3); }
+.cs-btn-ghost:active { transform: scale(0.98); }
 .help-section-title {
   font-family: 'Archivo Narrow', sans-serif;
   font-size: 9px; font-weight: 600;
@@ -3061,52 +3281,145 @@ function showCycleSetup(){
   const overlay = document.getElementById('help-overlay');
   const sheet   = document.getElementById('help-sheet');
   const body    = document.getElementById('help-body');
+  const goals = [
+    {v:'hypertrophy', l:'Гипертрофия', i:'💪'},
+    {v:'strength',    l:'Сила',        i:'🏋️'},
+    {v:'endurance',   l:'Выносливость',i:'⏱'},
+    {v:'mobility',    l:'Мобильность', i:'🤸'},
+    {v:'general',     l:'Общая форма', i:'🎯'},
+    {v:'custom',      l:'Своя',        i:'✨'},
+  ];
   body.innerHTML = `
-    <div class="help-section">
-      <div class="help-section-title">Новый тренировочный цикл</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">
-        Заполните параметры нового цикла. Упражнения из прошлого не переносятся.
+    <div class="help-section cycle-setup">
+      <div class="cs-head">
+        <div class="cs-eyebrow">Новый цикл</div>
+        <div class="cs-title">Новый тренировочный цикл</div>
+        <div class="cs-sub">Заполните параметры нового цикла. Упражнения из прошлого не переносятся.</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:14px;align-items:stretch;text-align:left;">
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Цель цикла</div>
-          <select id="cy-goal" class="cat-search" style="width:100%;padding:10px 12px;">
-            <option value="hypertrophy">Гипертрофия</option>
-            <option value="strength">Сила</option>
-            <option value="endurance">Выносливость</option>
-            <option value="mobility">Мобильность</option>
-            <option value="general">Общая форма</option>
-            <option value="custom">Своя</option>
-          </select>
+
+      <div class="cs-block">
+        <div class="cs-label">Цель цикла</div>
+        <div class="cs-goals" role="radiogroup" aria-label="Цель цикла">
+          ${goals.map((g, i) => `
+            <button type="button" class="cs-chip${i===0?' active':''}" data-goal="${g.v}" onclick="csPickGoal(this)" role="radio" aria-checked="${i===0?'true':'false'}">
+              <span class="cs-chip-i">${g.i}</span>
+              <span class="cs-chip-l">${g.l}</span>
+            </button>
+          `).join('')}
         </div>
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Длительность цикла (недель)</div>
-          <input id="cy-weeks" type="number" min="1" max="52" value="8" class="cat-search" style="width:100%;padding:10px 12px;">
+      </div>
+
+      <div class="cs-block">
+        <div class="cs-label-row">
+          <span class="cs-label">Длительность</span>
+          <span class="cs-label-unit">недель</span>
         </div>
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Тренировочных дней в неделю</div>
-          <input id="cy-days" type="number" min="1" max="7" value="3" class="cat-search" style="width:100%;padding:10px 12px;">
+        <div class="cs-presets" role="radiogroup" aria-label="Пресеты длительности">
+          ${[4, 8, 12, 16].map((w, i) => `
+            <button type="button" class="cs-pill${w===8?' active':''}" data-weeks="${w}" onclick="csPickWeeks(this)" role="radio" aria-checked="${w===8?'true':'false'}">${w}</button>
+          `).join('')}
         </div>
-        <div id="cy-error" style="font-size:12px;color:var(--red);min-height:14px;"></div>
-        <div style="display:flex;gap:8px;justify-content:center;margin-top:6px;">
-          <button class="catalog-add-btn" onclick="applyCycleSetup()">Создать цикл</button>
-          <button class="catalog-add-btn catalog-edit-btn" onclick="cancelPresetPicker()">Отмена</button>
+        <div class="cs-slider-wrap">
+          <input id="cy-weeks" type="range" min="1" max="52" value="8" class="cs-slider" oninput="csSyncWeeks(this.value)">
+          <div class="cs-readout">
+            <span class="cs-readout-num" id="cy-weeks-num">8</span>
+            <span class="cs-readout-unit">нед</span>
+          </div>
         </div>
+        <div class="cs-ticks"><span>1</span><span>26</span><span>52</span></div>
+      </div>
+
+      <div class="cs-block">
+        <div class="cs-label-row">
+          <span class="cs-label">Тренировочных дней в неделю</span>
+        </div>
+        <div class="cs-segments" role="radiogroup" aria-label="Дней в неделю">
+          ${[1,2,3,4,5,6,7].map(d => `
+            <button type="button" class="cs-seg${d===3?' active':''}" data-days="${d}" onclick="csPickDays(this)" role="radio" aria-checked="${d===3?'true':'false'}">
+              <span class="cs-seg-num">${d}</span>
+              <span class="cs-seg-dot"></span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="cs-days-preview" id="cs-days-preview"></div>
+      </div>
+
+      <div class="cs-preview" id="cs-preview">
+        <div class="cs-preview-item"><span class="cs-preview-num" id="cs-pv-weeks">8</span><span class="cs-preview-l">недель</span></div>
+        <span class="cs-preview-x">×</span>
+        <div class="cs-preview-item"><span class="cs-preview-num" id="cs-pv-days">3</span><span class="cs-preview-l">дня / нед</span></div>
+        <span class="cs-preview-eq">=</span>
+        <div class="cs-preview-item cs-preview-total"><span class="cs-preview-num" id="cs-pv-total">24</span><span class="cs-preview-l">тренировок</span></div>
+      </div>
+
+      <div id="cy-error" class="cs-error"></div>
+
+      <div class="cs-actions">
+        <button type="button" class="cs-btn cs-btn-ghost" onclick="cancelPresetPicker()">Отмена</button>
+        <button type="button" class="cs-btn cs-btn-primary" onclick="applyCycleSetup()">
+          <span>Создать цикл</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
       </div>
     </div>`;
   overlay.classList.add('open');
   sheet.classList.add('open');
-  setTimeout(()=>document.getElementById('cy-weeks').focus(), 60);
+  csRefreshPreview();
+  setTimeout(()=>document.getElementById('cy-weeks').focus(), 80);
+}
+
+function csPickGoal(btn){
+  btn.parentElement.querySelectorAll('.cs-chip').forEach(c => { c.classList.remove('active'); c.setAttribute('aria-checked','false'); });
+  btn.classList.add('active');
+  btn.setAttribute('aria-checked','true');
+}
+function csPickWeeks(btn){
+  const v = +btn.dataset.weeks;
+  document.getElementById('cy-weeks').value = v;
+  btn.parentElement.querySelectorAll('.cs-pill').forEach(p => { p.classList.remove('active'); p.setAttribute('aria-checked','false'); });
+  btn.classList.add('active');
+  btn.setAttribute('aria-checked','true');
+  csRefreshPreview();
+}
+function csSyncWeeks(v){
+  document.getElementById('cy-weeks-num').textContent = v;
+  const pct = ((+v - 1) / 51) * 100;
+  const sl = document.getElementById('cy-weeks');
+  if (sl) sl.style.setProperty('--p', pct + '%');
+  // подсветка ближайшего пресета, если совпадает
+  document.querySelectorAll('.cs-pill').forEach(p => {
+    const on = +p.dataset.weeks === +v;
+    p.classList.toggle('active', on);
+    p.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+  csRefreshPreview();
+}
+function csPickDays(btn){
+  btn.parentElement.querySelectorAll('.cs-seg').forEach(s => { s.classList.remove('active'); s.setAttribute('aria-checked','false'); });
+  btn.classList.add('active');
+  btn.setAttribute('aria-checked','true');
+  csRefreshPreview();
+}
+function csRefreshPreview(){
+  const w = +document.getElementById('cy-weeks').value;
+  const d = +document.querySelector('.cs-seg.active')?.dataset.days || 0;
+  document.getElementById('cs-pv-weeks').textContent = w;
+  document.getElementById('cs-pv-days').textContent  = d;
+  document.getElementById('cs-pv-total').textContent = w * d;
+  // превью дней
+  const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const dots = days.map((dw, i) => `<span class="cs-day${i<d?' on':''}">${dw}</span>`).join('');
+  document.getElementById('cs-days-preview').innerHTML = `<div class="cs-days-row">${dots}</div>`;
 }
 
 function applyCycleSetup(){
   const err = document.getElementById('cy-error');
   err.textContent = '';
   const weeks = parseInt(document.getElementById('cy-weeks').value, 10);
-  const days  = parseInt(document.getElementById('cy-days').value, 10);
-  const goal  = document.getElementById('cy-goal').value;
+  const days  = parseInt(document.querySelector('.cs-seg.active')?.dataset.days || '0', 10);
+  const goal  = document.querySelector('.cs-chip.active')?.dataset.goal || 'general';
   if (!(weeks >= 1 && weeks <= 52)){ err.textContent = 'Введите длительность от 1 до 52 недель'; return; }
-  if (!(days  >= 1 && days  <= 7)) { err.textContent = 'Введите число дней от 1 до 7'; return; }
+  if (!(days  >= 1 && days  <= 7)) { err.textContent = 'Выберите число дней от 1 до 7'; return; }
   delete window._pendingArchive;
   closeHelp();
   startNewCycle({ goal, weeks, days });
