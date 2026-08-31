@@ -1327,6 +1327,10 @@ body {
 }
 .pi-desc { font-size: 12px; font-weight: 300; color: var(--text2); transition: var(--transition); }
 
+/* Cycle archive — ensure details collapse when closed */
+details.cycle-archive:not([open]) > *:not(summary) { display: none; }
+details.cycle-archive { overflow: hidden; }
+
 /* ── DARK GLOW ACCENTS ── */
 [data-theme="dark"] .stat-n { color: var(--text); }
 [data-theme="dark"] .hero-title { text-shadow: 0 0 40px rgba(200,169,110,0.06); }
