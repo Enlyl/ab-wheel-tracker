@@ -22,7 +22,7 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --border2:     #eeece7;
   --text:        #1a1a18;
   --text2:       #888780;
-  --text3:       #b8b5ae;
+  --text3:       #6f6c66;
   --text4:       #c8c5be;
   --gold:        #c8a96e;
   --gold2:       #a07830;
@@ -38,10 +38,26 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --blue:        #2d5fd4;
   --bluebg:      #f0f5ff;
   --blueborder:  rgba(45,95,212,0.3);
+  --danger:      #c8442a;
+  --danger-soft: rgba(224,90,58,0.08);
+  --wk-c1:       #5dcaa5;
+  --wk-c2:       #2aaa72;
+  --wk-c3:       #4a9fd4;
+  --wk-c4:       #7b6fe8;
+  --wk-c5:       #c8a96e;
+  --wk-c6:       #e07a3a;
+  --wk-c7:       #d45a5a;
+  --wk-c8:       #c45faa;
+  --wk-c9:       #b08840;
   --shadow-sm:   none;
   --shadow-md:   none;
   --shadow-hero: none;
   --theme-icon:  '☽';
+  --t-fast:  .12s;
+  --t-base:  .2s;
+  --t-slow:  .3s;
+  --ease-out: cubic-bezier(.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(.4, 0, .2, 1);
   --transition:  background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
 }
 
@@ -57,7 +73,7 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --border2:     rgba(255,255,255,0.05);
   --text:        #ede8df;
   --text2:       #6a6860;
-  --text3:       #3e3d3a;
+  --text3:       #525049;
   --text4:       #2e2d2b;
   --gold:        #c8a96e;
   --gold2:       #d4b878;
@@ -73,10 +89,17 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --blue:        #5a8fff;
   --bluebg:      rgba(90,143,255,0.07);
   --blueborder:  rgba(90,143,255,0.25);
+  --danger:      #ff7a5a;
+  --danger-soft: rgba(255,90,58,0.10);
   --shadow-sm:   0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
   --shadow-md:   0 4px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset;
   --shadow-hero: 0 0 80px rgba(200,169,110,0.04), 0 0 160px rgba(42,170,114,0.03);
   --theme-icon:  '☀';
+  --t-fast:  .12s;
+  --t-base:  .2s;
+  --t-slow:  .3s;
+  --ease-out: cubic-bezier(.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(.4, 0, .2, 1);
   --transition:  background .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
 }
 
@@ -91,6 +114,7 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --green: #00f0ff; --green2: #55f5ff; --greenbg: rgba(0,240,255,0.07);
   --greenbg2: rgba(0,240,255,0.04); --greenborder: rgba(0,240,255,0.2); --green-soft: rgba(0,240,255,0.5);
   --blue: #7a4aff; --bluebg: rgba(122,74,255,0.1); --blueborder: rgba(122,74,255,0.25);
+  --danger: #ff4488; --danger-soft: rgba(255,68,136,0.1);
   --shadow-sm: 0 1px 3px rgba(255,45,120,0.15); --shadow-md: 0 4px 24px rgba(255,45,120,0.1);
   --shadow-hero: 0 0 80px rgba(255,45,120,0.06);
   --theme-icon: '⚡';
@@ -98,12 +122,13 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
 [data-theme="matrix"] {
   --bg: #000603; --surface: #030a05; --surface2: #061208; --surface3: #0a1a0e;
   --border: rgba(0,204,65,0.15); --border2: rgba(0,204,65,0.07);
-  --text: #b3ffc0; --text2: #2a8840; --text3: #145020; --text4: #0d3015;
+  --text: #b3ffc0; --text2: #2a8840; --text3: #2a8840; --text4: #0d3015;
   --gold: #00cc41; --gold2: #33dd66; --goldbg: rgba(0,204,65,0.06);
   --goldborder: rgba(0,204,65,0.2); --goldpill: rgba(0,204,65,0.12);
   --green: #00ff55; --green2: #33ff77; --greenbg: rgba(0,255,85,0.06);
   --greenbg2: rgba(0,255,85,0.03); --greenborder: rgba(0,255,85,0.18); --green-soft: rgba(0,255,85,0.4);
   --blue: #00cc41; --bluebg: rgba(0,204,65,0.06); --blueborder: rgba(0,204,65,0.18);
+  --danger: #ff3344; --danger-soft: rgba(255,51,68,0.1);
   --shadow-sm: 0 1px 3px rgba(0,204,65,0.1); --shadow-md: 0 4px 24px rgba(0,204,65,0.06);
   --shadow-hero: 0 0 80px rgba(0,204,65,0.04);
   --theme-icon: '⎔';
@@ -118,6 +143,7 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --green: #00ffff; --green2: #66ffff; --greenbg: rgba(0,255,255,0.06);
   --greenbg2: rgba(0,255,255,0.03); --greenborder: rgba(0,255,255,0.18); --green-soft: rgba(0,255,255,0.4);
   --blue: #8844ff; --bluebg: rgba(136,68,255,0.08); --blueborder: rgba(136,68,255,0.22);
+  --danger: #ff2266; --danger-soft: rgba(255,34,102,0.12);
   --shadow-sm: 0 1px 3px rgba(200,0,255,0.15); --shadow-md: 0 4px 24px rgba(200,0,255,0.1);
   --shadow-hero: 0 0 80px rgba(200,0,255,0.05);
   --theme-icon: '◈';
@@ -131,18 +157,20 @@ html { -webkit-font-smoothing: antialiased; scrollbar-gutter: stable; }
   --green: #ffb000; --green2: #ffc844; --greenbg: rgba(255,176,0,0.06);
   --greenbg2: rgba(255,176,0,0.03); --greenborder: rgba(255,176,0,0.18); --green-soft: rgba(255,176,0,0.4);
   --blue: #ffb000; --bluebg: rgba(255,176,0,0.06); --blueborder: rgba(255,176,0,0.18);
+  --danger: #ff4060; --danger-soft: rgba(255,64,96,0.1);
   --shadow-sm: none; --shadow-md: none; --shadow-hero: none;
   --theme-icon: '⌨';
 }
 [data-theme="holo"] {
   --bg: #e8ecf5; --surface: rgba(255,255,255,0.5); --surface2: rgba(255,255,255,0.7); --surface3: #f0f2fa;
   --border: rgba(100,140,255,0.15); --border2: rgba(100,140,255,0.08);
-  --text: #1a1a3a; --text2: #6068a0; --text3: #9098c0; --text4: #b0b8d0;
+  --text: #1a1a3a; --text2: #6068a0; --text3: #7884b0; --text4: #b0b8d0;
   --gold: #6688ff; --gold2: #88aaff; --goldbg: rgba(102,136,255,0.06);
   --goldborder: rgba(102,136,255,0.18); --goldpill: rgba(102,136,255,0.1);
   --green: #44aa88; --green2: #66ccaa; --greenbg: rgba(68,170,136,0.06);
   --greenbg2: rgba(68,170,136,0.03); --greenborder: rgba(68,170,136,0.18); --green-soft: rgba(68,170,136,0.4);
   --blue: #4466ee; --bluebg: rgba(68,102,238,0.06); --blueborder: rgba(68,102,238,0.18);
+  --danger: #cc3344; --danger-soft: rgba(204,51,68,0.08);
   --shadow-sm: 0 1px 3px rgba(68,102,238,0.08); --shadow-md: 0 4px 24px rgba(68,102,238,0.05);
   --shadow-hero: none;
   --theme-icon: '◌';
@@ -197,7 +225,7 @@ body {
   color: var(--text2);
   cursor: pointer; font-size: 15px;
   display: flex; align-items: center; justify-content: center;
-  transition: all .25s ease;
+  transition: transform .25s ease, background-color .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease, opacity .25s ease;
   box-shadow: var(--shadow-sm);
 }
 .topbar-pill {
@@ -239,8 +267,9 @@ body {
   pointer-events: none;
 }
 .hero-title {
-  font-family: 'Italiana', serif; font-size: 86px; line-height: 0.88;
+  font-family: 'Italiana', serif; font-size: clamp(48px, 18vw, 86px); line-height: 0.92;
   letter-spacing: -0.02em; color: var(--text); margin-bottom: 6px;
+  text-wrap: balance; max-width: 8ch;
   transition: var(--transition);
 }
 .hero-title .accent { color: var(--gold); }
@@ -298,12 +327,13 @@ body {
 .wn-num[data-w="9"] { color: #b08840; }
 .wn-edits { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
 .wn-edit-btn {
-  width: 22px; height: 22px; border-radius: 50%;
+  min-width: 24px; min-height: 24px;
+  width: 24px; height: 24px; border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface2);
   color: var(--text3);
   font-size: 14px; line-height: 1;
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   display: flex; align-items: center; justify-content: center;
 }
 .wn-edit-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -313,7 +343,7 @@ body {
   background: var(--surface2);
   color: var(--text2); font-size: 16px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all .18s;
+  transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s;
   box-shadow: var(--shadow-sm);
 }
 .wn-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -331,7 +361,7 @@ body {
   flex: 1; min-width: 0;
   padding: 12px 6px; text-align: center; cursor: pointer;
   border-right: 1px solid var(--border);
-  background: var(--surface); transition: all .18s;
+  background: var(--surface); transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s;
   position: relative;
 }
 .d-tab:last-child { border-right: none; }
@@ -340,6 +370,7 @@ body {
   font-family: 'Italiana', serif; font-size: 22px; color: var(--text3);
   line-height: 1; transition: color .18s;
 }
+.d-tab-extra-star { font-size: 10px; opacity: 0.5; }
 .d-tab-role {
   font-family: 'Archivo Narrow', sans-serif; font-size: 8px; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--text4); margin-top: 3px; transition: color .18s;
@@ -418,15 +449,17 @@ body {
 }
 .d-tab-del {
   position: absolute; top: 3px; right: 3px;
-  width: 14px; height: 14px; border-radius: 50%;
+  min-width: 24px; min-height: 24px; padding: 0;
+  width: 24px; height: 24px; border-radius: 50%;
   background: rgba(224,90,58,0.15); border: none;
-  color: #e05a3a; font-size: 9px; cursor: pointer;
+  color: var(--danger); font-size: 9px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   line-height: 1;
 }
 .d-tab-grip {
   position: absolute; top: 2px; left: 2px;
-  width: 16px; height: 16px; border-radius: 4px;
+  min-width: 24px; min-height: 24px; padding: 0;
+  width: 24px; height: 24px; border-radius: 4px;
   background: rgba(200,169,110,0.12); border: none;
   color: var(--gold2); font-size: 12px; cursor: grab;
   display: flex; align-items: center; justify-content: center;
@@ -439,7 +472,7 @@ body {
   flex: 1; min-width: 40px; max-width: 52px;
   padding: 12px 4px; text-align: center; cursor: pointer;
   border-right: none; border-left: 1px solid var(--border);
-  background: var(--surface); transition: all .18s;
+  background: var(--surface); transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s;
   font-size: 18px; color: var(--text3);
   display: flex; align-items: center; justify-content: center;
 }
@@ -488,10 +521,12 @@ body {
 }
 .reminder-dismiss {
   background: none; border: 1px solid var(--border); border-radius: 50%;
-  color: var(--text3); font-size: 10px; cursor: pointer; padding: 2px 4px; line-height: 1;
+  color: var(--text3); font-size: 12px; cursor: pointer; padding: 0; line-height: 1;
+  min-width: 24px; min-height: 24px; width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
-  transition: all .15s;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
 }
 .reminder-dismiss:hover { color: var(--text); border-color: var(--text2); }
 .reminder-block.pulse {
@@ -507,6 +542,7 @@ body {
 .ex-head {
   padding: 18px 20px 14px; border-bottom: 1px solid var(--border);
   display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap;
   transition: var(--transition);
 }
 .ex-head-tag {
@@ -530,7 +566,7 @@ body {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid var(--border); background: var(--surface3);
   color: var(--text2); cursor: pointer; font-size: 14px;
-  display: flex; align-items: center; justify-content: center; transition: all .18s;
+  display: flex; align-items: center; justify-content: center; transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s;
 }
 .edit-toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
 .edit-toggle-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
@@ -538,7 +574,7 @@ body {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid var(--border); background: var(--surface3);
   color: var(--text2); cursor: pointer; font-size: 12px;
-  display: flex; align-items: center; justify-content: center; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; transition: transform .2s, background-color .2s, color .2s, border-color .2s, box-shadow .2s, opacity .2s;
 }
 .collapse-all-btn:hover { border-color: var(--gold); color: var(--gold); }
 .collapse-all-btn.expanded { transform: rotate(180deg); color: var(--gold); border-color: var(--gold); }
@@ -606,12 +642,25 @@ body {
 .chk-box {
   width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--border);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: #fff; transition: all .2s cubic-bezier(.4,0,.2,1);
+  font-size: 13px; color: #fff; transition: transform .2s cubic-bezier(.4,0,.2,1), background-color .2s cubic-bezier(.4,0,.2,1), color .2s cubic-bezier(.4,0,.2,1), border-color .2s cubic-bezier(.4,0,.2,1), box-shadow .2s cubic-bezier(.4,0,.2,1), opacity .2s cubic-bezier(.4,0,.2,1);
 }
 [data-theme="dark"] .chk-box { border-color: rgba(255,255,255,0.14); }
 .ex-item.normal.chk .chk-box { background: var(--green); border-color: var(--green); }
 .ex-item.normal.skipped .chk-box { background: var(--surface3); border-color: var(--border); color: var(--text3); }
 .ex-item.normal.skipped .ei-name { color: var(--text3); }
+.chk-pressing {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--text3) 25%, transparent);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.chk-skipping {
+  transform: scale(1.28);
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--danger) 35%, transparent);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease, border-color .12s ease, color .12s ease;
+}
 .ex-num {
   font-size: 13px; font-weight: 700;
   color: var(--text3); opacity: 0.55;
@@ -645,7 +694,7 @@ body {
 .edit-field {
   width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px;
   font-family: 'Archivo', sans-serif; font-size: 13px; color: var(--text);
-  background: var(--surface); outline: none; transition: all .15s;
+  background: var(--surface); outline: none; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
 }
 .edit-field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,169,110,0.1); }
 .edit-field.detail-field { font-size: 12px; color: var(--text2); }
@@ -660,7 +709,7 @@ body {
   width: 28px; height: 28px; border-radius: 7px;
   border: 1px solid var(--border); background: var(--surface2);
   cursor: pointer; font-size: 13px; color: var(--text2);
-  display: flex; align-items: center; justify-content: center; transition: all .15s;
+  display: flex; align-items: center; justify-content: center; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
 }
 .ea-btn:hover { background: rgba(200,60,60,0.12); border-color: rgba(200,60,60,0.3); color: #c0392b; }
 .ea-btn.up:hover,
@@ -684,21 +733,21 @@ body {
 .add-ex-btn.visible { display: block; }
 .day-actions { display: flex; gap: 10px; padding: 8px 14px 4px; }
 .day-actions.open { display: flex !important; }
-.day-actions-toggle { font-size: 10px; color: var(--text3); cursor: pointer; padding: 8px 14px 8px; user-select: none; opacity: 0.5; transition: opacity .15s; letter-spacing: 0.05em; }
+.day-actions-toggle { font-size: 12px; color: var(--text3); cursor: pointer; padding: 8px 14px 8px; user-select: none; opacity: 0.7; transition: opacity .15s; letter-spacing: 0.05em; }
 .day-actions-toggle:hover { opacity: 1; }
 .day-actions-toggle.exp { opacity: 1; }
 .day-actions-toggle .arr { display: inline-block; transition: transform .2s; }
 .day-actions-toggle.exp .arr { transform: rotate(90deg); }
-.day-action-btn { flex: 1; padding: 9px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: 'Archivo Narrow', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); text-align: center; transition: all .15s; box-shadow: var(--shadow-sm); }
+.day-action-btn { flex: 1; padding: 9px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: 'Archivo Narrow', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text2); text-align: center; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s; box-shadow: var(--shadow-sm); }
 .day-action-btn:hover { transform: translateY(-1px); }
-.day-action-btn.reset:hover { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.06); }
+.day-action-btn.reset:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
 .day-action-btn.complete { border-color: var(--green); color: var(--green); }
 .day-action-btn.complete:hover { background: var(--green); color: #fff; border-color: var(--green); }
 .empty-day { padding: 32px 16px; text-align: center; font-size: 13px; color: var(--text3); line-height: 1.5; }
 .catalog-add-btn {
   padding: 6px 14px; border-radius: 8px; border: 1px solid var(--gold); background: transparent;
   color: var(--gold); cursor: pointer; font-size: 12px; font-family: inherit;
-  transition: all .15s; white-space: nowrap; flex-shrink: 0;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s; white-space: nowrap; flex-shrink: 0;
 }
 .catalog-add-btn:hover { background: var(--gold); color: #fff; }
 .catalog-search {
@@ -723,10 +772,46 @@ body {
 .catalog-edit-label { font-size:12px; color:var(--text2); font-weight:600; margin-bottom:-4px; }
 .cat-tags-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:4px 0; }
 .cat-tag { display:inline-flex; align-items:center; gap:4px; background:var(--surface3); border:1px solid var(--border); border-radius:12px; padding:3px 8px; font-size:12px; color:var(--text); }
-.cat-tag-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:11px; padding:0; line-height:1; }
-.cat-tag-del:hover { color:#e05a3a; }
+.cat-tag-del { background:none; border:none; color:var(--text3); cursor:pointer; font-size:13px; padding:0; line-height:1; min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; }
+.cat-tag-del:hover { color:var(--danger); }
 .cat-group-tags { display:inline-flex; gap:4px; margin-left:8px; flex-wrap:wrap; }
 .cat-group-tag { font-size:10px; color:var(--gold); background:rgba(200,169,110,0.15); border:1px solid var(--gold); border-radius:6px; padding:1px 6px; white-space:nowrap; opacity:.85; }
+.cat-search-row { display:flex; align-items:center; gap:8px; padding:0 0 6px; }
+.cat-search-row .catalog-search { flex:1; }
+.cat-search-label { font-size:13px; color:var(--text2); white-space:nowrap; }
+.cat-divider { height:1px; background:var(--border); margin-bottom:16px; }
+.cat-form-back { margin-bottom:12px; }
+.cat-form-row { display:flex; gap:6px; align-items:center; }
+.cat-form-row select { flex:1; }
+.cat-alts-add { flex:1; }
+.cat-edit-actions-spaced { margin-top:4px; }
+.btn-success { border-color:var(--green); color:var(--green); }
+.btn-muted { border-color:var(--text3); color:var(--text3); }
+.btn-danger { border-color:var(--danger); color:var(--danger); }
+.cat-edit-input-tall { min-height:60px; }
+.wk-stage { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.wk-stage-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.wk-stage-head .help-section-title { margin: 0; }
+.wk-stage-actions { display: flex; gap: 6px; }
+.wk-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.wk-row-sm { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.wk-row-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.wk-field { margin-bottom: 6px; }
+.wk-color { width: 32px; height: 28px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; padding: 1px; flex-shrink: 0; }
+.wk-color:hover { border-color: var(--text3); }
+.wk-range { width: 80px; accent-color: var(--gold); cursor: pointer; }
+.wk-range-val { font-size: 11px; color: var(--text3); min-width: 24px; }
+.wk-bar-section-title { font-family: 'Archivo Narrow', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.wk-bar-preview { background: var(--surface3); overflow: hidden; margin-bottom: 2px; }
+.wk-bar-preview-fill { height: 100%; }
+.wk-section + .wk-section { margin-top: 14px; }
+.wk-section-title-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.wk-section { margin-bottom: 14px; }
+.wk-sel { flex: 1; }
+.wk-lbl { font-size: 12px; color: var(--text3); }
+.wk-pill { font-size: 11px; color: var(--text3); }
+.wk-pill input { width: 70px; }
+.wk-section-pad-14 { margin-bottom: 14px; }
 
 .ex-head-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
 .ex-head-title-edit {
@@ -759,7 +844,7 @@ body {
   border-radius: 20px;
   cursor: pointer;
   width: fit-content;
-  transition: all .15s;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   animation: toastIn .2s cubic-bezier(.4,0,.2,1);
@@ -788,7 +873,7 @@ body {
   color: var(--text3);
   font-family: 'Archivo Narrow', sans-serif;
   font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   white-space: nowrap; flex-shrink: 1; min-width: 0;
 }
 .ex-ipreset:hover { border-color: var(--gold); color: var(--gold); transform: scale(1.07) translateY(-1px); }
@@ -814,7 +899,7 @@ body {
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .set-step-btn:active { background: var(--surface3); }
-.set-step-rem { font-size: 10px; color: #e05a3a; }
+.set-step-rem { font-size: 11px; color: var(--danger); }
 .set-step-rem:active { background: rgba(224,90,58,0.1); }
 .set-spacer { width: 24px; flex-shrink: 0; }
 .set-reps {
@@ -847,7 +932,7 @@ body {
   background: transparent; color: var(--text3);
   font-size: 14px; line-height: 1;
   display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation; flex-shrink: 0;
 }
@@ -858,11 +943,11 @@ body {
   border: 1.5px solid var(--border); background: var(--surface2);
   color: var(--text3); font-size: 14px; line-height: 1;
   display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;
   flex-shrink: 0;
 }
-.set-rem-btn:active { border-color: #e05a3a; color: #e05a3a; background: rgba(224,90,58,0.08); }
+.set-rem-btn:active { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
 
 /* ── SETS COUNTER ── */
 .sets-row {
@@ -907,7 +992,7 @@ body {
   width: 22px; height: 22px; border-radius: 50%;
   border: 1.5px solid var(--border);
   background: transparent;
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   flex-shrink: 0;
@@ -992,7 +1077,7 @@ body {
   color: var(--text3); font-family: 'Archivo Narrow', sans-serif;
   font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
   padding: 5px 9px; cursor: pointer; align-self: flex-start;
-  transition: all .15s; -webkit-tap-highlight-color: transparent;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s; -webkit-tap-highlight-color: transparent;
 }
 .ss-add-btn:hover { color: var(--gold); border-color: var(--gold); background: var(--goldbg); }
 
@@ -1007,7 +1092,7 @@ body {
   font-size: 12px; font-weight: 700;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent;
   position: relative; z-index: 2;
   touch-action: manipulation;
@@ -1029,7 +1114,7 @@ body {
   font-size: 14px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent;
   position: relative; z-index: 2;
   touch-action: manipulation;
@@ -1056,7 +1141,7 @@ body {
 .theme-opt {
   display: flex; align-items: center; gap: 12px; padding: 14px 16px;
   border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px;
-  cursor: pointer; background: var(--surface); transition: all .12s;
+  cursor: pointer; background: var(--surface); transition: transform .12s, background-color .12s, color .12s, border-color .12s, box-shadow .12s, opacity .12s;
 }
 .theme-opt:hover { border-color: var(--gold); background: var(--goldbg); }
 .theme-opt.sel { border-color: var(--gold); background: var(--goldbg); }
@@ -1071,7 +1156,27 @@ body {
 .meas-row input:focus { border-color: var(--gold); }
 .meas-entry { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; background: var(--surface); }
 .meas-date { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-.meas-del { cursor: pointer; color: #e05a3a; font-size: 13px; padding: 2px 6px; }
+.meas-del { cursor: pointer; color: var(--danger); font-size: 13px; min-width: 24px; min-height: 24px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; }
+.meas-charts { display: flex; gap: 12px; margin-bottom: 14px; }
+.meas-chart-col { flex: 1; min-width: 0; }
+.meas-chart-title { font-size: 12px; color: var(--text3); text-align: center; margin-bottom: 4px; letter-spacing: 0.1em; text-transform: uppercase; }
+.meas-canvas-wrap { overflow-x: auto; }
+.meas-canvas { border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: block; }
+.meas-toggles { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; justify-content: center; }
+.meas-toggles-refs { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; justify-content: center; }
+.meas-toggle-label { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text2); cursor: pointer; }
+.meas-toggle-label input { accent-color: var(--gold); }
+.meas-swatch { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.meas-ref { display: flex; align-items: center; gap: 2px; font-size: 11px; color: var(--text3); }
+.meas-ref-swatch { width: 6px; height: 6px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+.meas-ref-name { margin-right: 2px; }
+.meas-step-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: 11px; line-height: 1.4; font-family: inherit; cursor: pointer; padding: 1px 5px; }
+.meas-step-btn:hover { background: var(--surface3); }
+.meas-step-minus { border-radius: 4px 0 0 4px; }
+.meas-step-plus { border-radius: 0 4px 4px 0; }
+.meas-step-input { width: 44px; border: 1px solid var(--border); border-left: none; border-right: none; padding: 1px 2px; font-size: 11px; background: var(--surface2); color: var(--text); text-align: center; outline: none; font-family: inherit; -moz-appearance: textfield; }
+.meas-add-btn { margin-bottom: 12px; }
+.meas-empty-add { margin-bottom: 12px; }
 
 .help-sheet {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
@@ -1087,7 +1192,8 @@ body {
 .help-sheet.open { transform: translateY(0); box-shadow: 0 -8px 40px rgba(0,0,0,0.18); }
 [data-theme="dark"] .help-sheet.open { box-shadow: 0 -8px 60px rgba(0,0,0,0.55); }
 
-.help-handle {
+.help-sheet::before {
+  content: ''; display: block;
   width: 36px; height: 3px; border-radius: 2px;
   background: var(--border);
   margin: 14px auto 0;
@@ -1107,12 +1213,55 @@ body {
   border: 1px solid var(--border); background: var(--surface2);
   color: var(--text3); font-size: 14px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all .15s;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
 }
 .help-close:active { background: var(--surface3); }
 .help-body { padding: 18px 20px 24px; }
 .help-section { margin-bottom: 18px; }
 .help-section:last-child { margin-bottom: 0; }
+
+/* ══════ History list utilities ══════ */
+.hist-meta { font-size: 12px; color: var(--text3); }
+.hist-meta-b { font-size: 12px; color: var(--text3); font-weight: 600; }
+.hist-ex-stat-done { font-size: 12px; font-weight: 600; color: var(--green); margin-left: 8px; flex-shrink: 0; }
+.hist-ex-stat-pending { font-size: 12px; font-weight: 600; color: var(--gold); margin-left: 8px; flex-shrink: 0; }
+.hist-note { margin: 2px 8px 4px; font-size: 12px; color: var(--text3); font-style: italic; }
+.hist-label { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+.hist-value-done { font-size: 12px; font-weight: 600; color: var(--green); }
+.hist-value-pending { font-size: 12px; font-weight: 600; color: var(--gold); }
+.hist-del { margin-top: 8px; border-color: var(--danger); color: var(--danger); font-size: 12px; padding: 4px 10px; }
+.hist-cat-pill { font-size: 11px; padding: 3px 8px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); cursor: pointer; }
+.hist-cat-empty { font-size: 11px; color: var(--text3); padding: 4px; }
+.hist-prog-pos { font-size: 11px; color: var(--green); margin-left: 4px; flex-shrink: 0; }
+.hist-prog-neg { font-size: 11px; color: var(--danger); margin-left: 4px; flex-shrink: 0; }
+.hist-ex-note-empty { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.hist-ex-note-val { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.hist-row { border-bottom: 1px solid var(--border2); }
+.hist-row-head { padding: 12px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hist-row-head:hover .hist-row-arrow { color: var(--text); }
+.hist-row-main { flex: 1; min-width: 0; }
+.hist-row-line-1 { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
+.hist-row-line-2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hist-row-date { font-size: 13px; font-weight: 600; color: var(--text); }
+.hist-row-day { font-size: 12px; color: var(--text2); }
+.hist-row-arrow { color: var(--text3); font-size: 13px; flex-shrink: 0; transition: transform .2s; }
+.hist-row-body { display: none; padding-bottom: 10px; }
+.hist-row-body.open { display: block; }
+.hist-ex-list { display: flex; flex-direction: column; gap: 3px; }
+.hist-ex-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: var(--surface2); border-radius: 7px; }
+.hist-ex-name { font-size: 12px; color: var(--text2); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hist-ex-note { margin: 2px 8px 4px; font-size: 11px; color: var(--text3); font-style: italic; }
+.hist-empty-list { font-size: 12px; color: var(--text3); padding: 4px 0; }
+.hist-edit-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.hist-edit-row:first-of-type { margin-top: 10px; }
+.hist-edit-date { position: relative; flex: 1; display: flex; align-items: center; }
+.hist-edit-input { border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 12px; background: var(--surface2); color: var(--text); outline: none; }
+.hist-edit-date-input { flex: 1; border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 12px; background: var(--surface2); color: var(--text); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-edit-date-picker { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; }
+.hist-edit-input-week { width: 50px; }
+.hist-edit-input-dur { width: 70px; }
+.hist-no-info { margin-top: 8px; }
+.hist-dur-empty { display: none; }
 
 /* ══════ Cycle Setup (новый цикл) ══════ */
 .cycle-setup {
@@ -1161,11 +1310,11 @@ body {
   color: var(--text2);
   font-family: inherit; font-size: 11px; font-weight: 600;
   letter-spacing: 0.02em;
-  transition: all .18s ease;
+  transition: transform .18s ease, background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
   -webkit-tap-highlight-color: transparent;
   position: relative; overflow: hidden;
 }
-.cs-chip-i { font-size: 22px; line-height: 1; filter: grayscale(0.3) opacity(0.7); transition: all .18s; }
+.cs-chip-i { font-size: 22px; line-height: 1; filter: grayscale(0.3) opacity(0.7); transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s; }
 .cs-chip-l { font-size: 11px; }
 .cs-chip:hover { border-color: var(--gold); color: var(--text); }
 .cs-chip:hover .cs-chip-i { filter: none; opacity: 1; }
@@ -1191,7 +1340,7 @@ body {
   border-radius: 10px;
   color: var(--text2);
   font-family: 'Archivo Narrow', sans-serif; font-size: 15px; font-weight: 700;
-  transition: all .18s ease;
+  transition: transform .18s ease, background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .cs-pill:hover { border-color: var(--gold); color: var(--text); }
@@ -1250,7 +1399,7 @@ body {
   background: var(--surface2);
   border: 1.5px solid var(--border);
   border-radius: 10px;
-  transition: all .18s ease;
+  transition: transform .18s ease, background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .cs-seg-num {
@@ -1261,7 +1410,7 @@ body {
 .cs-seg-dot {
   width: 4px; height: 4px; border-radius: 50%;
   background: var(--text3); opacity: 0.4;
-  transition: all .18s;
+  transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s;
 }
 .cs-seg:hover { border-color: var(--gold); }
 .cs-seg:hover .cs-seg-num { color: var(--text); }
@@ -1287,7 +1436,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: 11px;
   color: var(--text3);
-  transition: all .2s ease;
+  transition: transform .2s ease, background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
   -webkit-tap-highlight-color: transparent;
   position: relative;
 }
@@ -1348,7 +1497,7 @@ body {
   font-size: 14px; font-weight: 600;
   letter-spacing: 0.02em;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  transition: all .15s ease;
+  transition: transform .15s ease, background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, opacity .15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .cs-btn-primary {
@@ -1370,23 +1519,6 @@ body {
   letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--text3); margin-bottom: 7px;
 }
-.help-section-card {
-  background: var(--surface2); border-radius: 14px;
-  padding: 16px 18px;
-}
-.help-section-card.danger {
-  border: 1px solid rgba(255,70,70,0.25);
-  background: rgba(255,70,70,0.06);
-}
-.help-section-card.danger .help-section-title {
-  color: #ff4646;
-}
-.help-section-card.danger .reset-btn {
-  color: #ff7070;
-}
-.help-section-card.danger .reset-btn:hover {
-  color: #ff9090;
-}
 .sett-title {
   display: flex; align-items: center; gap: 8px;
   cursor: pointer; font-size: 12px; font-weight: 500;
@@ -1397,6 +1529,39 @@ body {
   width: 15px; height: 15px; cursor: pointer;
   flex-shrink: 0;
 }
+.sett-label { font-size: 12px; color: var(--text2); white-space: nowrap; }
+.sett-label-muted { font-size: 12px; color: var(--text3); white-space: nowrap; }
+.sett-hint { font-size: 12px; color: var(--text3); margin-top: 6px; line-height: 1.4; }
+.sett-reset { cursor: pointer; font-size: 12px; color: var(--blue); user-select: none; }
+.sett-color { width: 28px; height: 26px; padding: 1px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; flex-shrink: 0; }
+.sett-color-sm { width: 24px; height: 22px; padding: 0; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; }
+.sett-color-wk { width: 32px; height: 28px; padding: 1px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; }
+.sett-num { font-size: 12px; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
+.sett-num-sm { font-size: 12px; padding: 2px 4px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
+.sett-sel { font-size: 12px; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); }
+.sett-file-label { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text2); cursor: pointer; user-select: none; }
+.sett-file-label:hover { background: var(--surface3); }
+.sett-row { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.sett-row-2 { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+.sett-row-3 { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.sett-checkbox { margin: 0; accent-color: var(--gold); }
+fieldset.sett-section { border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px; margin: 0 0 16px; background: var(--surface2); box-shadow: var(--shadow-sm); }
+fieldset.sett-section legend { padding: 0 8px; }
+fieldset.sett-section > .sett-row + .sett-row,
+fieldset.sett-section > .sett-divider + .sett-row,
+fieldset.sett-section > .sett-row + .sett-divider,
+fieldset.sett-section > .sett-divider + .sett-divider,
+fieldset.sett-section > .sett-divider + label,
+fieldset.sett-section > label + .sett-divider { margin-top: 4px; }
+fieldset.sett-section > label + label,
+fieldset.sett-section > label + .sett-row,
+fieldset.sett-section > .sett-row + label { margin-top: 6px; }
+.sett-section-title { font-family: 'Archivo Narrow', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2); margin-bottom: 10px; }
+.sett-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 12px; background: var(--goldbg); border: 1px solid var(--goldborder); color: var(--gold2); font-size: 11px; cursor: pointer; user-select: none; }
+.sett-pill:hover { background: var(--goldpill); }
+.sett-pill:has(input:checked) { background: var(--greenbg); border-color: var(--greenborder); color: var(--green); }
+.sett-pill input { accent-color: var(--gold); margin: 0; }
+.sett-divider { height: 1px; background: var(--border); margin: 12px 0; }
 .help-section-text {
   font-size: 14px; font-weight: 300;
   color: var(--text2); line-height: 1.65;
@@ -1420,6 +1585,23 @@ body {
   padding: 8px 0;
 }
 
+.help-empty {
+  text-align: center; padding: 32px 16px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.help-empty-title { font-family: 'Italiana', serif; font-size: 22px; color: var(--text); }
+.help-empty-text  { font-size: 13px; color: var(--text2); max-width: 36ch; line-height: 1.5; }
+.help-empty-btn {
+  margin-top: 8px; padding: 10px 20px; border-radius: 10px;
+  border: 1px solid var(--gold); background: var(--goldbg); color: var(--gold2);
+  font-family: 'Archivo Narrow', sans-serif; font-size: 11px;
+  letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .15s, background-color .15s, border-color .15s, color .15s;
+}
+.help-empty-btn:hover { background: var(--goldpill); border-color: var(--gold2); color: var(--gold2); }
+.help-empty-btn:active { transform: scale(0.96); }
+
 .help-alts {
   display: flex; flex-wrap: wrap; gap: 8px;
 }
@@ -1432,7 +1614,7 @@ body {
   font-family: 'Archivo', sans-serif;
   font-size: 13px; font-weight: 400;
   cursor: pointer;
-  transition: all .15s;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
@@ -1484,9 +1666,9 @@ body {
 
 /* ── TAGS ── */
 .tag {
-  font-family: 'Archivo Narrow', sans-serif; font-size: 8px; font-weight: 600;
-  letter-spacing: 0.14em; text-transform: uppercase; padding: 2px 6px;
-  border-radius: 3px; flex-shrink: 0;
+  font-family: 'Archivo Narrow', sans-serif; font-size: 9px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px;
+  border-radius: 3px; flex-shrink: 0; white-space: nowrap;
 }
 .t-key { background: var(--goldpill); color: var(--gold2); border: 1px solid var(--goldborder); }
 .t-mob { background: var(--greenbg); color: var(--green); border: 1px solid var(--greenborder); }
@@ -1592,7 +1774,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   font-size: 12px; font-weight: 600;
   background: var(--surface); color: var(--text2);
   border: 1.5px solid var(--border);
-  transition: all .15s ease;
+  transition: transform .15s ease, background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, opacity .15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .ca-btn:hover { color: var(--text); }
@@ -1609,7 +1791,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   border-radius: 14px;
   background: linear-gradient(180deg, var(--goldbg), transparent 70%), var(--surface2);
   overflow: hidden;
-  transition: all .2s ease;
+  transition: transform .2s ease, background-color .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
 }
 .cycle-control[open] { box-shadow: 0 6px 22px rgba(200,169,110,0.15); }
 .cycle-control > summary {
@@ -1642,7 +1824,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   padding: 14px 16px;
   border-radius: 11px;
   font-size: 14px; font-weight: 600; letter-spacing: 0.01em;
-  transition: all .15s ease;
+  transition: transform .15s ease, background-color .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease, opacity .15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .cc-btn-primary {
@@ -1731,7 +1913,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   color: var(--text3);
   font-family: 'Archivo Narrow', sans-serif;
   font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
   white-space: nowrap;
 }
 .ipreset:hover { border-color: var(--gold); color: var(--gold); }
@@ -1771,7 +1953,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   stroke-dashoffset: 0;
   transition: stroke-dashoffset .9s linear, stroke .3s ease;
 }
-.iring-fill.urgent { stroke: #e05a3a; }
+.iring-fill.urgent { stroke: var(--danger); }
 
 .itimer-time {
   position: absolute; inset: 0;
@@ -1780,9 +1962,10 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   font-size: 28px; line-height: 1;
   color: var(--text);
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
   transition: color .3s ease;
 }
-.itimer-time.urgent { color: #e05a3a; }
+.itimer-time.urgent { color: var(--danger); }
 
 /* controls */
 .itimer-controls {
@@ -1801,7 +1984,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   cursor: pointer;
   color: var(--text2);
   display: flex; align-items: center; justify-content: center;
-  transition: all .18s;
+  transition: transform .18s, background-color .18s, color .18s, border-color .18s, box-shadow .18s, opacity .18s;
 }
 
 .ictrl.reset {
@@ -2005,18 +2188,19 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 }
 .cal-nav-btn:active { background: var(--surface3); }
 .cal-grid {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px;
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px;
 }
 .cal-head {
-  font-size: 8px; font-weight: 600;
+  font-size: 9px; font-weight: 600;
   color: var(--text3); text-align: center;
   padding: 1px 0 2px;
+  white-space: nowrap; overflow: hidden;
 }
 .cal-cell {
-  height: 24px; border-radius: 4px;
+  height: 26px; min-width: 0; border-radius: 4px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  font-size: 10px; color: var(--text2);
+  font-size: 12px; color: var(--text2);
   cursor: pointer; gap: 1px;
   -webkit-tap-highlight-color: transparent;
   transition: background .1s;
@@ -2025,8 +2209,9 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 .cal-cell:not(.empty):active { background: var(--surface3); }
 .cal-cell.today { font-weight: 700; color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
 .cal-cell.trained { background: var(--greenbg); color: var(--green); font-weight: 600; }
-.cal-cell.trained.count-2 { background: rgba(42,170,114,0.2); }
-.cal-cell.trained.count-3 { background: rgba(42,170,114,0.32); }
+.cal-cell.trained.count-2 { background: color-mix(in srgb, var(--green) 18%, var(--surface)); }
+.cal-cell.trained.count-3 { background: color-mix(in srgb, var(--green) 32%, var(--surface)); }
+.cal-cell.trained.count-4 { background: color-mix(in srgb, var(--green) 48%, var(--surface)); }
 .cal-cell.selected { background: var(--green) !important; color: #fff !important; }
 .cal-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.8; flex-shrink: 0; }
 
@@ -2072,7 +2257,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   width: 100%; height: 52px; border-radius: 14px;
   border: none; cursor: pointer; font-family: 'Archivo', sans-serif;
   font-size: 15px; font-weight: 500;
-  transition: all .15s; -webkit-tap-highlight-color: transparent;
+  transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s; -webkit-tap-highlight-color: transparent;
 }
 .sw-popup-btn.continue {
   background: var(--surface2);
@@ -2114,10 +2299,10 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 .confirm-btn {
   flex: 1; padding: 10px 0; border-radius: 10px;
   border: 1px solid var(--border); background: var(--surface3);
-  color: var(--text); font-size: 14px; cursor: pointer; transition: all .15s;
+  color: var(--text); font-size: 14px; cursor: pointer; transition: transform .15s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
 }
 .confirm-btn:hover { border-color: var(--gold); }
-.confirm-danger { background: #e05a3a; border-color: #e05a3a; color: #fff; }
+.confirm-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 .confirm-danger:hover { background: #d04a2a; }
 
 /* ── STOPWATCH ── */
@@ -2169,6 +2354,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   color: var(--text);
   line-height: 1;
   min-width: 140px;
+  font-variant-numeric: tabular-nums;
   transition: color .3s;
 }
 .sw-display.running { color: var(--green); }
@@ -2233,6 +2419,121 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   letter-spacing: 0.2em; text-transform: uppercase; color: var(--text4);
 }
 
+/* ══════════════════════════════════════
+   A11Y: GLOBAL FOCUS RING (HIGH-4)
+   Keyboard-only users get a visible 2px ring.
+   Mouse users keep their existing styles.
+══════════════════════════════════════ */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+button:focus-visible,
+.theme-toggle:focus-visible,
+.wn-btn:focus-visible,
+.d-tab:focus-visible,
+.sw-btn:focus-visible,
+.help-close:focus-visible,
+.confirm-btn:focus-visible,
+.sw-popup-btn:focus-visible,
+.day-action-btn:focus-visible,
+.ipreset:focus-visible,
+.reset-btn:focus-visible,
+.cal-nav-btn:focus-visible,
+.catalog-add-btn:focus-visible,
+.reminder-dismiss:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+  border-color: var(--gold) !important;
+}
+
+/* ══════════════════════════════════════
+   UI POLISH: PRESS FEEDBACK (scale 0.96)
+   Tactile confirmation on any click.
+   Skips elements that already have an
+   explicit :active transform.
+══════════════════════════════════════ */
+@media (prefers-reduced-motion: no-preference) {
+  button:not(.ipreset):not(.cs-chip):not(.cs-pill):not(.cs-seg):not(.cs-week):not(.cs-btn-primary):not(.cs-btn-ghost):not(.ca-btn):not(.cc-btn-primary):not(.sw-btn):not(.help-empty-btn):active {
+    transform: scale(0.96);
+  }
+  button:not(.ipreset):not(.cs-chip):not(.cs-pill):not(.cs-seg):not(.cs-week):not(.cs-btn-primary):not(.cs-btn-ghost):not(.ca-btn):not(.cc-btn-primary):not(.sw-btn):not(.help-empty-btn) {
+    transition: transform .1s, background-color .15s, color .15s, border-color .15s, box-shadow .15s, opacity .15s;
+  }
+}
+
+/* ══════════════════════════════════════
+   A11Y: iOS INPUT ZOOM FLOOR (HIGH-6)
+   Inputs <16px force iOS Safari to zoom
+   the page on focus. Override only the
+   small ones we authored, leave the
+   default 16px inputs alone.
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .reps-input,
+  .set-reps,
+  .set-load,
+  .meas-row input,
+  .catalog-edit-input,
+  .catalog-edit-textarea,
+  .catalog-edit-select,
+  .catalog-search,
+  .edit-field,
+  .notes-textarea,
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ══════════════════════════════════════
+   A11Y: APP-ROOT INERT (HIGH-1)
+   JS toggles `inert` on .app-root when
+   a sheet opens, removing it on close.
+══════════════════════════════════════ */
+.app-root[inert] {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ══════════════════════════════════════
+   A11Y: SKIP LINK (LOW-35)
+   Hidden until focused. Jumps to <main>.
+══════════════════════════════════════ */
+.skip-link {
+  position: absolute; top: -100px; left: 8px; z-index: 9999;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--text); color: var(--bg);
+  font-family: 'Archivo Narrow', sans-serif; font-size: 12px;
+  font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none;
+  transition: top .2s;
+}
+.skip-link:focus-visible { top: 8px; outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ══════════════════════════════════════
+   A11Y: PREFERS-REDUCED-MOTION (LOW-37)
+   Honor user motion preference globally.
+══════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2240,9 +2541,9 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 
 <!-- STOPWATCH STOP POPUP -->
 <div class="sw-popup-overlay" id="sw-popup-overlay" onclick="swPopupContinue()"></div>
-<div class="sw-popup" id="sw-popup">
-  <div class="sw-popup-time" id="sw-popup-time">0:00:00</div>
-  <div class="sw-popup-label">Тренировка на паузе</div>
+<div class="sw-popup" id="sw-popup" role="dialog" aria-modal="true" aria-labelledby="sw-popup-title">
+  <h2 class="sw-popup-time" id="sw-popup-time">0:00:00</h2>
+  <div class="sw-popup-label" id="sw-popup-title">Тренировка на паузе</div>
   <div class="sw-popup-btns">
     <button class="sw-popup-btn continue" onclick="swPopupContinue()">Продолжить</button>
     <button class="sw-popup-btn finish" onclick="swPopupFinish()">Закончить тренировку</button>
@@ -2251,33 +2552,32 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 
 <!-- HELP SHEET -->
 <div class="help-overlay" id="help-overlay" onclick="closeHelp()"></div>
-<div class="help-sheet" id="help-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="help-sheet" role="dialog" aria-modal="true" aria-labelledby="help-name">
   <div class="help-head">
     <div>
-      <div class="help-name" id="help-name"></div>
+      <h2 class="help-name" id="help-name"></h2>
       <div class="help-tag" id="help-tag"></div>
     </div>
-    <button class="help-close" onclick="closeHelp()">✕</button>
+    <button class="help-close" onclick="closeHelp()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body" id="help-body"></div>
 </div>
 
 <!-- STOPWATCH RESET CONFIRM POPUP -->
 <div class="sw-popup-overlay" id="sw-reset-overlay" onclick="swResetCancel()"></div>
-<div class="sw-popup" id="sw-reset-popup">
-  <div class="sw-popup-time" id="sw-reset-time">0:00:00</div>
-  <div class="sw-popup-label">Сбросить время тренировки?</div>
+<div class="sw-popup" id="sw-reset-popup" role="alertdialog" aria-modal="true" aria-labelledby="sw-reset-title">
+  <h2 class="sw-popup-time" id="sw-reset-time">0:00:00</h2>
+  <div class="sw-popup-label" id="sw-reset-title">Сбросить время тренировки?</div>
   <div class="sw-popup-btns">
     <button class="sw-popup-btn continue" onclick="swResetCancel()">Отмена</button>
-    <button class="sw-popup-btn finish" style="background:#e05a3a;box-shadow:0 2px 12px rgba(224,90,58,0.3);" onclick="swResetConfirm()">Сбросить</button>
+    <button class="sw-popup-btn finish" style="background:var(--danger);box-shadow:0 2px 12px rgba(224,90,58,0.3);" onclick="swResetConfirm()">Сбросить</button>
   </div>
 </div>
 
 <!-- CONFIRM MODAL -->
 <div class="confirm-overlay" id="confirm-overlay" onclick="closeConfirm()">
-  <div class="confirm-popup" id="confirm-popup" onclick="event.stopPropagation()">
-    <div class="confirm-title" id="confirm-title"></div>
+  <div class="confirm-popup" id="confirm-popup" onclick="event.stopPropagation()" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+    <h2 class="confirm-title" id="confirm-title"></h2>
     <div class="confirm-text" id="confirm-text"></div>
     <div class="confirm-btns">
       <button class="confirm-btn" onclick="closeConfirm()">Отмена</button>
@@ -2288,142 +2588,142 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 
 <!-- WEEKS EDITOR SHEET -->
 <div class="help-overlay" id="weeks-overlay" onclick="closeWeeksEditor()"></div>
-<div class="help-sheet" id="weeks-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="weeks-sheet" role="dialog" aria-modal="true" aria-labelledby="weeks-title">
   <div class="help-head">
-    <div><div class="help-name">Дорожная карта</div></div>
-    <button class="help-close" onclick="closeWeeksEditor()">✕</button>
+    <div><h2 class="help-name" id="weeks-title">Дорожная карта</h2></div>
+    <button class="help-close" onclick="closeWeeksEditor()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body" id="weeks-body"></div>
 </div>
 <!-- HISTORY SHEET -->
 <div class="help-overlay" id="history-overlay" onclick="closeHistorySheet()"></div>
-<div class="help-sheet" id="history-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="history-sheet" role="dialog" aria-modal="true" aria-labelledby="history-title">
   <div class="help-head">
-    <div><div class="help-name">История тренировок</div></div>
-    <button class="help-close" onclick="closeHistorySheet()">✕</button>
+    <div><h2 class="help-name" id="history-title">История тренировок</h2></div>
+    <button class="help-close" onclick="closeHistorySheet()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body" id="history-body"></div>
 </div>
 
 <!-- CATALOG SHEET -->
 <div class="help-overlay" id="catalog-overlay" onclick="closeCatalog()"></div>
-<div class="help-sheet" id="catalog-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="catalog-sheet" role="dialog" aria-modal="true" aria-labelledby="catalog-title">
   <div class="help-head">
-    <div><div class="help-name">Каталог упражнений</div></div>
-    <button class="help-close" onclick="closeCatalog()">✕</button>
+    <div><h2 class="help-name" id="catalog-title">Каталог упражнений</h2></div>
+    <button class="help-close" onclick="closeCatalog()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body" id="catalog-body"></div>
 </div>
 
 <!-- EXERCISE NOTE SHEET -->
 <div class="help-overlay" id="exnote-overlay" onclick="closeExNote()"></div>
-<div class="help-sheet" id="exnote-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="exnote-sheet" role="dialog" aria-modal="true" aria-labelledby="exnote-name">
   <div class="help-head">
     <div>
-      <div class="help-name" id="exnote-name">Заметка</div>
+      <h2 class="help-name" id="exnote-name">Заметка</h2>
       <div class="help-tag" id="exnote-tag"></div>
     </div>
-    <button class="help-close" onclick="closeExNote()">✕</button>
+    <button class="help-close" onclick="closeExNote()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body">
+    <label for="exnote-textarea" class="sr-only">Заметка к упражнению</label>
     <textarea class="notes-textarea" id="exnote-textarea" placeholder="Ваша заметка к упражнению…" style="min-height:150px;"></textarea>
     <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-      <span class="notes-saved" id="exnote-saved">Сохранено</span>
+      <span class="notes-saved" id="exnote-saved" aria-live="polite">Сохранено</span>
     </div>
   </div>
 </div>
 
 <div class="help-overlay" id="settings-overlay" onclick="closeAppSettings()"></div>
-<div class="help-sheet" id="settings-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="settings-sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title">
   <div class="help-head">
-    <div><div class="help-name">Настройки приложения</div></div>
-    <button class="help-close" onclick="closeAppSettings()">✕</button>
+    <div><h2 class="help-name" id="settings-title">Настройки приложения</h2></div>
+    <button class="help-close" onclick="closeAppSettings()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body">
-    <div class="help-section-card">
-      <div class="help-section">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-topbar" onchange="applyAppSettings()">
-          <span>Название в шапке</span>
-        </label>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()" style="flex:1;">
-          <input type="color" id="cfg-topbar-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
-        </div>
-      </div>
-      <div class="help-section">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-hero" onchange="applyAppSettings()">
-          <span>Главный заголовок</span>
-        </label>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()" style="flex:1;">
-          <input type="color" id="cfg-hero-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
-        </div>
-        <div style="margin-top:6px;padding:6px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);">
-          <div style="font-size:9px;color:var(--text3);margin-bottom:4px;">Первое слово</div>
-          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <input type="color" id="cfg-hw1-color" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет">
-            <select id="cfg-hw1-weight" onchange="applyAppSettings()" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Насыщенность">
-              <option value="">—</option>
-              <option value="300">Light</option>
-              <option value="400">Regular</option>
-              <option value="500">Medium</option>
-              <option value="600">Semi Bold</option>
-              <option value="700">Bold</option>
-              <option value="800">Extra Bold</option>
-            </select>
-            <label style="font-size:12px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text2);padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);" title="Курсив">
-              <input type="checkbox" id="cfg-hw1-italic" onchange="applyAppSettings()" style="margin:0;"> <i>I</i>
-            </label>
-          </div>
-          <div style="display:flex;gap:4px;align-items:center;margin-top:4px;">
-            <span style="font-size:9px;color:var(--text3);white-space:nowrap;">Обводка</span>
-            <input type="number" id="cfg-hw1-stroke-w" min="0" max="3" step="0.1" placeholder="0" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
-            <input type="color" id="cfg-hw1-stroke-c" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
-          </div>
-          <div style="font-size:9px;color:var(--text3);margin:4px 0;">Второе слово</div>
-          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <input type="color" id="cfg-hw2-color" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет">
-            <select id="cfg-hw2-weight" onchange="applyAppSettings()" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Насыщенность">
-              <option value="">—</option>
-              <option value="300">Light</option>
-              <option value="400">Regular</option>
-              <option value="500">Medium</option>
-              <option value="600">Semi Bold</option>
-              <option value="700">Bold</option>
-              <option value="800">Extra Bold</option>
-            </select>
-            <label style="font-size:12px;display:flex;align-items:center;gap:2px;cursor:pointer;color:var(--text2);padding:1px 5px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);" title="Курсив">
-              <input type="checkbox" id="cfg-hw2-italic" onchange="applyAppSettings()" style="margin:0;"> <i>I</i>
-            </label>
-          </div>
-          <div style="display:flex;gap:4px;align-items:center;margin-top:4px;">
-            <span style="font-size:9px;color:var(--text3);white-space:nowrap;">Обводка</span>
-            <input type="number" id="cfg-hw2-stroke-w" min="0" max="3" step="0.1" placeholder="0" oninput="applyAppSettings()" style="width:36px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
-            <input type="color" id="cfg-hw2-stroke-c" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
-          </div>
-        </div>
-      </div>
-      <div class="help-section">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-footer" onchange="applyAppSettings()">
-          <span>Футер</span>
-        </label>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()" style="flex:1;">
-          <input type="color" id="cfg-footer-color" value="#ffffff" oninput="applyAppSettings()" style="width:28px;height:26px;padding:1px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;flex-shrink:0;">
-        </div>
-      </div>
-    </div>
+    <fieldset class="sett-section">
+      <legend class="sett-section-title">Заголовки</legend>
 
-    <div class="help-section-card" style="margin-top:18px;">
-      <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Тема оформления</div>
+      <label class="sett-title">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-topbar" onchange="applyAppSettings()">
+        <span>Название в шапке</span>
+      </label>
+      <div class="sett-row">
+        <input class="edit-field" id="cfg-topbar" placeholder="Ab Wheel Program" oninput="applyAppSettings()" style="flex:1;">
+        <input type="color" class="sett-color" id="cfg-topbar-color" value="#ffffff" oninput="applyAppSettings()">
+      </div>
+
+      <div class="sett-divider"></div>
+
+      <label class="sett-title">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-hero" onchange="applyAppSettings()">
+        <span>Главный заголовок</span>
+      </label>
+      <div class="sett-row">
+        <input class="edit-field" id="cfg-hero-title" placeholder="Standing Rollout" oninput="applyAppSettings()" style="flex:1;">
+        <input type="color" class="sett-color" id="cfg-hero-color" value="#ffffff" oninput="applyAppSettings()">
+      </div>
+      <div class="sett-row" style="padding:8px;border-radius:8px;background:var(--surface);border:1px solid var(--border);">
+        <div style="width:100%;">
+          <div class="sett-label-muted" style="margin-bottom:4px;">Первое слово</div>
+          <div class="sett-row-3">
+            <input type="color" class="sett-color-sm" id="cfg-hw1-color" oninput="applyAppSettings()" title="Цвет">
+            <select class="sett-num-sm" id="cfg-hw1-weight" onchange="applyAppSettings()" title="Насыщенность">
+              <option value="">—</option>
+              <option value="300">Light</option>
+              <option value="400">Regular</option>
+              <option value="500">Medium</option>
+              <option value="600">Semi Bold</option>
+              <option value="700">Bold</option>
+              <option value="800">Extra Bold</option>
+            </select>
+            <label class="sett-pill" title="Курсив">
+              <input type="checkbox" class="sett-checkbox" id="cfg-hw1-italic" onchange="applyAppSettings()"> <i>I</i>
+            </label>
+          </div>
+          <div class="sett-row-2">
+            <span class="sett-label-muted">Обводка</span>
+            <input type="number" class="sett-num-sm" id="cfg-hw1-stroke-w" min="0" max="3" step="0.1" placeholder="0" oninput="applyAppSettings()" style="width:36px;" title="Толщина обводки (px)">
+            <input type="color" class="sett-color-sm" id="cfg-hw1-stroke-c" oninput="applyAppSettings()" title="Цвет обводки">
+          </div>
+          <div class="sett-label-muted" style="margin:6px 0 4px;">Второе слово</div>
+          <div class="sett-row-3">
+            <input type="color" class="sett-color-sm" id="cfg-hw2-color" oninput="applyAppSettings()" title="Цвет">
+            <select class="sett-num-sm" id="cfg-hw2-weight" onchange="applyAppSettings()" title="Насыщенность">
+              <option value="">—</option>
+              <option value="300">Light</option>
+              <option value="400">Regular</option>
+              <option value="500">Medium</option>
+              <option value="600">Semi Bold</option>
+              <option value="700">Bold</option>
+              <option value="800">Extra Bold</option>
+            </select>
+            <label class="sett-pill" title="Курсив">
+              <input type="checkbox" class="sett-checkbox" id="cfg-hw2-italic" onchange="applyAppSettings()"> <i>I</i>
+            </label>
+          </div>
+          <div class="sett-row-2">
+            <span class="sett-label-muted">Обводка</span>
+            <input type="number" class="sett-num-sm" id="cfg-hw2-stroke-w" min="0" max="3" step="0.1" placeholder="0" oninput="applyAppSettings()" style="width:36px;" title="Толщина обводки (px)">
+            <input type="color" class="sett-color-sm" id="cfg-hw2-stroke-c" oninput="applyAppSettings()" title="Цвет обводки">
+          </div>
+        </div>
+      </div>
+
+      <div class="sett-divider"></div>
+
+      <label class="sett-title">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-footer" onchange="applyAppSettings()">
+        <span>Футер</span>
+      </label>
+      <div class="sett-row">
+        <input class="edit-field" id="cfg-footer" placeholder="Ab Wheel Tracker · Standing Rollout Program" oninput="applyAppSettings()" style="flex:1;">
+        <input type="color" class="sett-color" id="cfg-footer-color" value="#ffffff" oninput="applyAppSettings()">
+      </div>
+    </fieldset>
+
+    <fieldset class="sett-section">
+      <legend class="sett-section-title">Тема оформления</legend>
       <select class="tag-select" id="cfg-theme" onchange="setTheme(this.value)">
         <option value="light">Светлая</option>
         <option value="dark">Тёмная</option>
@@ -2433,106 +2733,97 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
         <option value="terminal">Terminal</option>
         <option value="holo">Holo</option>
       </select>
-      <div class="help-section" style="margin-top:10px;">
-        <label class="sett-title" style="margin-bottom:6px;"><span>Цвет счётчика недель</span></label>
-        <label class="sett-title" style="font-size:10px;margin-bottom:6px;">
-          <input type="checkbox" id="cfg-wk-random" onchange="applyAppSettings()">
-          <span>Случайный цвет</span>
-        </label>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="color" id="cfg-wk-color" value="#5dcaa5" oninput="document.getElementById('cfg-wk-color-val').textContent=this.value;applyAppSettings()" style="width:32px;height:28px;padding:1px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;">
-          <span id="cfg-wk-color-val" style="font-size:10px;color:var(--text3);flex:1;"></span>
-          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-wk-color').value='';document.getElementById('cfg-wk-color-val').textContent='По умолчанию';applyAppSettings()">Сбросить</span>
-        </div>
+      <div class="sett-divider"></div>
+      <div class="sett-label" style="margin-bottom:6px;">Цвет счётчика недель</div>
+      <label class="sett-title" style="font-size:12px;margin-bottom:6px;">
+        <input type="checkbox" class="sett-checkbox" id="cfg-wk-random" onchange="applyAppSettings()">
+        <span>Случайный цвет</span>
+      </label>
+      <div class="sett-row">
+        <input type="color" class="sett-color-wk" id="cfg-wk-color" value="#5dcaa5" oninput="document.getElementById('cfg-wk-color-val').textContent=this.value;applyAppSettings()">
+        <span id="cfg-wk-color-val" class="sett-label-muted" style="flex:1;"></span>
+        <span class="sett-reset" onclick="document.getElementById('cfg-wk-color').value='';document.getElementById('cfg-wk-color-val').textContent='По умолчанию';applyAppSettings()">Сбросить</span>
       </div>
-    </div>
+    </fieldset>
 
-    <div class="help-section-card" style="margin-top:18px;">
-      <div class="help-section" style="margin-bottom:0;">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-sw" onchange="applyAppSettings()">
-          <span>Секундомер тренировки</span>
-        </label>
-      </div>
-      <div class="help-section" style="margin-top:6px;margin-bottom:0;">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-roadmap" onchange="applyAppSettings()">
-          <span>Дорожная карта (прогрессия навыка)</span>
-        </label>
-      </div>
-      <div class="help-section" style="margin-top:6px;margin-bottom:0;">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-motiv" onchange="applyAppSettings()">
-          <span>Мотивационные цитаты</span>
-        </label>
-      </div>
-    </div>
+    <fieldset class="sett-section">
+      <legend class="sett-section-title">Блоки на главной</legend>
+      <label class="sett-title" style="margin-bottom:6px;">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-sw" onchange="applyAppSettings()">
+        <span>Секундомер тренировки</span>
+      </label>
+      <label class="sett-title" style="margin-bottom:6px;">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-roadmap" onchange="applyAppSettings()">
+        <span>Дорожная карта (прогрессия навыка)</span>
+      </label>
+      <label class="sett-title">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-motiv" onchange="applyAppSettings()">
+        <span>Мотивационные цитаты</span>
+      </label>
+    </fieldset>
 
-    <div class="help-section-card" style="margin-top:18px;">
-      <div class="help-section" style="margin-bottom:0;">
-        <label class="sett-title">
-          <input type="checkbox" id="cfg-show-reminder" onchange="applyAppSettings()">
-          <span>Напоминание рядом с упражнениями</span>
-        </label>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
-          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Положение</span>
-          <select id="cfg-reminder-pos" onchange="applyAppSettings()" style="font-size:10px;padding:3px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);">
-            <option value="top">Сверху</option>
-            <option value="bottom">Снизу</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
-          <label class="sett-title" style="font-size:10px;margin-bottom:0;">
-            <input type="checkbox" id="cfg-show-reminder-label" onchange="applyAppSettings()">
-            <span>Показывать слово «Напоминание»</span>
-          </label>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
-          <input class="edit-field" id="cfg-reminder-text" placeholder="Слово (например: Фокус)" oninput="applyAppSettings()" style="flex:1;">
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Или картинка:</span>
-          <input type="file" id="cfg-reminder-img" accept="image/*" style="display:none;" onchange="handleReminderImg(event)">
-          <label for="cfg-reminder-img" style="font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;">Выбрать файл</label>
-          <span id="cfg-reminder-img-name" style="font-size:10px;color:var(--text3);"></span>
-          <span style="font-size:10px;color:var(--blue);cursor:pointer;" onclick="clearReminderImg()">Убрать картинку</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Цвет слова</span>
-          <input type="color" id="cfg-reminder-word-c" value="#ffffff" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет слова">
-          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-word-c').value='#ffffff';applyAppSettings()">Сбросить</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Цвет надписи «Напоминание»</span>
-          <input type="color" id="cfg-reminder-label-c" value="#ffffff" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет надписи">
-          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-label-c').value='#ffffff';applyAppSettings()">Сбросить</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-          <span style="font-size:10px;color:var(--text3);white-space:nowrap;">Обводка</span>
-          <input type="number" id="cfg-reminder-border-w" min="0" max="8" step="1" placeholder="1" oninput="applyAppSettings()" style="width:40px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);" title="Толщина обводки (px)">
-          <input type="color" id="cfg-reminder-border-c" value="#888888" oninput="applyAppSettings()" style="width:24px;height:22px;padding:0;border-radius:4px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;" title="Цвет обводки">
-          <span style="cursor:pointer;font-size:10px;color:var(--blue);" onclick="document.getElementById('cfg-reminder-border-w').value='';document.getElementById('cfg-reminder-border-c').value='#888';applyAppSettings()">Сбросить</span>
-        </div>
+    <fieldset class="sett-section">
+      <legend class="sett-section-title">Напоминание</legend>
+      <label class="sett-title">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-reminder" onchange="applyAppSettings()">
+        <span>Показывать рядом с упражнениями</span>
+      </label>
+      <div class="sett-row">
+        <span class="sett-label-muted">Положение</span>
+        <select class="sett-sel" id="cfg-reminder-pos" onchange="applyAppSettings()">
+          <option value="top">Сверху</option>
+          <option value="bottom">Снизу</option>
+        </select>
       </div>
-    </div>
+      <label class="sett-title" style="font-size:12px;margin-top:6px;margin-bottom:0;">
+        <input type="checkbox" class="sett-checkbox" id="cfg-show-reminder-label" onchange="applyAppSettings()">
+        <span>Показывать слово «Напоминание»</span>
+      </label>
+      <div class="sett-row">
+        <input class="edit-field" id="cfg-reminder-text" placeholder="Слово (например: Фокус)" oninput="applyAppSettings()" style="flex:1;">
+      </div>
+      <div class="sett-row">
+        <span class="sett-label-muted">Или картинка:</span>
+        <input type="file" id="cfg-reminder-img" accept="image/*" style="display:none;" onchange="handleReminderImg(event)">
+        <label for="cfg-reminder-img" class="sett-file-label">Выбрать файл</label>
+        <span id="cfg-reminder-img-name" class="sett-label-muted"></span>
+        <span class="sett-reset" onclick="clearReminderImg()">Убрать картинку</span>
+      </div>
+      <div class="sett-row">
+        <span class="sett-label-muted">Цвет слова</span>
+        <input type="color" class="sett-color-sm" id="cfg-reminder-word-c" value="#ffffff" oninput="applyAppSettings()" title="Цвет слова">
+        <span class="sett-reset" onclick="document.getElementById('cfg-reminder-word-c').value='#ffffff';applyAppSettings()">Сбросить</span>
+      </div>
+      <div class="sett-row">
+        <span class="sett-label-muted">Цвет надписи «Напоминание»</span>
+        <input type="color" class="sett-color-sm" id="cfg-reminder-label-c" value="#ffffff" oninput="applyAppSettings()" title="Цвет надписи">
+        <span class="sett-reset" onclick="document.getElementById('cfg-reminder-label-c').value='#ffffff';applyAppSettings()">Сбросить</span>
+      </div>
+      <div class="sett-row">
+        <span class="sett-label-muted">Обводка</span>
+        <input type="number" class="sett-num-sm" id="cfg-reminder-border-w" min="0" max="8" step="1" placeholder="1" oninput="applyAppSettings()" style="width:48px;" title="Толщина обводки (px)">
+        <input type="color" class="sett-color-sm" id="cfg-reminder-border-c" value="#888888" oninput="applyAppSettings()" title="Цвет обводки">
+        <span class="sett-reset" onclick="document.getElementById('cfg-reminder-border-w').value='';document.getElementById('cfg-reminder-border-c').value='#888';applyAppSettings()">Сбросить</span>
+      </div>
+    </fieldset>
 
-    <div class="help-section-card" style="margin-top:18px;">
-      <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Резервное копирование данных</div>
+    <fieldset class="sett-section">
+      <legend class="sett-section-title">Резервное копирование</legend>
       <div style="display: flex; gap: 10px;">
         <button class="ipreset" style="flex: 1; padding: 10px;" onclick="exportData()">Экспорт JSON</button>
         <button class="ipreset" style="flex: 1; padding: 10px;" onclick="importData()">Импорт JSON</button>
       </div>
       <input type="file" id="import-file" style="display: none;" accept=".json" onchange="handleImportFile(event)">
-    </div>
+    </fieldset>
 
-    <div class="help-section-card danger" style="margin-top:18px;">
-      <div class="help-section-title" style="margin-bottom:10px;font-size:11px;">Сброс данных</div>
+    <fieldset class="sett-section" style="border-color:var(--danger-soft);">
+      <legend class="sett-section-title" style="color:var(--danger);">Сброс данных</legend>
       <div style="display:flex;gap:8px;">
         <button class="ipreset" style="flex:1;padding:10px;border-color:var(--green);color:var(--green);" onclick="resetProgram()">Сбросить прогресс</button>
         <button class="reset-btn" style="flex:1;" onclick="clearAllLocalStorage()">Очистить всё</button>
       </div>
-      <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4;">«Сбросить прогресс» — очищает недели и заметки, сохраняет историю и настройки. «Очистить всё» — удаляет все данные без возможности восстановления.</div>
-    </div>
+      <div class="sett-hint">«Сбросить прогресс» — очищает недели и заметки, сохраняет историю и настройки. «Очистить всё» — удаляет все данные без возможности восстановления.</div>
+    </fieldset>
 
     <button class="day-action-btn complete" style="width:100%;margin-top:18px;" onclick="saveAppSettings()">✓ Сохранить</button>
   </div>
@@ -2540,26 +2831,27 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 
 <!-- THEME PICKER -->
 <div class="help-overlay" id="theme-overlay" onclick="closeThemePicker()"></div>
-<div class="help-sheet" id="theme-picker">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="theme-picker" role="dialog" aria-modal="true" aria-labelledby="theme-picker-title">
   <div class="help-head">
-    <div><div class="help-name">Тема оформления</div></div>
-    <button class="help-close" onclick="closeThemePicker()">✕</button>
+    <div><h2 class="help-name" id="theme-picker-title">Тема оформления</h2></div>
+    <button class="help-close" onclick="closeThemePicker()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body" id="theme-picker-body"></div>
 </div>
 
 <!-- MEASUREMENTS SHEET -->
 <div class="help-overlay" id="measures-overlay" onclick="closeMeasurements()"></div>
-<div class="help-sheet" id="measures-sheet">
-  <div class="help-handle"></div>
+<div class="help-sheet" id="measures-sheet" role="dialog" aria-modal="true" aria-labelledby="measures-title">
   <div class="help-head">
-    <div><div class="help-name">Замеры</div></div>
-    <button class="help-close" onclick="closeMeasurements()">✕</button>
+    <div><h2 class="help-name" id="measures-title">Замеры</h2></div>
+    <button class="help-close" onclick="closeMeasurements()" aria-label="Закрыть">✕</button>
   </div>
   <div class="help-body" id="measures-body"></div>
 </div>
 
+<a class="skip-link" href="#main-content">Перейти к содержимому</a>
+<main id="main-content">
+<div class="app-root">
 <div class="app">
 
   <div class="topbar">
@@ -2567,9 +2859,21 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
     <div class="topbar-right">
       <div class="topbar-week" id="topbar-wk">Неделя 1</div>
       <div class="topbar-pill">
-        <button class="theme-toggle" id="history-btn" onclick="openHistory()" title="История тренировок">📋</button>
-        <button class="theme-toggle" onclick="openCatalog()" title="Каталог упражнений">☰</button>
-        <button class="theme-toggle" onclick="openMeasurements()" title="Замеры">
+        <button class="theme-toggle" id="history-btn" onclick="openHistory()" title="История тренировок" aria-label="История тренировок">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+            <path d="M9 12h6M9 16h4"/>
+          </svg>
+        </button>
+        <button class="theme-toggle" onclick="openCatalog()" title="Каталог упражнений" aria-label="Каталог упражнений" aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="4" y1="6"  x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
+        <button class="theme-toggle" onclick="openMeasurements()" title="Замеры" aria-label="Замеры" aria-haspopup="dialog">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="5" r="3"/>
             <path d="M12 8v6l-4 6"/>
@@ -2579,8 +2883,17 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
         </button>
       </div>
       <div class="topbar-pill">
-        <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения">⚙︎</button>
-        <button class="theme-toggle" id="theme-btn" onclick="openThemePicker()" title="Сменить тему">☽</button>
+        <button class="theme-toggle" onclick="openAppSettings()" title="Настройки приложения" aria-label="Настройки приложения" aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        <button class="theme-toggle" id="theme-btn" onclick="openThemePicker()" title="Сменить тему" aria-label="Сменить тему" aria-haspopup="dialog">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -2606,7 +2919,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
     <div class="sw-body">
       <div class="sw-display" id="sw-display">0:00:00</div>
       <div class="sw-controls">
-        <button class="sw-btn reset" id="sw-reset" onclick="swReset()" title="Сбросить">↺</button>
+        <button class="sw-btn reset" id="sw-reset" onclick="swReset()" title="Сбросить"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg></button>
         <button class="sw-btn start" id="sw-start" onclick="swToggle()">Старт</button>
       </div>
     </div>
@@ -2689,6 +3002,8 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
 
   <div class="footer"><div class="footer-txt" id="app-footer">Ab Wheel Tracker · Standing Rollout Program</div></div>
 </div>
+</div><!-- /.app-root -->
+</main>
 
 
 <script>
@@ -2842,14 +3157,12 @@ function openThemePicker(){
       ${S.theme===t?'<span class="theme-check">✓</span>':''}
     </div>
   `).join('');
-  document.getElementById('theme-overlay').classList.add('open');
-  document.getElementById('theme-picker').classList.add('open');
-  if (navigator.vibrate) navigator.vibrate(8);
+  openSheet('theme-picker', document.activeElement);
+  vibe(8);
 }
 
 function closeThemePicker(){
-  document.getElementById('theme-overlay').classList.remove('open');
-  document.getElementById('theme-picker').classList.remove('open');
+  closeSheet('theme-picker');
 }
 
 const save=()=>{S.W=W;S.D=D;try{localStorage.setItem('abw8',JSON.stringify(S));}catch(e){}};
@@ -3041,16 +3354,28 @@ const gotPartial=(w,d,i)=>{const v=S[k(w,d,i)];if(!v||v==='skipped')return false
 // ── Последнее нажатое упражнение (для плашки таймера) ──
 let lastTappedEx = null; // { d, i }
 let _lpTimer = null;
+let _lpTarget = null;
 function startLp(e, w, d, i){
   if(e.button && e.button!==0) return;
+  const box = e.currentTarget || (e.target && e.target.closest && e.target.closest('.chk-box'));
   if(_lpTimer) clearTimeout(_lpTimer);
+  if(box) { box.classList.add('chk-pressing'); _lpTarget = box; }
   _lpTimer = setTimeout(() => {
     _lpTimer = null;
+    if(box) { box.classList.remove('chk-pressing'); box.classList.add('chk-skipping'); }
     togSkip(w,d,i);
+    setTimeout(() => { if(box){ box.classList.remove('chk-skipping'); } _lpTarget = null; }, 350);
   }, 500);
 }
 function cancelLp(e){
-  if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer = null; }
+  if(_lpTimer){
+    clearTimeout(_lpTimer);
+    _lpTimer = null;
+    if(_lpTarget){
+      _lpTarget.classList.remove('chk-pressing');
+      _lpTarget = null;
+    }
+  }
 }
 function togSkip(w,d,i){
   if(editMode) return;
@@ -3234,7 +3559,7 @@ function togSet(w,d,i,setIdx){
 }
 
 function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();render();}
-function resetDayProgress(){showConfirm('Сбросить прогресс','Сбросить все подходы за сегодня?',resetDay);}
+function resetDayProgress(){showConfirm('Сбросить прогресс','Сбросить все подходы за сегодня?',resetDay,'Сбросить');}
 function completeDay(){
   showConfirm('Заполнить день','Закрыть все подходы за сегодня?',function(){
     S.days[D].ex.forEach((e,i)=>{
@@ -3246,7 +3571,7 @@ function completeDay(){
       else S[k(W,D,i)]={done:total,total:total};
     });
     recordSession(W,D);save();render();
-  });
+  }, 'Заполнить день');
 }
 // Перенос кастомных подходов/повторов/нагрузки с prevW на toW (done сбрасывается)
 function carryWeekData(prevW, toW){
@@ -3313,18 +3638,18 @@ function removeWeek(){
     if (W < S.maxWk) S.maxWk = W;
     D = 0;
     save(); render();
-  });
+  }, 'Удалить неделю');
 }
-function showConfirm(title, text, onConfirm){
+function showConfirm(title, text, onConfirm, okLabel){
   document.getElementById('confirm-title').textContent = title;
   document.getElementById('confirm-text').innerHTML = text;
-  document.getElementById('confirm-ok').onclick = function(){ closeConfirm(); if(onConfirm) onConfirm(); };
-  document.getElementById('confirm-overlay').classList.add('open');
-  document.getElementById('confirm-popup').classList.add('open');
+  const okBtn = document.getElementById('confirm-ok');
+  okBtn.textContent = okLabel || 'Подтвердить';
+  okBtn.onclick = function(){ closeConfirm(); if(onConfirm) onConfirm(); };
+  openSheet('confirm-popup', document.activeElement);
 }
 function closeConfirm(){
-  document.getElementById('confirm-overlay').classList.remove('open');
-  document.getElementById('confirm-popup').classList.remove('open');
+  closeSheet('confirm-popup');
 }
 
 function completeCurrentCycle(){
@@ -3407,7 +3732,7 @@ function deleteArchivedCycle(idx){
     S.cycles.splice(idx, 1);
     save();
     render();
-  });
+  }, 'Удалить цикл');
 }
 
 function cancelPresetPicker(){
@@ -3555,8 +3880,7 @@ function showCycleSetup(){
         </button>
       </div>
     </div>`;
-  overlay.classList.add('open');
-  sheet.classList.add('open');
+  openSheet('help-sheet', document.activeElement);
   _csSelectedDays = DEFAULT_DAY_PATTERNS[1].slice();
   _csDaysTouched = false;
   csRefreshPreview();
@@ -3811,7 +4135,7 @@ function deleteEx(di,ei){
   showConfirm('Удалить упражнение',`Удалить "${name}" из программы?<br><small>Упражнение останется на прошлых неделях.</small>`,function(){
     S.days[di].ex[ei].removedAt = W;
     save();render();
-  });
+  }, 'Удалить');
 }
 function moveEx(di,ei,dir){
   const ex=S.days[di].ex; const ni=ei+dir;
@@ -3902,7 +4226,7 @@ function removeExtraDay(di){
     D = Math.min(D, S.days.length-1);
     editMode = false;
     save(); render();
-  });
+  }, 'Удалить день');
 }
 function moveDay(fromIdx, toIdx) {
   if (fromIdx === toIdx) return;
@@ -3972,10 +4296,10 @@ const calcWeekProg = () => {
 };
 
 const tagH=t=>({
-  key:'<span class="tag t-key">ключ</span>',
-  mob:'<span class="tag t-mob">мобил</span>',
-  aux:'<span class="tag t-aux">база</span>',
-}[t]||'<span class="tag t-key">ключ</span>');
+  key:'<span class="tag t-key">Ключевое</span>',
+  mob:'<span class="tag t-mob">Мобильность</span>',
+  aux:'<span class="tag t-aux">Базовое</span>',
+}[t]||'<span class="tag t-key">Ключевое</span>');
 
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
@@ -4193,7 +4517,7 @@ function renderExItem(e,di,ei){
         ${e.ss?`<button type="button" class="ss-add-btn" onclick="event.stopPropagation();addSupMember(${di},${ei})">+ Добавить упражнение в суперсет</button>`:''}
       </div>
       <div class="edit-actions">
-        <span class="drag-handle" title="Перетащить">⠿</span>
+        <span class="drag-handle" title="Перетащить"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
         <button class="ea-btn" onclick="deleteEx(${di},${ei})">✕</button>
       </div>
     </div>`;
@@ -4318,12 +4642,23 @@ function renderExItem(e,di,ei){
   </div>`;
 }
 
+function wkColorVar(i){
+  if (i < 1 || i > 9) return null;
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--wk-c' + i).trim();
+  return v || null;
+}
+function wkColorFor(W, wkCfg){
+  if (wkCfg.wkRandom) {
+    return '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+  }
+  if (wkCfg.wkColor) return wkCfg.wkColor;
+  const idx = ((W-1) % 9) + 1;
+  return wkColorVar(idx) || wkColorVar(((idx-1)%8)+1) || 'var(--text2)';
+}
+
 function render(){
-  const WK_COLORS=['','#5dcaa5','#2aaa72','#4a9fd4','#7b6fe8','#c8a96e','#e07a3a','#d45a5a','#c45faa','#b08840'];
   const wkCfg = loadAppCfg();
-  const wkColor = wkCfg.wkRandom
-    ? '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0')
-    : (wkCfg.wkColor || WK_COLORS[W] || WK_COLORS[(W-1)%8+1] || 'var(--text2)');
+  const wkColor = wkColorFor(W, wkCfg);
   document.getElementById('topbar-wk').textContent='Неделя '+W;
   document.getElementById('topbar-wk').style.color=wkColor;
   document.getElementById('wn-n').textContent=W;
@@ -4352,7 +4687,7 @@ function render(){
       </div>`;
     }
     return `<div class="d-tab ${act?d.cls:''} ${full&&!act?'was-done':''}" data-di="${i}" onclick="selDay(${i})">
-      <div class="d-tab-day">${d.day}${d.extra?'<span style="font-size:10px;opacity:.5"> ★</span>':''}</div>
+      <div class="d-tab-day">${d.day}${d.extra?'<span class="d-tab-extra-star"> ★</span>':''}</div>
       <div class="d-tab-role">${esc(d.role)}</div>
     </div>`;
   }).join('') + `<div class="d-tab-add" onclick="addExtraDay()" title="Добавить день">+</div>`;
@@ -4648,7 +4983,7 @@ function renderAppCfg(cfg) {
     const cls2 = s2.length ? '' : ' class="accent"';
     const st1 = s1.length ? ' style="'+s1.join(';')+'"' : '';
     const st2 = s2.length ? ' style="'+s2.join(';')+'"' : '';
-    ht.innerHTML = '<span'+st1+'>'+w1+'</span><br><span'+cls2+st2+'>'+w2+'</span>';
+    ht.innerHTML = '<span'+st1+'>'+w1+'</span> <span'+cls2+st2+'>'+w2+'</span>';
   }
   if (ht) ht.style.display = (cfg.showHero !== false) ? '' : 'none';
   if (ht) { if (cfg.heroTitleColor) ht.style.color = cfg.heroTitleColor; else ht.style.color = ''; }
@@ -4734,9 +5069,8 @@ function openAppSettings() {
     wkColorInp.value = cfg.wkColor || '#5dcaa5';
     if (wkColorVal) wkColorVal.textContent = cfg.wkColor ? cfg.wkColor : (cfg.wkRandom ? '—' : 'По умолчанию');
   }
-  document.getElementById('settings-overlay').classList.add('open');
-  document.getElementById('settings-sheet').classList.add('open');
-  if (navigator.vibrate) navigator.vibrate(8);
+  openSheet('settings-sheet', document.activeElement);
+  vibe(8);
 }
 
 function handleReminderImg(e){
@@ -4770,7 +5104,7 @@ function clearAllLocalStorage(){  showConfirm('Удалить всё','Удал�
     localStorage.clear();
     closeAppSettings();
     location.reload();
-  });
+  }, 'Удалить всё');
 }
 
 function resetProgram(){
@@ -4785,12 +5119,11 @@ function resetProgram(){
     }
     closeAppSettings();
     location.reload();
-  });
+  }, 'Сбросить прогресс');
 }
 
 function closeAppSettings() {
-  document.getElementById('settings-overlay').classList.remove('open');
-  document.getElementById('settings-sheet').classList.remove('open');
+  closeSheet('settings-sheet');
 }
 
 function saveAppSettings() {
@@ -4822,14 +5155,12 @@ function measDateStr(iso){
 
 function openMeasurements(){
   renderMeasBody();
-  document.getElementById('measures-overlay').classList.add('open');
-  document.getElementById('measures-sheet').classList.add('open');
+  openSheet('measures-sheet', document.activeElement);
   if(navigator.vibrate) navigator.vibrate(8);
 }
 function closeMeasurements(){
   window._measEdit = null;
-  document.getElementById('measures-overlay').classList.remove('open');
-  document.getElementById('measures-sheet').classList.remove('open');
+  closeSheet('measures-sheet');
 }
 
 function renderMeasEntry(e,i){
@@ -4864,7 +5195,7 @@ function renderMeasEntry(e,i){
         <span class="meas-del" onclick="event.stopPropagation();deleteMeasEntry(${i})">✕</span>
       </span>
     </div>
-    ${vals ? `<div style="font-size:12px;color:var(--text2);margin-top:4px;">${vals}</div>` : '<div style="font-size:11px;color:var(--text3);margin-top:4px;">Нет данных</div>'}
+    ${vals ? `<div class="hist-ex-note-val">${vals}</div>` : '<div class="hist-ex-note-empty">Нет данных</div>'}
   </div>`;
 }
 
@@ -5017,58 +5348,45 @@ function saveMeasRefs(refs){
 function renderMeasBody(){
   const m = loadMeasures();
   const body = document.getElementById('measures-body');
-  if (!m.length){ body.innerHTML = '<button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button><p class="help-no-info">Пока нет записей.</p>'; return; }
+  if (!m.length){ body.innerHTML = '<button class="add-ex-btn visible meas-empty-add" onclick="addMeasEntry()">+ Добавить запись</button><p class="help-no-info">Пока нет записей.</p>'; return; }
   if (!window._measChartFields) window._measChartFields = {weight:true, chest:true, waist:true, biceps:true};
   const weightFields = MEAS_FIELDS.filter(f => f.k === 'weight');
   const bodyFields = MEAS_FIELDS.filter(f => f.k !== 'weight');
   const refs = loadMeasRefs();
   const refInput = (k, label) => {
     const step = k === 'weight' ? 1 : 0.5;
-    return `<div style="display:flex;align-items:center;gap:2px;font-size:10px;color:var(--text3);">
-      <span style="width:6px;height:6px;border-radius:2px;background:${CHART_COLORS[k]||'#888'};display:inline-block;flex-shrink:0;"></span>
-      <span style="margin-right:2px;">${label}</span>
-      <button style="background:var(--surface2);border:1px solid var(--border);border-radius:4px 0 0 4px;padding:1px 5px;font-size:11px;cursor:pointer;color:var(--text2);line-height:1.4;font-family:inherit;" onclick="const r=loadMeasRefs();r['${k}']=Math.max(0,(parseFloat(r['${k}'])||0)-${step});saveMeasRefs(r);renderMeasBody()">−</button>
-      <input type="text" inputmode="decimal" value="${refs[k]??'0'}" style="width:44px;border:1px solid var(--border);border-left:none;border-right:none;padding:1px 2px;font-size:10px;background:var(--surface2);color:var(--text);text-align:center;outline:none;font-family:inherit;-moz-appearance:textfield;"
+    return `<div class="meas-ref">
+      <span class="meas-ref-swatch" style="background:${CHART_COLORS[k]||'#888'};"></span>
+      <span class="meas-ref-name">${label}</span>
+      <button class="meas-step-btn meas-step-minus" onclick="const r=loadMeasRefs();r['${k}']=Math.max(0,(parseFloat(r['${k}'])||0)-${step});saveMeasRefs(r);renderMeasBody()">−</button>
+      <input type="text" inputmode="decimal" value="${refs[k]??'0'}" class="meas-step-input"
         onchange="const r=loadMeasRefs();r['${k}']=this.value;saveMeasRefs(r);renderMeasBody()">
-      <button style="background:var(--surface2);border:1px solid var(--border);border-radius:0 4px 4px 0;padding:1px 5px;font-size:11px;cursor:pointer;color:var(--text2);line-height:1.4;font-family:inherit;" onclick="const r=loadMeasRefs();r['${k}']=(parseFloat(r['${k}'])||0)+${step};saveMeasRefs(r);renderMeasBody()">+</button>
+      <button class="meas-step-btn meas-step-plus" onclick="const r=loadMeasRefs();r['${k}']=(parseFloat(r['${k}'])||0)+${step};saveMeasRefs(r);renderMeasBody()">+</button>
     </div>`;
   };
+  const chartCol = (title, fields, canvasId) => `
+    <div class="meas-chart-col">
+      <div class="meas-chart-title">${title}</div>
+      <div class="meas-canvas-wrap"><canvas id="${canvasId}" class="meas-canvas"></canvas></div>
+      <div class="meas-toggles">
+        ${fields.map(f => `
+          <label class="meas-toggle-label">
+            <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()">
+            <span class="meas-swatch" style="background:${CHART_COLORS[f.k]};"></span>
+            ${f.l.replace(/\(.*\)/,'').trim()}
+          </label>
+        `).join('')}
+      </div>
+      <div class="meas-toggles-refs">
+        ${fields.map(f => refInput(f.k, f.l.replace(/\(.*\)/,'').trim())).join('')}
+      </div>
+    </div>`;
   body.innerHTML = `
-    <div style="display:flex;gap:12px;margin-bottom:14px;">
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Вес</div>
-        <div style="overflow-x:auto;"><canvas id="meas-chart-weight" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
-        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
-          ${weightFields.map(f => `
-            <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
-              <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
-              <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
-              ${f.l.replace(/\(.*\)/,'').trim()}
-            </label>
-          `).join('')}
-        </div>
-        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
-          ${weightFields.map(f => refInput(f.k, f.l.replace(/\(.*\)/,'').trim())).join('')}
-        </div>
-      </div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:4px;letter-spacing:0.1em;text-transform:uppercase;">Грудь / Талия / Руки</div>
-        <div style="overflow-x:auto;"><canvas id="meas-chart-body" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;"></canvas></div>
-        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
-          ${bodyFields.map(f => `
-            <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);cursor:pointer;">
-              <input type="checkbox" ${window._measChartFields[f.k]?'checked':''} onchange="window._measChartFields['${f.k}']=this.checked;renderMeasBody()" style="accent-color:var(--gold);">
-              <span style="width:8px;height:8px;border-radius:50%;background:${CHART_COLORS[f.k]};display:inline-block;"></span>
-              ${f.l.replace(/\(.*\)/,'').trim()}
-            </label>
-          `).join('')}
-        </div>
-        <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;justify-content:center;">
-          ${bodyFields.map(f => refInput(f.k, f.l.replace(/\(.*\)/,'').trim())).join('')}
-        </div>
-      </div>
+    <div class="meas-charts">
+      ${chartCol('Вес', weightFields, 'meas-chart-weight')}
+      ${chartCol('Грудь / Талия / Руки', bodyFields, 'meas-chart-body')}
     </div>
-    <button class="add-ex-btn visible" onclick="addMeasEntry()" style="margin-bottom:12px;">+ Добавить запись</button>
+    <button class="add-ex-btn visible meas-add-btn" onclick="addMeasEntry()">+ Добавить запись</button>
     ${m.map((e,i)=>({e,i})).sort((a,b)=>(b.e.iso||'').localeCompare(a.e.iso||'')).map(({e,i})=>renderMeasEntry(e,i)).join('')}
   `;
   requestAnimationFrame(()=>{ drawMeasChart('meas-chart-weight', weightFields.filter(f=>window._measChartFields[f.k]), [70,100]); drawMeasChart('meas-chart-body', bodyFields.filter(f=>window._measChartFields[f.k])); });
@@ -5095,7 +5413,7 @@ function deleteMeasEntry(i){
     m.splice(i,1);
     saveMeasures(m);
     renderMeasBody();
-  });
+  }, 'Удалить');
 }
 
 function applyAppSettings() {
@@ -5176,14 +5494,18 @@ function updateAppField(field, rawVal) {
 function renderWeeksBody() {
   const body = document.getElementById('weeks-body');
   const cfg = loadAppCfg();
+  const colorRow = (label, value, onInput) => `
+    <span class="wk-lbl">${label}</span>
+    <input type="color" class="wk-color" value="${value||'#ffffff'}"
+      oninput="${onInput}">`;
   body.innerHTML = `
-    <div class="help-section" style="margin-bottom:14px;">
+    <div class="help-section wk-section-pad-14">
       <div class="help-section-title">Название программы (прогресс)</div>
       <input class="edit-field" value="${esc(cfg.progTitle)}"
         oninput="updateAppField('progTitle',this.value)" placeholder="Выход стоя">
-      <div style="display:flex;gap:10px;margin-top:6px;align-items:center;">
-        <span style="font-size:11px;color:var(--text3);">Насыщенность</span>
-        <select class="tag-select" style="flex:1;" onchange="updateAppField('progTitleWeight',this.value)">
+      <div class="wk-row">
+        <span class="wk-lbl">Насыщенность</span>
+        <select class="tag-select wk-sel" onchange="updateAppField('progTitleWeight',this.value)">
           <option value="300" ${cfg.progTitleWeight==='300'?'selected':''}>Light 300</option>
           <option value="400" ${cfg.progTitleWeight==='400'?'selected':''}>Normal 400</option>
           <option value="500" ${cfg.progTitleWeight==='500'?'selected':''}>Medium 500</option>
@@ -5191,72 +5513,64 @@ function renderWeeksBody() {
           <option value="700" ${cfg.progTitleWeight==='700'?'selected':''}>Bold 700</option>
           <option value="900" ${cfg.progTitleWeight==='900'?'selected':''}>Black 900</option>
         </select>
-        <span style="font-size:11px;color:var(--text3);">Цвет</span>
-        <input type="color" value="${cfg.progTitleColor||'#ffffff'}"
-          style="width:32px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:1px;"
-          oninput="updateAppField('progTitleColor',this.value)">
+        ${colorRow('Цвет', cfg.progTitleColor, "updateAppField('progTitleColor',this.value)")}
       </div>
     </div>
-    <div class="help-section" style="margin-bottom:14px;">
+    <div class="help-section wk-section-pad-14">
       <div class="help-section-title">Подзаголовок программы</div>
       <input class="edit-field" value="${esc(cfg.progSub)}"
         oninput="updateAppField('progSub',this.value)" placeholder="Дорожная карта...">
-      <div style="display:flex;gap:10px;margin-top:6px;align-items:center;">
-        <span style="font-size:11px;color:var(--text3);">Насыщенность</span>
-        <select class="tag-select" style="flex:1;" onchange="updateAppField('progSubWeight',this.value)">
+      <div class="wk-row">
+        <span class="wk-lbl">Насыщенность</span>
+        <select class="tag-select wk-sel" onchange="updateAppField('progSubWeight',this.value)">
           <option value="100" ${cfg.progSubWeight==='100'?'selected':''}>Thin 100</option>
           <option value="200" ${cfg.progSubWeight==='200'?'selected':''}>Extra Light 200</option>
           <option value="300" ${cfg.progSubWeight==='300'?'selected':''}>Light 300</option>
           <option value="400" ${cfg.progSubWeight==='400'?'selected':''}>Normal 400</option>
           <option value="500" ${cfg.progSubWeight==='500'?'selected':''}>Medium 500</option>
         </select>
-        <span style="font-size:11px;color:var(--text3);">Цвет</span>
-        <input type="color" value="${cfg.progSubColor||'#938f8c'}"
-          style="width:32px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:1px;"
-          oninput="updateAppField('progSubColor',this.value)">
+        ${colorRow('Цвет', cfg.progSubColor, "updateAppField('progSubColor',this.value)")}
       </div>
     </div>
   ` + WEEKS.map((w, i) => `
-    <div class="help-section" style="border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="help-section-title" style="margin:0;">Этап ${i+1}</div>
-        <div style="display:flex;gap:6px;">
-          ${i > 0 ? `<button class="ea-btn up" onclick="moveWeek(${i},-1)">↑</button>` : ''}
-          ${i < WEEKS.length-1 ? `<button class="ea-btn dn" onclick="moveWeek(${i},1)">↓</button>` : ''}
+    <div class="wk-stage">
+      <div class="wk-stage-head">
+        <div class="help-section-title">Этап ${i+1}</div>
+        <div class="wk-stage-actions">
+          ${i > 0 ? `<button class="ea-btn up" onclick="moveWeek(${i},-1)" title="Вверх"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 14 12 8 18 14"/></svg></button>` : ''}
+          ${i < WEEKS.length-1 ? `<button class="ea-btn dn" onclick="moveWeek(${i},1)" title="Вниз"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 10 12 16 18 10"/></svg></button>` : ''}
           ${WEEKS.length > 1 ? `<button class="ea-btn" onclick="deleteWeek(${i})">✕</button>` : ''}
         </div>
       </div>
-      <input class="edit-field" style="margin-bottom:6px;" value="${esc(w.l)}"
+      <input class="edit-field wk-field" value="${esc(w.l)}"
         oninput="updateWeek(${i},'l',this.value)" placeholder="Название (Нед. 1–2)">
-      <input class="edit-field detail-field" style="margin-bottom:6px;" value="${esc(w.d)}"
+      <input class="edit-field detail-field wk-field" value="${esc(w.d)}"
         oninput="updateWeek(${i},'d',this.value)" placeholder="Описание этапа">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <span style="font-size:11px;color:var(--text3);white-space:nowrap;">Прогресс %</span>
-        <input class="edit-field" style="width:70px;" type="number" min="1" max="100"
+      <div class="wk-row">
+        <span class="wk-lbl">Прогресс %</span>
+        <input class="edit-field wk-pill" type="number" min="1" max="100"
           value="${w.p}" oninput="updateWeek(${i},'p',+this.value)" placeholder="100">
       </div>
 
-      <div style="font-family:'Archivo Narrow',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Прогресс-бар</div>
+      <div class="wk-bar-section-title">Прогресс-бар</div>
 
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:12px;color:var(--text2);">Цвет</span>
-          <input type="color" value="${w.c||'#c8a96e'}"
-            style="width:32px;height:28px;border-radius:6px;border:1px solid var(--border);cursor:pointer;padding:1px;"
+      <div class="wk-row-wrap">
+        <div class="wk-row-sm">
+          <span class="wk-lbl">Цвет</span>
+          <input type="color" class="wk-color" value="${w.c||'#c8a96e'}"
             oninput="updateWeek(${i},'c',this.value);previewBar(${i})">
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:12px;color:var(--text2);">Толщина</span>
-          <input type="range" min="1" max="16" value="${w.barH||3}"
-            style="width:80px;"
+        <div class="wk-row-sm">
+          <span class="wk-lbl">Толщина</span>
+          <input type="range" class="wk-range" min="1" max="16" value="${w.barH||3}"
             oninput="updateWeek(${i},'barH',+this.value);previewBar(${i});document.getElementById('bh_${i}').textContent=this.value+'px'">
-          <span id="bh_${i}" style="font-size:11px;color:var(--text3);min-width:24px;">${w.barH||3}px</span>
+          <span id="bh_${i}" class="wk-range-val">${w.barH||3}px</span>
         </div>
       </div>
 
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-        <span style="font-size:12px;color:var(--text2);">Вид</span>
-        <select class="tag-select" style="flex:1;" onchange="updateWeek(${i},'barStyle',this.value);previewBar(${i})">
+      <div class="wk-row-sm">
+        <span class="wk-lbl">Вид</span>
+        <select class="tag-select wk-sel" onchange="updateWeek(${i},'barStyle',this.value);previewBar(${i})">
           <option value="default"  ${(w.barStyle||'default')==='default' ?'selected':''}>Прямой</option>
           <option value="rounded"  ${(w.barStyle||'')==='rounded'  ?'selected':''}>Закруглённый</option>
           <option value="striped"  ${(w.barStyle||'')==='striped'  ?'selected':''}>Полосатый</option>
@@ -5264,13 +5578,13 @@ function renderWeeksBody() {
         </select>
       </div>
 
-      <div id="bar-preview-${i}" style="background:var(--surface3);overflow:hidden;margin-bottom:2px;
-           height:${w.barH||3}px;
-           border-radius:${(w.barStyle||'default')==='rounded'?'999px':'2px'}">
-        <div style="height:100%;width:${w.p}%;background:${w.c};
-             ${(w.barStyle||'')==='striped'?'background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.15) 0,rgba(255,255,255,.15) 6px,transparent 6px,transparent 12px);background-size:24px 24px;':''}
-             ${(w.barStyle||'')==='gradient'?'filter:brightness(1.18);':''}
-             border-radius:${(w.barStyle||'default')==='rounded'?'999px':'1px'}"></div>
+      <div id="bar-preview-${i}" class="wk-bar-preview"
+           style="height:${w.barH||3}px;border-radius:${(w.barStyle||'default')==='rounded'?'999px':'2px'}">
+        <div class="wk-bar-preview-fill"
+             style="width:${w.p}%;background:${w.c};
+                    ${(w.barStyle||'')==='striped'?'background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.15) 0,rgba(255,255,255,.15) 6px,transparent 6px,transparent 12px);background-size:24px 24px;':''}
+                    ${(w.barStyle||'')==='gradient'?'filter:brightness(1.18);':''}
+                    border-radius:${(w.barStyle||'default')==='rounded'?'999px':'1px'}"></div>
       </div>
     </div>
   `).join('') + `
@@ -5298,14 +5612,12 @@ function previewBar(i) {
 
 function openWeeksEditor() {
   renderWeeksBody();
-  document.getElementById('weeks-overlay').classList.add('open');
-  document.getElementById('weeks-sheet').classList.add('open');
-  if (navigator.vibrate) navigator.vibrate(8);
+  openSheet('weeks-sheet', document.activeElement);
+  vibe(8);
 }
 
 function closeWeeksEditor() {
-  document.getElementById('weeks-overlay').classList.remove('open');
-  document.getElementById('weeks-sheet').classList.remove('open');
+  closeSheet('weeks-sheet');
   render(); // Обновляем прогресс-блок
 }
 
@@ -5328,7 +5640,7 @@ function deleteWeek(i) {
     WEEKS.splice(i, 1);
     saveWeeks(WEEKS);
     renderWeeksBody();
-  });
+  }, 'Удалить этап');
 }
 
 function addWeek() {
@@ -5347,7 +5659,7 @@ function resetWeeks() {
     WEEKS = JSON.parse(JSON.stringify(WEEKS_DEFAULT));
     saveWeeks(WEEKS);
     renderWeeksBody();
-  });
+  }, 'Сбросить');
 }
 
 // Применяем при загрузке
@@ -5734,8 +6046,6 @@ function showHelp(name, type, fromName) {
   const edits = loadCatEdits();
   const ed = edits[name];
   const info = EX_DB[name];
-  const overlay = document.getElementById('help-overlay');
-  const sheet   = document.getElementById('help-sheet');
 
   document.getElementById('help-name').textContent = ed && ed.n ? ed.n : name;
   document.getElementById('help-tag').innerHTML = tagH(type || 'aux');
@@ -5773,15 +6083,12 @@ function showHelp(name, type, fromName) {
     `;
   }
 
-  overlay.classList.add('open');
-  sheet.classList.add('open');
-  sheet.scrollTop = 0;
-  if (navigator.vibrate) navigator.vibrate(8);
+  openSheet('help-sheet');
+  vibe(8);
 }
 
 function closeHelp() {
-  document.getElementById('help-overlay').classList.remove('open');
-  document.getElementById('help-sheet').classList.remove('open');
+  closeSheet('help-sheet');
 }
 
 // Закрытие свайпом вниз для всех панелей
@@ -5825,7 +6132,7 @@ function closeHelp() {
     _pressEl = dot;
     _pressTimer = setTimeout(() => {
       _pressTimer = null;
-      if (navigator.vibrate) navigator.vibrate([10, 40, 10]);
+      vibe([10, 40, 10]);
       togWarmup(+dot.dataset.w, +dot.dataset.d, +dot.dataset.i, +dot.dataset.s);
     }, LONG_MS);
   }
@@ -6042,7 +6349,7 @@ function toggleMetronome() {
     btn.textContent  = metroEnabled ? '🔊' : '🔇';
     btn.classList.toggle('muted', !metroEnabled);
   }
-  if (navigator.vibrate) navigator.vibrate([8]);
+  vibe([8]);
 }
 
 function initMetroBtn() {
@@ -6144,7 +6451,7 @@ function playBeep(freqs) {
       g.gain.linearRampToValueAtTime(0, ctx.currentTime + t + d);
       o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + d + 0.05);
     });
-    if (navigator.vibrate) navigator.vibrate([120, 60, 120, 60, 120, 60, 180, 80, 180, 80, 300]);
+    vibe([120, 60, 120, 60, 120, 60, 180, 80, 180, 80, 300]);
   } catch(e) {}
 }
 
@@ -6206,7 +6513,6 @@ function editExNote(w,d,i) {
   const ex = S.days[d].ex[i];
   if (!ex) return;
   const overlay = document.getElementById('exnote-overlay');
-  const sheet   = document.getElementById('exnote-sheet');
   document.getElementById('exnote-name').textContent = ex.n;
   document.getElementById('exnote-tag').innerHTML = tagH(ex.t||'key');
   // Store w,d,i for reliable save
@@ -6215,10 +6521,7 @@ function editExNote(w,d,i) {
   overlay.dataset.noteI = i;
   const ta = document.getElementById('exnote-textarea');
   ta.value = S[exNoteKey(w,d,i)] || '';
-  overlay.classList.add('open');
-  sheet.classList.add('open');
-  sheet.scrollTop = 0;
-  setTimeout(() => ta.focus(), 100);
+  openSheet('exnote-sheet', document.activeElement);
 }
 
 function closeExNote() {
@@ -6238,8 +6541,7 @@ function closeExNote() {
       if(el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1500); }
     }
   }
-  overlay.classList.remove('open');
-  sheet.classList.remove('open');
+  closeSheet('exnote-sheet');
 }
 
 // Auto-save on input
@@ -6273,13 +6575,18 @@ function closeExNote() {
 // ══════════════════════════════════════
 const HISTORY_KEY = 'abw_history';
 
-function loadHistory(){ try{const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');h.forEach(r=>{if(r.date)r.date=r.date.replace(/^[^,]+,\s*/,'');});return h;}catch(e){return[];} }
+function loadHistory(){ try{const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return h;}catch(e){return[];} }
+
+const RU_MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+function formatRuDate(d){
+  return `${d.getDate()} ${RU_MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}`;
+}
 function saveHistory(h){ try{localStorage.setItem(HISTORY_KEY,JSON.stringify(h));}catch(e){} }
 
 function recordSession(w,d){
   const h = loadHistory();
   const day = S.days[d];
-  const note = S[`note_w${w}_d${d}`]||'';
+  const note = '';
 
   // Собираем список упражнений с подходами
   const exList = day.ex.map((e,i) => {
@@ -6311,7 +6618,7 @@ function recordSession(w,d){
   const now = new Date();
   const isoDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   h.unshift({
-    date: now.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'}),
+    date: formatRuDate(now),
     time: now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
     isoDate,
     week: w, dayId: day.id, dayTitle: day.title,
@@ -6386,13 +6693,11 @@ function handleImportFile(event) {
 }
 
 function closeHistorySheet() {
-  document.getElementById('history-overlay').classList.remove('open');
-  document.getElementById('history-sheet').classList.remove('open');
+  closeSheet('history-sheet');
 }
 
 function closeCatalog() {
-  document.getElementById('catalog-overlay').classList.remove('open');
-  document.getElementById('catalog-sheet').classList.remove('open');
+  closeSheet('catalog-sheet');
 }
 
 function loadCatEdits() {
@@ -6469,13 +6774,13 @@ function openCatalog(filter) {
 
   body.innerHTML = `
     <div class="help-section">
-      <div style="display:flex;align-items:center;gap:8px;padding:0 0 6px;">
+      <div class="cat-search-row">
         <input class="catalog-search" id="cat-search" type="text" placeholder="Поиск упражнений..." value="${esc(filter||'')}" oninput="openCatalog(this.value)">
-        <span style="font-size:13px;color:var(--text2);white-space:nowrap;">Своё</span>
+        <span class="cat-search-label">Своё</span>
         <button class="catalog-add-btn" onclick="catalogShowCreateForm()">+</button>
       </div>
     </div>
-    <div style="height:1px;background:var(--border);margin-bottom:16px;"></div>` +
+    <div class="cat-divider"></div>` +
     groupOrder.map(groupLabel => {
       const items = grouped[groupLabel];
       if (!items || !items.length) return '';
@@ -6489,7 +6794,7 @@ function openCatalog(filter) {
             <span class="catalog-ex-name">${esc(item.displayName)} ${groupTags(item.groups)}</span>
             <div class="catalog-ex-actions">
               <button class="catalog-add-btn catalog-edit-btn" onclick="catalogEditRow(this)">редактировать</button>
-              <button class="catalog-add-btn catalog-edit-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;margin-left:6px;">✕</button>
+              <button class="catalog-add-btn catalog-edit-btn btn-danger" style="margin-left:6px;" onclick="catalogDeleteEx(this)">✕</button>
             </div>
           </div>
         </div>`;
@@ -6497,8 +6802,7 @@ function openCatalog(filter) {
     </div>`;
     }).join('');
 
-  overlay.classList.add('open');
-  sheet.classList.add('open');
+  openSheet('catalog-sheet');
   setTimeout(() => {
     const inp = document.getElementById('cat-search');
     if (inp) {
@@ -6512,8 +6816,8 @@ function catalogShowCreateForm() {
   const body = document.getElementById('catalog-body');
   const ri = 'cat_new';
   body.innerHTML = `
-    <div style="margin-bottom:12px;">
-      <button class="catalog-add-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">← Назад</button>
+    <div class="cat-form-back">
+      <button class="catalog-add-btn btn-muted" onclick="openCatalog()">← Назад</button>
     </div>
     <div class="help-section">
       <div class="help-section-title cat-group-title">Новое упражнение</div>
@@ -6523,11 +6827,11 @@ function catalogShowCreateForm() {
         <label class="catalog-edit-label">Техника выполнения</label>
         <textarea class="catalog-edit-textarea" id="${ri}_how" placeholder="Описание техники"></textarea>
         <label class="catalog-edit-label">На что обратить внимание</label>
-        <textarea class="catalog-edit-textarea" id="${ri}_tips" placeholder="По одному пункту на строку" style="min-height:60px"></textarea>
+        <textarea class="catalog-edit-textarea cat-edit-input-tall" id="${ri}_tips" placeholder="По одному пункту на строку"></textarea>
         <label class="catalog-edit-label">Упражнения на тему</label>
         <div class="cat-tags-wrap" id="${ri}_alts_wrap"></div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <select class="catalog-edit-select" id="${ri}_alts_add" style="flex:1;">
+        <div class="cat-form-row">
+          <select class="catalog-edit-select cat-alts-add" id="${ri}_alts_add">
             <option value="">— Выбрать —</option>
             ${EX_ALL_FLAT.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
           </select>
@@ -6545,9 +6849,9 @@ function catalogShowCreateForm() {
             <option value="mob">Мобил</option>
           </select>
         </div>
-        <div class="catalog-edit-actions" style="margin-top:4px;">
-          <button class="catalog-add-btn" onclick="catalogSaveNew()" style="border-color:var(--green);color:var(--green);">Сохранить</button>
-          <button class="catalog-add-btn catalog-edit-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">Отмена</button>
+        <div class="catalog-edit-actions cat-edit-actions-spaced">
+          <button class="catalog-add-btn btn-success" onclick="catalogSaveNew()">Сохранить</button>
+          <button class="catalog-add-btn catalog-edit-btn btn-muted" onclick="openCatalog()">Отмена</button>
         </div>
       </div>
     </div>`;
@@ -6593,13 +6897,13 @@ function catalogEditRow(btn) {
       <label class="catalog-edit-label">Техника выполнения</label>
       <textarea class="catalog-edit-textarea" id="${ri}_how" placeholder="Описание техники">${esc(how)}</textarea>
       <label class="catalog-edit-label">На что обратить внимание</label>
-      <textarea class="catalog-edit-textarea" id="${ri}_tips" placeholder="По одному пункту на строку" style="min-height:60px">${esc(tips.join('\n'))}</textarea>
+      <textarea class="catalog-edit-textarea cat-edit-input-tall" id="${ri}_tips" placeholder="По одному пункту на строку">${esc(tips.join('\n'))}</textarea>
       <label class="catalog-edit-label">Упражнения на тему</label>
       <div class="cat-tags-wrap" id="${ri}_alts_wrap">
         ${alts.map(a => `<span class="cat-tag" data-val="${esc(a)}">${esc(a)} <button type="button" class="cat-tag-del" onclick="catalogRemoveAlt('${ri}','${esc(a.replace(/'/g,"\\'"))}')">✕</button></span>`).join('')}
       </div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <select class="catalog-edit-select" id="${ri}_alts_add" style="flex:1;">
+      <div class="cat-form-row">
+        <select class="catalog-edit-select cat-alts-add" id="${ri}_alts_add">
           <option value="">— Выбрать —</option>
           ${EX_ALL_FLAT.filter(a => !alts.includes(a)).map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
         </select>
@@ -6617,10 +6921,10 @@ function catalogEditRow(btn) {
           <option value="mob"${tag==='mob'?' selected':''}>Мобил</option>
         </select>
       </div>
-      <div class="catalog-edit-actions" style="margin-top:4px;">
-        <button class="catalog-add-btn" onclick="catalogSaveEdit(this)" style="border-color:var(--green);color:var(--green);">Сохранить</button>
-        <button class="catalog-add-btn catalog-edit-btn" onclick="openCatalog()" style="border-color:var(--text3);color:var(--text3);">Отмена</button>
-        ${inDay ? `<button class="catalog-add-btn" onclick="catalogDeleteEx(this)" style="border-color:#e05a3a;color:#e05a3a;">Удалить</button>` : ''}
+      <div class="catalog-edit-actions cat-edit-actions-spaced">
+        <button class="catalog-add-btn btn-success" onclick="catalogSaveEdit(this)">Сохранить</button>
+        <button class="catalog-add-btn catalog-edit-btn btn-muted" onclick="openCatalog()">Отмена</button>
+        ${inDay ? `<button class="catalog-add-btn btn-danger" onclick="catalogDeleteEx(this)">Удалить</button>` : ''}
       </div>
     </div>`;
   setTimeout(() => document.getElementById(`${ri}_name`)?.focus(), 50);
@@ -6907,13 +7211,16 @@ function openHistory(){
     ((b.isoDate||'')>(a.isoDate||'')?1:(b.isoDate||'')<(a.isoDate||'')?-1:0) ||
     ((b.time||'')>(a.time||'')?1:(b.time||'')<(a.time||'')?-1:0)
   ));
-  const overlay = document.getElementById('history-overlay');
-  const sheet   = document.getElementById('history-sheet');
   const body = document.getElementById('history-body');
 
   if(!h.length){
-    body.innerHTML = `<p class="help-no-info">Тренировок пока нет. Завершите первый день целиком.</p>`;
-    overlay.classList.add('open'); sheet.classList.add('open');
+    body.innerHTML = `
+      <div class="help-empty">
+        <div class="help-empty-title">Тренировок пока нет</div>
+        <div class="help-empty-text">Откройте сегодняшний день, отметьте подходы — здесь появится история.</div>
+        <button class="help-empty-btn" onclick="closeSheet('history-sheet')">К сегодняшнему дню</button>
+      </div>`;
+    openSheet('history-sheet');
     return;
   }
 
@@ -7003,63 +7310,61 @@ function openHistory(){
         filtered = filtered.filter(r => r.week === wkVal);
       }
     }
-    if(!filtered.length) return `<p class="help-no-info" style="margin-top:8px;">Нет тренировок${filterDate || (filterWeek && filterWeek !== 'all') ?' по выбранным фильтрам':''}.</p>`;
+    if(!filtered.length) return `<p class="help-no-info hist-no-info">Нет тренировок${filterDate || (filterWeek && filterWeek !== 'all') ?' по выбранным фильтрам':''}.</p>`;
     return filtered.map((r,idx)=>{
       const globalIdx = h.indexOf(r);
       const dur = r.duration ? fmtDuration(r.duration) : null;
       const exHTML = r.exList && r.exList.length
         ? r.exList.map(e=>`
             <div>
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface2);border-radius:7px;">
-                <span style="font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>
-                <span style="font-size:11px;font-weight:600;color:${e.done>=e.total?'var(--green)':'var(--gold)'};margin-left:8px;flex-shrink:0;">${e.done}/${e.total}${e.reps?` × ${e.reps}`:''}</span>
+              <div class="hist-ex-row">
+                <span class="hist-ex-name">${e.name}</span>
+                <span class="${e.done>=e.total?'hist-ex-stat-done':'hist-ex-stat-pending'}">${e.done}/${e.total}${e.reps?` × ${e.reps}`:''}</span>
               </div>
-              ${e.note?`<div style="margin:2px 8px 4px;font-size:11px;color:var(--text3);font-style:italic;">✎ ${e.note}</div>`:''}
+              ${e.note?`<div class="hist-ex-note">✎ ${e.note}</div>`:''}
             </div>`).join('')
-        : '<div style="font-size:12px;color:var(--text3);padding:4px 0;">Нет данных</div>';
+        : '<div class="hist-empty-list">Нет данных</div>';
       return `
-        <div style="border-bottom:1px solid var(--border2);">
-          <div onclick="toggleHistoryRow(${globalIdx})" style="padding:12px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;">
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
-                <span id="hist-date-${globalIdx}" style="font-size:13px;font-weight:600;color:var(--text);">${r.date}${r.time?` · ${r.time}`:''}</span>
-                <span style="font-size:11px;color:var(--text3);">Нед.${r.week} · Д${r.dayId}</span>
+        <div class="hist-row">
+          <div onclick="toggleHistoryRow(${globalIdx})" class="hist-row-head">
+            <div class="hist-row-main">
+              <div class="hist-row-line-1">
+                <span id="hist-date-${globalIdx}" class="hist-row-date">${r.date}${r.time?` · ${r.time}`:''}</span>
+                <span class="hist-meta">Нед.${r.week} · Д${r.dayId}</span>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span style="font-size:12px;color:var(--text2);">${r.dayTitle}</span>
-                ${dur?`<span id="hist-dur-${globalIdx}" style="font-size:11px;color:var(--text3);">⏱ ${dur}</span>`:`<span id="hist-dur-${globalIdx}" style="display:none;font-size:11px;color:var(--text3);"></span>`}
-                <span style="font-size:11px;font-weight:600;color:${r.done>=r.total?'var(--green)':'var(--gold)'};">${r.done}/${r.total} упр.</span>
+              <div class="hist-row-line-2">
+                <span class="hist-row-day">${r.dayTitle}</span>
+                ${dur?`<span id="hist-dur-${globalIdx}" class="hist-meta">⏱ ${dur}</span>`:`<span id="hist-dur-${globalIdx}" class="hist-meta hist-dur-empty"></span>`}
+                <span class="${r.done>=r.total?'hist-value-done':'hist-value-pending'}">${r.done}/${r.total} упр.</span>
               </div>
             </div>
-            <span id="hist-arrow-${globalIdx}" style="color:var(--text3);font-size:13px;flex-shrink:0;transition:transform .2s;">▸</span>
+            <span id="hist-arrow-${globalIdx}" class="hist-row-arrow">▸</span>
           </div>
-          <div id="hist-body-${globalIdx}" style="display:none;padding-bottom:10px;">
-            <div style="display:flex;flex-direction:column;gap:3px;">${exHTML}</div>
-            ${r.note?`<div style="margin-top:6px;font-size:12px;color:var(--text3);font-style:italic;">"${r.note}"</div>`:''}
-              <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Дата:</span>
-              <div style="position:relative;flex:1;display:flex;align-items:center;">
-                <span id="hist-date-input-${globalIdx}" onclick="document.getElementById('hist-date-picker-${globalIdx}').showPicker?.() || document.getElementById('hist-date-picker-${globalIdx}').click()" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px;background:var(--surface2);color:var(--text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.date||r.isoDate||''}</span>
+          <div id="hist-body-${globalIdx}" class="hist-row-body">
+            <div class="hist-ex-list">${exHTML}</div>
+            ${r.note?`<div class="hist-note">"${r.note}"</div>`:''}
+            <div class="hist-edit-row">
+              <span class="hist-label">Дата:</span>
+              <div class="hist-edit-date">
+                <span id="hist-date-input-${globalIdx}" onclick="document.getElementById('hist-date-picker-${globalIdx}').showPicker?.() || document.getElementById('hist-date-picker-${globalIdx}').click()" class="hist-edit-date-input">${r.date||r.isoDate||''}</span>
                 <input type="date" id="hist-date-picker-${globalIdx}" value="${r.isoDate||''}"
-                  style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;"
+                  class="hist-edit-date-picker"
                   onchange="histEditDate(this, ${globalIdx})">
               </div>
             </div>
-            <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Неделя:</span>
+            <div class="hist-edit-row">
+              <span class="hist-label">Неделя:</span>
               <input type="number" min="1" max="99" value="${r.week}"
-                style="width:50px;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
-                       font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
+                class="hist-edit-input hist-edit-input-week"
                 onchange="histEditWeek(${globalIdx}, this.value)">
             </div>
-            <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:11px;color:var(--text3);flex-shrink:0;">Длит.:</span>
+            <div class="hist-edit-row">
+              <span class="hist-label">Длит.:</span>
               <input type="number" min="0" value="${r.duration?Math.floor(r.duration/60000):''}" placeholder="мин"
-                style="width:70px;border:1px solid var(--border);border-radius:8px;padding:4px 8px;
-                       font-size:12px;background:var(--surface2);color:var(--text);outline:none;"
+                class="hist-edit-input hist-edit-input-dur"
                   onchange="histEditDuration(${globalIdx}, this.value)">
             </div>
-            <button class="catalog-add-btn" onclick="deleteHistoryEntry(${globalIdx})" style="margin-top:8px;border-color:#e05a3a;color:#e05a3a;font-size:11px;padding:4px 10px;">Удалить запись</button>
+            <button class="catalog-add-btn hist-del" onclick="deleteHistoryEntry(${globalIdx})">Удалить запись</button>
           </div>
         </div>`;
     }).join('');
@@ -7099,7 +7404,7 @@ function openHistory(){
   // Сохраняем развёрнутые строки перед перерисовкой
   const expandedIdxs = [];
   document.querySelectorAll('[id^="hist-body-"]').forEach(el => {
-    if (el.style.display !== 'none') {
+    if (el.classList.contains('open')) {
       const idx = parseInt(el.id.replace('hist-body-',''));
       if (!isNaN(idx)) expandedIdxs.push(idx);
     }
@@ -7156,7 +7461,7 @@ function openHistory(){
     const catList = showCat ? allExNames.filter(n => !catFilter || n.toLowerCase().includes(catFilter)) : [];
     const exToggles = exNames.map((n) => {
       const prog = exProgress[n];
-      const progBadge = prog ? `<span style="font-size:10px;color:${prog.pct.startsWith('+')?'var(--green)':'#e05a3a'};margin-left:4px;flex-shrink:0;">${prog.pct}</span>` : '';
+      const progBadge = prog ? `<span class="${prog.pct.startsWith('+')?'hist-prog-pos':'hist-prog-neg'}">${prog.pct}</span>` : '';
       const delBtn = editing
         ? `<span style="font-size:9px;color:var(--text3);cursor:pointer;padding:0 2px;flex-shrink:0;" onclick="event.stopPropagation();showConfirm('Удалить с графика','Убрать «${esc(n)}» из списка упражнений на графике?',function(){let h=JSON.parse(localStorage.getItem('histChartHidden')||'[]');h.push('${esc(n)}');localStorage.setItem('histChartHidden',JSON.stringify(h));openHistory();})" title="Убрать из графика">✕</span>`
         : '';
@@ -7179,7 +7484,7 @@ function openHistory(){
             onchange="histZoomSet(this.value)"
             style="width:52px;border:1px solid var(--border);border-radius:6px;padding:2px 6px;font-size:12px;background:var(--surface2);color:var(--text);text-align:center;outline:none;">
           <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(0.5)" title="Увеличить">+</button>
-          <button class="catalog-add-btn" style="font-size:11px;padding:2px 8px;line-height:1.4;" onclick="histZoomSet(100)" title="Сбросить зум">↺</button>
+          <button class="catalog-add-btn" style="font-size:11px;padding:2px 8px;line-height:1.4;" onclick="histZoomSet(100)" title="Сбросить зум"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg></button>
         </div>
        ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
         <div style="display:flex;gap:8px;justify-content:center;margin:8px 0;">
@@ -7187,10 +7492,10 @@ function openHistory(){
             ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:320px;">
                   <div style="display:flex;gap:6px;width:100%;">
                     <input id="hist-add-ex-input" placeholder="Поиск упражнений" value="${esc(window._histCatFilter||'')}" style="flex:1;font-size:11px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;" oninput="window._histCatFilter=this.value;if(this.value){window._histShowCat=true}else{window._histShowCat=false}openHistory()">
-                    <button class="catalog-add-btn" onclick="window._histShowCat=!window._histShowCat;window._histCatFilter='';openHistory()" style="flex-shrink:0;" title="Каталог упражнений">📖</button>
+                    <button class="catalog-add-btn" onclick="window._histShowCat=!window._histShowCat;window._histCatFilter='';openHistory()" style="flex-shrink:0;" title="Каталог упражнений"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
                   </div>
                   ${showCat ? `<div style="display:flex;flex-wrap:wrap;gap:4px;width:100%;max-height:160px;overflow-y:auto;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--surface);">
-                    ${catList.length ? catList.map(n=>`<span style="font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;" onclick="window._histCatPick('${esc(n)}')">${esc(n)}</span>`).join('') : `<span style="font-size:10px;color:var(--text3);padding:4px;">Нет совпадений</span>`}
+                    ${catList.length ? catList.map(n=>`<span class="hist-cat-pill" onclick="window._histCatPick('${esc(n)}')">${esc(n)}</span>`).join('') : `<span class="hist-cat-empty">Нет совпадений</span>`}
                   </div>` : ''}
                   <button style="background:var(--surface2);border:1px solid var(--green);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--green);cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="window._histChartEditing=false;window._histShowCat=false;window._histCatFilter='';openHistory()">✓ Готово</button>
                 </div>`
@@ -7213,7 +7518,7 @@ function openHistory(){
       `<div style="display:flex;justify-content:center;margin-bottom:12px;">${chartBtn}</div>` +
       renderCalendar() +
       `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
-        <button class="catalog-add-btn" onclick="window._histSortAsc=!window._histSortAsc;openHistory()" style="flex-shrink:0;min-width:36px;font-size:13px;" title="Сортировка">${window._histSortAsc?'↑':'↓'}</button>
+        <button class="catalog-add-btn" onclick="window._histSortAsc=!window._histSortAsc;openHistory()" style="flex-shrink:0;min-width:36px;font-size:13px;" title="Сортировка">${window._histSortAsc?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"/><polyline points="6 14 12 20 18 14"/></svg>'}</button>
         <span style="font-size:12px;color:var(--text2);white-space:nowrap;">Неделя:</span>
         <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)" style="flex:1;">
           <option value="all">Все недели</option>
@@ -7229,21 +7534,21 @@ function openHistory(){
   expandedIdxs.forEach(idx => {
     const el = document.getElementById(`hist-body-${idx}`);
     const arrow = document.getElementById(`hist-arrow-${idx}`);
-    if (el) el.style.display = 'block';
+    if (el) el.classList.add('open');
     if (arrow) arrow.style.transform = 'rotate(90deg)';
   });
 
-  overlay.classList.add('open'); sheet.classList.add('open');
+  openSheet('history-sheet');
 }
 
 function toggleHistoryRow(idx){
   const body  = document.getElementById(`hist-body-${idx}`);
   const arrow = document.getElementById(`hist-arrow-${idx}`);
   if(!body) return;
-  const open = body.style.display !== 'none';
-  body.style.display  = open ? 'none' : 'block';
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
   arrow.style.transform = open ? '' : 'rotate(90deg)';
-  if(navigator.vibrate) navigator.vibrate([6]);
+  vibe([6]);
 }
 
 function histEditDate(inputEl, globalIdx){
@@ -7259,7 +7564,7 @@ function histEditDate(inputEl, globalIdx){
   h[globalIdx].isoDate = isoDate;
   const parts = val.split('-');
   const d2 = new Date(+parts[0], +parts[1]-1, +parts[2]);
-  h[globalIdx].date = d2.toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
+  h[globalIdx].date = formatRuDate(d2);
   saveHistory(h);
   openHistory();
 }
@@ -7288,16 +7593,16 @@ function histEditDuration(globalIdx, val){
   if(durEl){
     const durText = h[globalIdx].duration ? fmtDuration(h[globalIdx].duration) : null;
     durEl.textContent = durText ? `⏱ ${durText}` : '';
-    durEl.style.display = durText ? '' : 'none';
+    durEl.classList.toggle('hist-dur-empty', !durText);
   }
-  if(navigator.vibrate) navigator.vibrate([8]);
+  vibe([8]);
 }
 
 function clearHistory(){
   showConfirm('Очистить историю','Очистить всю историю тренировок?',function(){
     saveHistory([]);
     openHistory();
-  });
+  }, 'Очистить');
 }
 function deleteHistoryEntry(idx){
   const h = loadHistory();
@@ -7308,29 +7613,31 @@ function deleteHistoryEntry(idx){
     h.splice(idx, 1);
     saveHistory(h);
     openHistory();
-  });
+  }, 'Удалить запись');
 }
 // ══════════════════════════════════════
 function triggerWeekComplete(w) {
   // 1. Фон-вспышка снизу
-  const flash = document.createElement('div');
-  flash.className = 'week-flash-overlay';
-  document.body.appendChild(flash);
-  setTimeout(() => flash.remove(), 1900);
+  if (!reducedMotion()) {
+    const flash = document.createElement('div');
+    flash.className = 'week-flash-overlay';
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 1900);
 
-  // 2. Частицы — 24 штуки
-  const colors = ['#c8a96e','#e8c98e','#f0d8a0','#2aaa72','#5dcaa5','#fff'];
-  for (let i = 0; i < 24; i++) {
-    const p = document.createElement('div');
-    p.className = 'week-particle';
-    p.style.left     = (8 + Math.random() * 84) + '%';
-    p.style.bottom   = (5 + Math.random() * 20) + '%';
-    p.style.width    = p.style.height = (4 + Math.random() * 7) + 'px';
-    p.style.background = colors[Math.floor(Math.random() * colors.length)];
-    p.style.animationDuration  = (0.9 + Math.random() * 1.2) + 's';
-    p.style.animationDelay     = (Math.random() * 0.4) + 's';
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 2200);
+    // 2. Частицы — 24 штуки
+    const colors = ['#c8a96e','#e8c98e','#f0d8a0','#2aaa72','#5dcaa5','#fff'];
+    for (let i = 0; i < 24; i++) {
+      const p = document.createElement('div');
+      p.className = 'week-particle';
+      p.style.left     = (8 + Math.random() * 84) + '%';
+      p.style.bottom   = (5 + Math.random() * 20) + '%';
+      p.style.width    = p.style.height = (4 + Math.random() * 7) + 'px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration  = (0.9 + Math.random() * 1.2) + 's';
+      p.style.animationDelay     = (Math.random() * 0.4) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2200);
+    }
   }
 
   // 3. Бейдж по центру
@@ -7338,31 +7645,35 @@ function triggerWeekComplete(w) {
   badge.className = 'week-badge';
   badge.innerHTML = `Неделя ${w} завершена!<span class="week-badge-sub">Отличная работа</span>`;
   document.body.appendChild(badge);
+  const badgeDur = reducedMotion() ? 1200 : 2000;
   setTimeout(() => {
+    if (reducedMotion()) { badge.remove(); return; }
     badge.style.transition = 'opacity .4s ease';
     badge.style.opacity = '0';
     setTimeout(() => badge.remove(), 450);
-  }, 2000);
+  }, badgeDur);
 
   // 4. Сильная вибрация
-  if (navigator.vibrate) navigator.vibrate([40, 40, 40, 40, 120, 60, 120]);
+  vibe([40, 40, 40, 40, 120, 60, 120]);
 }
 
 function triggerGoldWave() {
   // 1. full-screen shimmer
-  const overlay = document.createElement('div');
-  overlay.className = 'gold-wave-overlay';
-  const bar = document.createElement('div');
-  bar.className = 'gold-wave-bar';
-  overlay.appendChild(bar);
-  document.body.appendChild(overlay);
-  setTimeout(() => overlay.remove(), 1200);
+  if (!reducedMotion()) {
+    const overlay = document.createElement('div');
+    overlay.className = 'gold-wave-overlay';
+    const bar = document.createElement('div');
+    bar.className = 'gold-wave-bar';
+    overlay.appendChild(bar);
+    document.body.appendChild(overlay);
+    setTimeout(() => overlay.remove(), 1200);
 
-  // 2. card pulse
-  const card = document.querySelector('.ex-block');
-  if (card) {
-    card.classList.add('day-complete');
-    setTimeout(() => card.classList.remove('day-complete'), 800);
+    // 2. card pulse
+    const card = document.querySelector('.ex-block');
+    if (card) {
+      card.classList.add('day-complete');
+      setTimeout(() => card.classList.remove('day-complete'), 800);
+    }
   }
 
   // 3. pop every checkmark
@@ -7374,7 +7685,7 @@ function triggerGoldWave() {
   });
 
   // 4. triple haptic celebration
-  if (navigator.vibrate) navigator.vibrate([30, 50, 30, 50, 80]);
+  vibe([30, 50, 30, 50, 80]);
 }
 
 
@@ -7399,6 +7710,99 @@ function swSave() {
       started: swStarted
     }));
   } catch(e) {}
+}
+
+/* ══════════════════════════════════════
+   A11Y: SHEET / DIALOG HELPER (HIGH-1)
+   One helper used by every sheet, popup,
+   and confirm. Handles:
+   - .open class on overlay+sheet
+   - inert on .app-root (background)
+   - focus move-in to first focusable
+   - Escape key to close
+   - focus return to trigger element
+   A small stack keeps the previous opener
+   so nested close-restore works.
+══════════════════════════════════════ */
+const _sheetStack = [];
+let _lastOpener = null;
+
+function _focusableIn(root){
+  if (!root) return [];
+  return Array.from(root.querySelectorAll(
+    'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ));
+}
+function _onSheetKeydown(e, overlayId, closeFn){
+  if (e.key === 'Escape') {
+    e.stopPropagation();
+    closeFn();
+  } else if (e.key === 'Tab') {
+    const items = _focusableIn(document.getElementById(overlayId.replace('-overlay','')));
+    if (!items.length) return;
+    const first = items[0], last = items[items.length-1];
+    if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
+    else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+  }
+}
+function openSheet(sheetId, openerEl){
+  const overlayId = sheetId.replace('-sheet','').replace('-popup','').replace('-picker','') + '-overlay';
+  let overlay = document.getElementById(overlayId);
+  if (!overlay) {
+    // fallback for popups that don't have a *-overlay id (sw-popup uses sw-popup-overlay)
+    overlay = document.getElementById(sheetId + '-overlay');
+  }
+  const sheet = document.getElementById(sheetId);
+  if (!sheet) return;
+  _lastOpener = openerEl || document.activeElement || null;
+  _sheetStack.push({ sheetId, overlayId: overlay ? overlay.id : null, closeFn: null });
+  if (overlay) overlay.classList.add('open');
+  sheet.classList.add('open');
+  const root = document.querySelector('.app-root');
+  if (root) root.setAttribute('inert', '');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => {
+    const items = _focusableIn(sheet);
+    if (items.length) items[0].focus();
+  }, 50);
+  const keyHandler = (e) => {
+    _onSheetKeydown(e, sheetId, () => closeSheet(sheetId));
+  };
+  sheet.__keyHandler = keyHandler;
+  sheet.addEventListener('keydown', keyHandler);
+}
+function closeSheet(sheetId){
+  const sheet = document.getElementById(sheetId);
+  if (!sheet) return;
+  let overlayId = sheetId.replace('-sheet','').replace('-popup','').replace('-picker','') + '-overlay';
+  let overlay = document.getElementById(overlayId) || document.getElementById(sheetId + '-overlay');
+  if (overlay) overlay.classList.remove('open');
+  sheet.classList.remove('open');
+  if (sheet.__keyHandler) {
+    sheet.removeEventListener('keydown', sheet.__keyHandler);
+    sheet.__keyHandler = null;
+  }
+  const idx = _sheetStack.findIndex(s => s.sheetId === sheetId);
+  if (idx >= 0) _sheetStack.splice(idx, 1);
+  if (_sheetStack.length === 0) {
+    const root = document.querySelector('.app-root');
+    if (root) root.removeAttribute('inert');
+    document.body.style.overflow = '';
+    if (_lastOpener && typeof _lastOpener.focus === 'function') {
+      try { _lastOpener.focus(); } catch(e) {}
+    }
+    _lastOpener = null;
+  }
+}
+
+function vibe(pattern){
+  if (!navigator.vibrate) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  navigator.vibrate(pattern);
+}
+
+function reducedMotion(){
+  return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 }
 
 function swRestore() {
@@ -7453,9 +7857,8 @@ function swToggle() {
     swSave();
     // Показываем попап
     document.getElementById('sw-popup-time').textContent = swDisplayEl.textContent;
-    document.getElementById('sw-popup-overlay').classList.add('open');
-    document.getElementById('sw-popup').classList.add('open');
-    if (navigator.vibrate) navigator.vibrate([8]);
+    openSheet('sw-popup', document.activeElement);
+    vibe([8]);
   } else {
     swStarted = Date.now();
     swRunning = true;
@@ -7473,8 +7876,7 @@ function swToggle() {
 
 function swPopupContinue() {
   // Закрываем попап и возобновляем
-  document.getElementById('sw-popup-overlay').classList.remove('open');
-  document.getElementById('sw-popup').classList.remove('open');
+  closeSheet('sw-popup');
   swStarted = Date.now();
   swRunning = true;
   swDisplayEl.classList.add('running');
@@ -7490,8 +7892,7 @@ function swPopupContinue() {
 
 function swPopupFinish() {
   // Закрываем попап, сбрасываем секундомер
-  document.getElementById('sw-popup-overlay').classList.remove('open');
-  document.getElementById('sw-popup').classList.remove('open');
+  closeSheet('sw-popup');
   clearInterval(swTick);
   swRunning = false;
   swElapsed = 0;
@@ -7503,7 +7904,7 @@ function swPopupFinish() {
   swStartBtn.classList.remove('running');
   swDisplayEl.textContent = '0:00:00';
   swSave();
-  if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+  vibe([20, 40, 20]);
 }
 
 function swReset() {
@@ -7511,14 +7912,12 @@ function swReset() {
   // Показываем кастомный попап
   const total = swRunning ? swElapsed + (Date.now() - swStarted) : swElapsed;
   document.getElementById('sw-reset-time').textContent = swFmt(total);
-  document.getElementById('sw-reset-overlay').classList.add('open');
-  document.getElementById('sw-reset-popup').classList.add('open');
-  if (navigator.vibrate) navigator.vibrate([8]);
+  openSheet('sw-reset-popup', document.activeElement);
+  vibe([8]);
 }
 
 function swResetCancel() {
-  document.getElementById('sw-reset-overlay').classList.remove('open');
-  document.getElementById('sw-reset-popup').classList.remove('open');
+  closeSheet('sw-reset-popup');
 }
 
 function swResetConfirm() {
@@ -7534,7 +7933,7 @@ function swResetConfirm() {
   swStartBtn.classList.remove('running');
   swDisplayEl.textContent = '0:00:00';
   swSave();
-  if (navigator.vibrate) navigator.vibrate([20, 40, 20]);
+  vibe([20, 40, 20]);
 }
 
 // Восстанавливаем состояние при загрузке
@@ -7544,6 +7943,12 @@ swRestore();
 function flashScreen() {
   const flash = document.getElementById('timer-flash');
   if (!flash) return;
+  if (reducedMotion()) {
+    flash.style.background = 'rgba(42,170,114,0.5)';
+    flash.style.display = 'block';
+    setTimeout(() => { flash.style.display = ''; flash.style.background = ''; }, 250);
+    return;
+  }
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   flash.style.background = isDark
     ? 'radial-gradient(ellipse at center, rgba(42,170,114,0.9) 0%, rgba(42,170,114,0.5) 60%, transparent 100%)'

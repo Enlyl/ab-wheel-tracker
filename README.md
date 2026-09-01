@@ -37,6 +37,7 @@ A fully customizable single-file workout tracker. Configure days, exercises, set
 - **7 themes** — light, dark, cyberpunk, matrix, synthwave, terminal, holo
 - **Export / Import** — full data backup as JSON
 - **PWA** — works offline (Service Worker for timer notifications only)
+- **Accessibility** — keyboard focus-trap on all dialogs, skip-link, AA-contrast, `prefers-reduced-motion`, 24×24 hit-areas
 
 ## Quick start
 
@@ -49,7 +50,8 @@ Or locally:
 ```bash
 git clone https://github.com/Enlyl/ab-wheel-tracker.git
 cd ab-wheel-tracker
-# open index.html in a browser
+python -m http.server 8765
+# open http://127.0.0.1:8765/index.html
 ```
 
 ## 7 themes
@@ -68,7 +70,7 @@ cd ab-wheel-tracker
 
 ```
 ┌─────────────────────────────────────┐
-│          index.html  (268 KB)        │
+│          index.html  (404 KB)        │
 │  ┌───────────────────────────────┐  │
 │  │  HTML5 + CSS Custom Properties │  │
 │  │  Vanilla JavaScript (ES2023)  │  │
@@ -85,12 +87,15 @@ cd ab-wheel-tracker
 | localStorage key | Contents |
 |---|---|
 | `abw8` | Current week, day, exercise list |
-| `abw_weeks` | Roadmap progress |
-| `abw_history` | Training history |
-| `abw_measurements` | Body measurements |
-| `abw_app_cfg` | Interface settings |
+| `abw_weeks` | Roadmap progress (l, d, p, c, barH, barStyle) |
+| `abw_history` | Training history (date, isoDate, time, exList) |
+| `abw_measurements` | Body measurements (weight, chest, waist, biceps) |
+| `abw_app_cfg` | Interface settings (themes, hero, footer, reminders) |
 | `abw_sw` | Stopwatch state |
 | `catEdits` | User catalog edits |
+| `abw_ex_timer_presets` | Per-exercise rest timer presets |
+| `abw_v4_iso_migrated` | One-shot migration flag (UTC→local dates) |
+| `abw8_bsaw_mig`, `abw8_bsaw_hist_mig` | Body Saw rename flags |
 
 ## License
 
@@ -168,7 +173,7 @@ cd ab-wheel-tracker
 
 ```
 ┌─────────────────────────────────────┐
-│          index.html  (268 КБ)        │
+│          index.html  (404 КБ)        │
 │  ┌───────────────────────────────┐  │
 │  │  HTML5 + CSS Custom Properties │  │
 │  │  Vanilla JavaScript (ES2023)  │  │
@@ -185,12 +190,15 @@ cd ab-wheel-tracker
 | localStorage ключ | Что хранит |
 |---|---|
 | `abw8` | Текущая неделя, день, список упражнений |
-| `abw_weeks` | Прогресс дорожной карты |
-| `abw_history` | История тренировок |
-| `abw_measurements` | Замеры тела |
-| `abw_app_cfg` | Настройки интерфейса |
+| `abw_weeks` | Прогресс дорожной карты (l, d, p, c, barH, barStyle) |
+| `abw_history` | История тренировок (date, isoDate, time, exList) |
+| `abw_measurements` | Замеры тела (вес, грудь, талия, бицепс) |
+| `abw_app_cfg` | Настройки интерфейса (темы, hero, footer, напоминания) |
 | `abw_sw` | Состояние секундомера |
 | `catEdits` | Пользовательские правки каталога |
+| `abw_ex_timer_presets` | Пресеты таймера отдыха для упражнений |
+| `abw_v4_iso_migrated` | Флаг миграции (UTC→локальные даты) |
+| `abw8_bsaw_mig`, `abw8_bsaw_hist_mig` | Флаги переименования Body Saw |
 
 ## Лицензия
 
