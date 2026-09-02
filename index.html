@@ -2181,8 +2181,7 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   pointer-events: none;
   position: fixed;
   top: 50%; left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  z-index: 212;
+  transform: translate(-50%, -50%) scale(0);  z-index: 212;
   background: var(--gold);
   color: #fff;
   font-family: 'Italiana', serif;
@@ -2203,6 +2202,78 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   font-size: 11px; font-weight: 600;
   letter-spacing: 0.18em; text-transform: uppercase;
   margin-top: 4px; opacity: 0.8;
+}
+
+/* ── DAY COMPLETE ANIMATION (compact, green) ── */
+@keyframes dayConfettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(60vh) rotate(540deg); opacity: 0; }
+}
+@keyframes dayToastIn {
+  0%   { transform: translate(-50%, 30px) scale(.92); opacity: 0; }
+  60%  { transform: translate(-50%, -2px) scale(1.02); opacity: 1; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+@keyframes dayToastOut {
+  0%   { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, 8px) scale(.96); opacity: 0; }
+}
+@keyframes dayBlockPulse {
+  0%   { box-shadow: 0 0 0 0 var(--green); }
+  60%  { box-shadow: 0 0 0 6px color-mix(in srgb, var(--green) 35%, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.day-confetti {
+  pointer-events: none;
+  position: fixed;
+  left: 0; top: 0;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  z-index: 211;
+  animation: dayConfettiFall cubic-bezier(.4,0,.2,1) forwards;
+}
+.day-toast {
+  pointer-events: none;
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 213;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 20px 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--green);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md), 0 0 0 4px color-mix(in srgb, var(--green) 25%, transparent);
+  animation: dayToastIn .45s cubic-bezier(.2,0,0,1) forwards;
+  max-width: 90vw;
+}
+.day-toast.hide { animation: dayToastOut .25s ease forwards; }
+.day-toast-ic {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.day-toast-txt { display: flex; flex-direction: column; }
+.day-toast-title {
+  font-family: 'Italiana', serif;
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1;
+}
+.day-toast-sub {
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.ex-block.day-complete {
+  animation: dayBlockPulse 1.1s ease-out;
+  border-color: var(--green) !important;
 }
 
 #day-content {
@@ -3676,7 +3747,7 @@ function tog(w,d,i){
   const nowDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   render();
   if(pulseAfterRender) triggerReminderPulse();
-  if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
+  if(!wasDone&&nowDone&&!editMode){ triggerDayComplete(S.days[d] && S.days[d].title); recordSession(w,d); }
 }
 
 // ── Пресеты таймера для упражнений ──
@@ -3800,7 +3871,7 @@ function togSet(w,d,i,setIdx){
   const nowDone=dayDone(w,d)===activeEx(S.days[d],w).length;
   render();
   if(pulseAfterRender) triggerReminderPulse();
-  if(!wasDone&&nowDone&&!editMode){ triggerGoldWave(); recordSession(w,d); }
+  if(!wasDone&&nowDone&&!editMode){ triggerDayComplete(S.days[d] && S.days[d].title); recordSession(w,d); }
 }
 
 function resetDay(){S.days[D].ex.forEach((_,i)=>delete S[k(W,D,i)]);save();render();}
@@ -7850,6 +7921,48 @@ function deleteHistoryEntry(idx){
   }, 'Удалить запись');
 }
 // ══════════════════════════════════════
+function triggerDayComplete(dayTitle) {
+  // Кардинально отличается от triggerWeekComplete:
+  // - зелёный flash overlay (успех-дня), а не золотой
+  // - мини-конфетти 12 штук (вместо 24)
+  // - компактный тост вверху "День завершён" + название дня
+  // - лёгкая вибрация (3 коротких), а не длинная celebration
+  if (!reducedMotion()) {
+    // 1. зелёный flash на ex-block (где вся тренировка)
+    const card = document.querySelector('.ex-block');
+    if (card) {
+      card.classList.add('day-complete');
+      setTimeout(() => card.classList.remove('day-complete'), 1200);
+    }
+    // 2. мини-конфетти (12 зелёных частиц)
+    const colors = ['#2aaa72','#5dcaa5','#a8dfc0','#1f8c5a','#c8a96e'];
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'day-confetti';
+      p.style.left     = (10 + Math.random() * 80) + '%';
+      p.style.top      = '30%';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.animationDuration  = (0.7 + Math.random() * 0.6) + 's';
+      p.style.animationDelay     = (Math.random() * 0.2) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1500);
+    }
+  }
+  // 3. Компактный тост внизу — "День завершён"
+  const toast = document.createElement('div');
+  toast.className = 'day-toast';
+  toast.innerHTML = `<div class="day-toast-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg></div><div class="day-toast-txt"><div class="day-toast-title">День завершён</div><div class="day-toast-sub">${dayTitle || 'Отличная работа'}</div></div>`;
+  document.body.appendChild(toast);
+  const dur = reducedMotion() ? 1500 : 2400;
+  setTimeout(() => {
+    if (reducedMotion()) { toast.remove(); return; }
+    toast.classList.add('hide');
+    setTimeout(() => toast.remove(), 350);
+  }, dur);
+  // 4. лёгкая вибрация — длинная в начале, затухающая
+  vibe([18, 30, 18]);
+}
+
 function triggerWeekComplete(w) {
   // 1. Фон-вспышка снизу
   if (!reducedMotion()) {

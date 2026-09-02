@@ -249,6 +249,50 @@ async function main() {
     await page.evaluate(() => setTheme('light'));
   });
 
+  // 17. Day-complete vs week-complete — different visual treatments
+  await step(page, 'day-complete shows toast (not week-badge)', async () => {
+    await page.evaluate(() => {
+      // Clean any leftover from prior tests
+      document.querySelectorAll('.day-toast, .week-badge, .week-flash-overlay, .day-confetti, .week-particle')
+        .forEach(n => n.remove());
+      // Stub: make S.days have one day, one exercise; mark it as just-completed.
+      // We call the function directly to verify it injects .day-toast (not .week-badge).
+      triggerDayComplete('Push + передний кор');
+    });
+    await page.waitForTimeout(100);
+    const dayToastCount = await page.locator('.day-toast').count();
+    const weekBadgeCount = await page.locator('.week-badge').count();
+    assert.equal(dayToastCount, 1, 'day-toast not rendered on day-complete');
+    assert.equal(weekBadgeCount, 0, 'week-badge must NOT render on day-complete');
+    const dayTitle = await page.locator('.day-toast-title').innerText();
+    assert.equal(dayTitle, 'День завершён', 'day-toast title wrong');
+    const daySub = await page.locator('.day-toast-sub').innerText();
+    assert.equal(daySub, 'PUSH + ПЕРЕДНИЙ КОР', 'day-toast subtitle (day title) wrong');
+    // Cleanup
+    await page.evaluate(() => {
+      document.querySelectorAll('.day-toast, .day-confetti').forEach(n => n.remove());
+    });
+  });
+
+  await step(page, 'week-complete shows big badge (not day-toast)', async () => {
+    await page.evaluate(() => {
+      document.querySelectorAll('.day-toast, .week-badge, .day-confetti, .week-particle')
+        .forEach(n => n.remove());
+      triggerWeekComplete(3);
+    });
+    await page.waitForTimeout(100);
+    const weekBadgeCount = await page.locator('.week-badge').count();
+    const dayToastCount = await page.locator('.day-toast').count();
+    assert.equal(weekBadgeCount, 1, 'week-badge not rendered on week-complete');
+    assert.equal(dayToastCount, 0, 'day-toast must NOT render on week-complete');
+    const wkTitle = await page.locator('.week-badge').innerText();
+    assert.ok(wkTitle.includes('Неделя 3 завершена'), `week-badge text wrong: ${wkTitle}`);
+    // Cleanup
+    await page.evaluate(() => {
+      document.querySelectorAll('.week-badge, .week-flash-overlay, .week-particle').forEach(n => n.remove());
+    });
+  });
+
   await browser.close();
 
   console.log(`\nResults: ${passed} passed, ${failed} failed`);
