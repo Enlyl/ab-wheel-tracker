@@ -293,6 +293,34 @@ async function main() {
     });
   });
 
+  // 19. Week-complete adds dancing figure (stick figure SVG)
+  await step(page, 'week-complete shows dancing figure', async () => {
+    await page.evaluate(() => {
+      document.querySelectorAll('.dancer, .week-badge, .day-toast, .week-flash-overlay')
+        .forEach(n => n.remove());
+      // Override reducedMotion to false for this test (otherwise dancer is skipped)
+      window.matchMedia = (q) => ({ matches: false, media: q, addListener: () => {}, removeListener: () => {} });
+      triggerWeekComplete(5);
+    });
+    await page.waitForTimeout(150);
+    const dancerCount = await page.locator('.dancer').count();
+    assert.equal(dancerCount, 1, 'dancer figure not rendered on week-complete');
+    // Dancer has 4 limbs + head (all gold-themed via CSS classes)
+    const limbs = await page.locator('.dancer-arm-l, .dancer-arm-r, .dancer-leg-l, .dancer-leg-r, .dancer-body, .dancer-head').count();
+    assert.ok(limbs >= 5, `expected ≥5 limb/body parts, got ${limbs}`);
+    // The SVG should have a viewBox for scaling
+    const hasViewBox = await page.locator('.dancer svg').first().getAttribute('viewBox');
+    assert.ok(hasViewBox && hasViewBox.length > 0, 'dancer svg missing viewBox');
+    // After ~3.5s the dancer leaves
+    await page.waitForTimeout(3700);
+    const stillThere = await page.locator('.dancer').count();
+    assert.equal(stillThere, 0, 'dancer should be removed after 3.5s');
+    await page.evaluate(() => {
+      document.querySelectorAll('.dancer, .week-badge, .week-flash-overlay, .week-particle')
+        .forEach(n => n.remove());
+    });
+  });
+
   await browser.close();
 
   console.log(`\nResults: ${passed} passed, ${failed} failed`);
