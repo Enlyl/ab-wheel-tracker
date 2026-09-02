@@ -94,8 +94,8 @@ python -m http.server 8765
 | `abw_sw` | Stopwatch state |
 | `catEdits` | User catalog edits |
 | `abw_ex_timer_presets` | Per-exercise rest timer presets |
-| `abw_v4_iso_migrated` | One-shot migration flag (UTC→local dates) |
-| `abw8_bsaw_mig`, `abw8_bsaw_hist_mig` | Body Saw rename flags |
+| `abw_version` | Schema version (currently 5) — drives migrations |
+| `abw8_bsaw_mig`, `abw8_bsaw_hist_mig` | Legacy migration flags (folded into `abw_version`) |
 
 ## License
 
@@ -197,8 +197,9 @@ cd ab-wheel-tracker
 | `abw_sw` | Состояние секундомера |
 | `catEdits` | Пользовательские правки каталога |
 | `abw_ex_timer_presets` | Пресеты таймера отдыха для упражнений |
-| `abw_v4_iso_migrated` | Флаг миграции (UTC→локальные даты) |
-| `abw8_bsaw_mig`, `abw8_bsaw_hist_mig` | Флаги переименования Body Saw |
+| `abw_v4_iso_migrated` | Устаревший флаг миграции (UTC→локальные даты), свёрнут в `abw_version` |
+| `abw_version` | Версия схемы (сейчас 5) — управляет миграциями |
+| `abw8_bsaw_mig`, `abw8_bsaw_hist_mig` | Устаревшие флаги переименования Body Saw, свёрнуты в `abw_version` |
 
 ## Лицензия
 

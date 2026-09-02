@@ -170,6 +170,50 @@ async function main() {
     if (errors.length) throw new Error('errors:\n  ' + errors.join('\n  '));
   });
 
+  // 14. abw_version migration system
+  await step(page, 'abw_version set and migrator idempotent', async () => {
+    const ver = await page.evaluate(() => localStorage.getItem('abw_version'));
+    assert.ok(ver && parseInt(ver) >= 5, `expected abw_version >= 5, got ${ver}`);
+    // Run migrator a second time — should be no-op (idempotent)
+    const before = await page.evaluate(() => JSON.stringify(S));
+    await page.evaluate(() => runMigrations());
+    const after = await page.evaluate(() => JSON.stringify(S));
+    assert.equal(before, after, 'runMigrations() is not idempotent');
+  });
+
+  // 15. Legacy one-shot flags respected + honored exactly once
+  await step(page, 'legacy migration flags still work', async () => {
+    // Set a fresh browser context
+    const ctx2 = await browser.newContext({ viewport: { width: 414, height: 896 }, locale: 'ru-RU', reducedMotion: 'reduce' });
+    const p2 = await ctx2.newPage();
+    // Pre-seed legacy state with bad isoDate and the Body Saw name
+    await p2.addInitScript(() => {
+      localStorage.setItem('abw8', JSON.stringify({
+        W: 1, D: 0, days: [{ id: 'A', day: 'Пн', role: 'Push', cls: 'on-a', ex: [
+          { n: 'Body Saw / Long-Lever Plank', d: '3 × 8', t: 'key' }
+        ], title: '', sub: '' }], theme: 'light'
+      }));
+      localStorage.setItem('abw_history', JSON.stringify([{
+        isoDate: '2024-01-01', date: '1 сентября 2024', time: '12:00', week: 1, dayId: 1, dayTitle: 'Push',
+        exList: [{ name: 'Body Saw / Long-Lever Plank', done: 1, total: 1 }]
+      }]));
+    });
+    const r = await p2.goto(BASE, { waitUntil: 'domcontentloaded' });
+    assert.equal(r.status(), 200);
+    await p2.waitForSelector('#app-hero-title');
+    const after = await p2.evaluate(() => ({
+      ver: localStorage.getItem('abw_version'),
+      exName: S.days[0].ex[0].n,
+      histName: JSON.parse(localStorage.getItem('abw_history'))[0].exList[0].name,
+      histIso: JSON.parse(localStorage.getItem('abw_history'))[0].isoDate,
+    }));
+    assert.equal(after.ver, '5', 'abw_version should be 5');
+    assert.equal(after.exName, 'Body Saw', 'program Body Saw not renamed');
+    assert.equal(after.histName, 'Body Saw', 'history Body Saw not renamed');
+    assert.equal(after.histIso, '2024-09-01', 'history isoDate not UTC→local migrated');
+    await ctx2.close();
+  });
+
   await browser.close();
 
   console.log(`\nResults: ${passed} passed, ${failed} failed`);

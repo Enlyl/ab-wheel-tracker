@@ -1147,7 +1147,7 @@ body {
 .theme-opt.sel { border-color: var(--gold); background: var(--goldbg); }
 .theme-icon { font-size: 22px; line-height: 1; width: 28px; text-align: center; }
 .theme-label { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
-.theme-check { color: var(--gold); font-weight: 700; font-size: 16px; }
+.theme-check { color: var(--gold); flex-shrink: 0; }
 
 /* ── MEASUREMENTS ── */
 .meas-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
@@ -1236,6 +1236,49 @@ body {
 .hist-prog-neg { font-size: 11px; color: var(--danger); margin-left: 4px; flex-shrink: 0; }
 .hist-ex-note-empty { font-size: 12px; color: var(--text3); margin-top: 4px; }
 .hist-ex-note-val { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.hist-seg-wrap { display: inline-flex; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm); min-width: 200px; }
+.hist-seg {
+  font-size: 12px; padding: 5px 0; flex: 1;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text2); cursor: pointer; text-align: center;
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.hist-seg.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.hist-seg.first { border-radius: 20px 0 0 20px; border-right: none; }
+.hist-seg.last { border-radius: 0 20px 20px 0; }
+.hist-pill {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 6px 18px; font-size: 12px;
+  color: var(--text2); cursor: pointer; font-family: inherit;
+  box-shadow: var(--shadow-sm);
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+.hist-pill:hover { background: var(--surface2); border-color: var(--gold); color: var(--gold); }
+.hist-zoom-btn { font-size: 14px; padding: 2px 10px; line-height: 1.4; }
+.hist-zoom-reset { font-size: 11px; padding: 2px 8px; line-height: 1.4; }
+.hist-zoom-row { display: flex; align-items: center; gap: 6px; justify-content: center; margin-bottom: 8px; }
+.hist-zoom-input { width: 52px; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; font-size: 12px; background: var(--surface2); color: var(--text); text-align: center; outline: none; }
+.hist-clear { width: 100%; margin-top: 8px; }
+.hist-clear-wide { width: 100%; margin-top: 16px; }
+.hist-week-row { margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.hist-lbl { font-size: 12px; color: var(--text2); white-space: nowrap; }
+.hist-seg-center { display: flex; justify-content: center; margin-bottom: 10px; }
+.hist-seg-center--bottom { margin-bottom: 12px; }
+.hist-canvas-wrap { overflow-x: auto; }
+.hist-canvas { border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: block; margin-bottom: 6px; }
+.hist-toggles-wrap { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; justify-content: center; }
+.hist-action-row { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
+.hist-editing-col { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; max-width: 320px; }
+.hist-editing-row { display: flex; gap: 6px; width: 100%; }
+.hist-search-input { flex: 1; font-size: 12px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); outline: none; font-family: inherit; }
+.hist-cat-list { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; max-height: 160px; overflow-y: auto; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.hist-pill-success { border-color: var(--green); color: var(--green); }
+.hist-pill-success:hover { background: var(--greenbg); }
+.hist-toggle-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+.hist-toggle-row.is-clickable { cursor: pointer; }
+.hist-toggle-input { accent-color: currentColor; width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; margin: 0; }
+.hist-toggle-name { display: flex; align-items: center; min-width: 0; }
+.hist-toggle-remove { font-size: 11px; color: var(--text3); cursor: pointer; padding: 0 2px; flex-shrink: 0; }
 .hist-row { border-bottom: 1px solid var(--border2); }
 .hist-row-head { padding: 12px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .hist-row-head:hover .hist-row-arrow { color: var(--text); }
@@ -3053,6 +3096,59 @@ let WEEKS = loadWeeks();
 let S={};
 try{S=JSON.parse(localStorage.getItem('abw8')||'{}');}catch(e){}
 if(!S.days) S.days=JSON.parse(JSON.stringify(DEFAULT_DAYS));
+
+// ── VERSION + MIGRATIONS ──
+// Single source of truth: bump ABW_VERSION when adding a migration.
+// Each migration runs at most once; older legacy one-shot keys (abw_v4_iso_migrated,
+// abw8_bsaw_mig, abw8_bsaw_hist_mig) are honoured on first boot and then folded
+// into the version counter.
+const ABW_VERSION = 5;
+function runMigrations(){
+  const prev = parseInt(localStorage.getItem('abw_version') || '0', 10);
+
+  // v4 → v5: history UTC→local dates (was abw_v4_iso_migrated)
+  if (prev < 5 && !localStorage.getItem('abw_v4_iso_migrated')) {
+    const mn = {'января':0,'февраля':1,'марта':2,'апреля':3,'мая':4,'июня':5,'июля':6,'августа':7,'сентября':8,'октября':9,'ноября':10,'декабря':11};
+    let h = [];
+    try { h = JSON.parse(localStorage.getItem('abw_history') || '[]'); } catch(e) {}
+    let dirty = false;
+    h.forEach(r => {
+      const m = r.date && r.date.match(/^(\d{1,2})\s+(\S+)\s+(\d{4})/);
+      if (m && mn[m[2]] !== undefined) {
+        const correct = `${m[3]}-${String(mn[m[2]]+1).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+        if (r.isoDate !== correct) { r.isoDate = correct; dirty = true; }
+      }
+    });
+    if (dirty) {
+      try { localStorage.setItem('abw_history', JSON.stringify(h)); } catch(e) {}
+    }
+  }
+
+  // Body Saw rename: program (was abw8_bsaw_mig) + history (was abw8_bsaw_hist_mig)
+  if (prev < 5) {
+    if (!localStorage.getItem('abw8_bsaw_mig')) {
+      S.days.forEach(d => { if (d.ex) d.ex.forEach(e => {
+        if (e.n === 'Body Saw / Long-Lever Plank') e.n = 'Body Saw';
+      }); });
+      try { localStorage.setItem('abw8_bsaw_mig', '1'); } catch(e) {}
+    }
+    if (!localStorage.getItem('abw8_bsaw_hist_mig')) {
+      let h = [];
+      try { h = JSON.parse(localStorage.getItem('abw_history') || '[]'); } catch(e) {}
+      let dirty = false;
+      h.forEach(r => { if (r.exList) r.exList.forEach(e => {
+        if (e.name === 'Body Saw / Long-Lever Plank') { e.name = 'Body Saw'; dirty = true; }
+      }); });
+      if (dirty) { try { localStorage.setItem('abw_history', JSON.stringify(h)); } catch(e) {} }
+      try { localStorage.setItem('abw8_bsaw_hist_mig', '1'); } catch(e) {}
+    }
+  }
+
+  if (prev < ABW_VERSION) {
+    try { localStorage.setItem('abw_version', String(ABW_VERSION)); } catch(e) {}
+  }
+}
+runMigrations();
 S.days.forEach(d => {
   if (!d.uid) d.uid = crypto.randomUUID();
   if (d.extra === true && d.week == null) d.week = S.W || 1;
@@ -3097,15 +3193,6 @@ if (!S.days || !S.days.length || !S.days[0]?.ex?.length) {
 }
 
 const maxWks = () => Math.max(W, ...S.days.filter(d=>d.week).map(d=>d.week));
-
-// Миграция: Body Saw / Long-Lever Plank → Body Saw
-if (!localStorage.getItem('abw8_bsaw_mig')) {
-  S.days.forEach(d => { if (d.ex) d.ex.forEach(e => {
-    if (e.n === 'Body Saw / Long-Lever Plank') e.n = 'Body Saw';
-  }); });
-  try { localStorage.setItem('abw8', JSON.stringify(S)); } catch(e) {}
-  localStorage.setItem('abw8_bsaw_mig', '1');
-}
 
 // Миграция: синхронизируем поле d (детали/повторения) из DEFAULT_DAYS
 // Это нужно если пользователь не менял упражнение вручную, но мы обновили DEFAULT_DAYS
@@ -3154,7 +3241,7 @@ function openThemePicker(){
     <div class="theme-opt${S.theme===t?' sel':''}" onclick="setTheme('${t}');closeThemePicker()">
       <span class="theme-icon">${THEME_ICONS[t]}</span>
       <span class="theme-label">${THEME_LABELS[t]}</span>
-      ${S.theme===t?'<span class="theme-check">✓</span>':''}
+      ${S.theme===t?'<svg class="theme-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>':''}
     </div>
   `).join('');
   openSheet('theme-picker', document.activeElement);
@@ -7225,29 +7312,8 @@ function openHistory(){
   }
 
   // Миграция: исправляем isoDate в старых записях (была UTC, стала локальная)
-  if (!localStorage.getItem('abw_v4_iso_migrated')) {
-    const mn = {'января':0,'февраля':1,'марта':2,'апреля':3,'мая':4,'июня':5,'июля':6,'августа':7,'сентября':8,'октября':9,'ноября':10,'декабря':11};
-    let dirty = false;
-    h.forEach(r => {
-      const m = r.date && r.date.match(/^(\d{1,2})\s+(\S+)\s+(\d{4})/);
-      if (m && mn[m[2]] !== undefined) {
-        const correct = `${m[3]}-${String(mn[m[2]]+1).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
-        if (r.isoDate !== correct) { r.isoDate = correct; dirty = true; }
-      }
-    });
-    if (dirty) saveHistory(h);
-    localStorage.setItem('abw_v4_iso_migrated','1');
-  }
-
-  // Миграция: Body Saw / Long-Lever Plank → Body Saw в истории
-  if (!localStorage.getItem('abw8_bsaw_hist_mig')) {
-    let dirty = false;
-    h.forEach(r => { if (r.exList) r.exList.forEach(e => {
-      if (e.name === 'Body Saw / Long-Lever Plank') { e.name = 'Body Saw'; dirty = true; }
-    }); });
-    if (dirty) saveHistory(h);
-    localStorage.setItem('abw8_bsaw_hist_mig', '1');
-  }
+  // Миграции (UTC→local dates, Body Saw rename) выполняются при загрузке
+  // через runMigrations() — см. рядом с загрузкой S.
 
   // Строим Set дат тренировок для подсветки
   const trainDates = {};
@@ -7390,7 +7456,7 @@ function openHistory(){
     if(cw) cw.innerHTML = renderCalendarInner();
     const listEl = document.getElementById('hist-list');
     if(listEl) listEl.innerHTML = renderList(window._calFilterDate, window._histWeekFilter) +
-      `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button>`;
+      `<button class="reset-btn hist-clear-wide" onclick="clearHistory()">Очистить историю</button>`;
     // Подсветить выбранный день
     document.querySelectorAll('.cal-cell.selected').forEach(el=>el.classList.remove('selected'));
     if(window._calFilterDate){
@@ -7411,11 +7477,9 @@ function openHistory(){
   });
 
   // Build chart toggle + mode content
-  const segStyle = 'font-size:11px;padding:5px 0;flex:1;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;';
-  const segActive = 'background:var(--gold);color:#000;border-color:var(--gold);';
-  const chartBtn = `<div style="display:inline-flex;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);min-width:200px;">
-    <button onclick="window._histChartMode=false;openHistory()" style="${segStyle}border-radius:20px 0 0 20px;${!window._histChartMode?segActive:''}border-right:none;">📅 Календарь</button>
-    <button onclick="window._histChartMode=true;openHistory()" style="${segStyle}border-radius:0 20px 20px 0;${window._histChartMode?segActive:''}">📈 График</button>
+  const chartBtn = `<div class="hist-seg-wrap">
+    <button class="hist-seg first${!window._histChartMode?' active':''}" onclick="window._histChartMode=false;openHistory()">📅 Календарь</button>
+    <button class="hist-seg last${window._histChartMode?' active':''}" onclick="window._histChartMode=true;openHistory()">📈 График</button>
   </div>`;
 
   if (window._histChartMode) {
@@ -7463,47 +7527,47 @@ function openHistory(){
       const prog = exProgress[n];
       const progBadge = prog ? `<span class="${prog.pct.startsWith('+')?'hist-prog-pos':'hist-prog-neg'}">${prog.pct}</span>` : '';
       const delBtn = editing
-        ? `<span style="font-size:9px;color:var(--text3);cursor:pointer;padding:0 2px;flex-shrink:0;" onclick="event.stopPropagation();showConfirm('Удалить с графика','Убрать «${esc(n)}» из списка упражнений на графике?',function(){let h=JSON.parse(localStorage.getItem('histChartHidden')||'[]');h.push('${esc(n)}');localStorage.setItem('histChartHidden',JSON.stringify(h));openHistory();})" title="Убрать из графика">✕</span>`
+        ? `<span class="hist-toggle-remove" onclick="event.stopPropagation();showConfirm('Удалить с графика','Убрать «${esc(n)}» из списка упражнений на графике?',function(){let h=JSON.parse(localStorage.getItem('histChartHidden')||'[]');h.push('${esc(n)}');localStorage.setItem('histChartHidden',JSON.stringify(h));openHistory();})" title="Убрать из графика">✕</span>`
         : '';
-      return `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);${editing?'':'cursor:pointer;'}"
+      return `<label class="hist-toggle-row${editing?'':' is-clickable'}"
         onmouseenter="window._histChartHover='${esc(n)}';drawHistChart()"
         onmouseleave="window._histChartHover='';drawHistChart()">
-        <input type="checkbox" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:${histColor(n)};width:14px;height:14px;cursor:pointer;flex-shrink:0;margin:0;">
-        <span style="display:flex;align-items:center;min-width:0;">${n}${progBadge}</span>
+        <input type="checkbox" class="hist-toggle-input" ${activeEx[n]?'checked':''} data-exname="${esc(n)}" onchange="window._histChartActive[this.dataset.exname]=this.checked;drawHistChart()" style="accent-color:${histColor(n)};">
+        <span class="hist-toggle-name">${n}${progBadge}</span>
         ${delBtn}
       </label>`;
     }).join('');
     body.innerHTML =
-      `<div style="display:flex;justify-content:center;margin-bottom:10px;">${chartBtn}</div>
-       <div id="hist-chart-wrap" style="overflow-x:auto;">
-         <canvas id="hist-chart" style="border-radius:10px;background:var(--surface);border:1px solid var(--border);display:block;margin-bottom:6px;"></canvas>
+      `<div class="hist-seg-center">${chartBtn}</div>
+       <div id="hist-chart-wrap" class="hist-canvas-wrap">
+         <canvas id="hist-chart" class="hist-canvas"></canvas>
        </div>
-        <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:8px;">
-          <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(-0.5)" title="Уменьшить">−</button>
+        <div class="hist-zoom-row">
+          <button class="catalog-add-btn hist-zoom-btn" onclick="histZoom(-0.5)" title="Уменьшить">−</button>
           <input type="number" value="${((window._histChartZoom||1)*100).toFixed(0)}" min="50" max="400" step="10"
             onchange="histZoomSet(this.value)"
-            style="width:52px;border:1px solid var(--border);border-radius:6px;padding:2px 6px;font-size:12px;background:var(--surface2);color:var(--text);text-align:center;outline:none;">
-          <button class="catalog-add-btn" style="font-size:14px;padding:2px 10px;line-height:1.4;" onclick="histZoom(0.5)" title="Увеличить">+</button>
-          <button class="catalog-add-btn" style="font-size:11px;padding:2px 8px;line-height:1.4;" onclick="histZoomSet(100)" title="Сбросить зум"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg></button>
+            class="hist-zoom-input">
+          <button class="catalog-add-btn hist-zoom-btn" onclick="histZoom(0.5)" title="Увеличить">+</button>
+          <button class="catalog-add-btn hist-zoom-reset" onclick="histZoomSet(100)" title="Сбросить зум"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg></button>
         </div>
-       ${exNames.length ? `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;">${exToggles}</div>` : ''}
-        <div style="display:flex;gap:8px;justify-content:center;margin:8px 0;">
+       ${exNames.length ? `<div class="hist-toggles-wrap">${exToggles}</div>` : ''}
+        <div class="hist-action-row">
           ${editing
-            ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:320px;">
-                  <div style="display:flex;gap:6px;width:100%;">
-                    <input id="hist-add-ex-input" placeholder="Поиск упражнений" value="${esc(window._histCatFilter||'')}" style="flex:1;font-size:11px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;" oninput="window._histCatFilter=this.value;if(this.value){window._histShowCat=true}else{window._histShowCat=false}openHistory()">
+            ? `<div class="hist-editing-col">
+                  <div class="hist-editing-row">
+                    <input id="hist-add-ex-input" placeholder="Поиск упражнений" value="${esc(window._histCatFilter||'')}" class="hist-search-input" oninput="window._histCatFilter=this.value;if(this.value){window._histShowCat=true}else{window._histShowCat=false}openHistory()">
                     <button class="catalog-add-btn" onclick="window._histShowCat=!window._histShowCat;window._histCatFilter='';openHistory()" style="flex-shrink:0;" title="Каталог упражнений"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
                   </div>
-                  ${showCat ? `<div style="display:flex;flex-wrap:wrap;gap:4px;width:100%;max-height:160px;overflow-y:auto;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--surface);">
+                  ${showCat ? `<div class="hist-cat-list">
                     ${catList.length ? catList.map(n=>`<span class="hist-cat-pill" onclick="window._histCatPick('${esc(n)}')">${esc(n)}</span>`).join('') : `<span class="hist-cat-empty">Нет совпадений</span>`}
                   </div>` : ''}
-                  <button style="background:var(--surface2);border:1px solid var(--green);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--green);cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="window._histChartEditing=false;window._histShowCat=false;window._histCatFilter='';openHistory()">✓ Готово</button>
+                  <button class="hist-pill hist-pill-success" onclick="window._histChartEditing=false;window._histShowCat=false;window._histCatFilter='';openHistory()">✓ Готово</button>
                 </div>`
-            : `<button style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="histToggleAll()" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='';this.style.color=''">${allChecked?'✓ Все':'✕ Сбросить'}</button>
-              <button style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:6px 18px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;font-family:inherit;box-shadow:var(--shadow-sm);" onclick="window._histChartEditing=true;openHistory()" onmouseenter="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseleave="this.style.borderColor='';this.style.color=''">✎ Изменить список</button>`
+            : `<button class="hist-pill" onclick="histToggleAll()">${allChecked?'✓ Все':'✕ Сбросить'}</button>
+              <button class="hist-pill" onclick="window._histChartEditing=true;openHistory()">✎ Изменить список</button>`
           }
         </div>
-       <button class="reset-btn" style="width:100%;margin-top:8px;" onclick="clearHistory()">Очистить историю</button>`;
+       <button class="reset-btn hist-clear" onclick="clearHistory()">Очистить историю</button>`;
     requestAnimationFrame(drawHistChart);
     // Восстанавливаем фокус на поле поиска после перерендера
     if (editing) {
@@ -7515,11 +7579,11 @@ function openHistory(){
     }
   } else {
     body.innerHTML =
-      `<div style="display:flex;justify-content:center;margin-bottom:12px;">${chartBtn}</div>` +
+      `<div class="hist-seg-center hist-seg-center--bottom">${chartBtn}</div>` +
       renderCalendar() +
-      `<div class="help-section" style="margin-top: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+      `<div class="help-section hist-week-row">
         <button class="catalog-add-btn" onclick="window._histSortAsc=!window._histSortAsc;openHistory()" style="flex-shrink:0;min-width:36px;font-size:13px;" title="Сортировка">${window._histSortAsc?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"/><polyline points="6 14 12 20 18 14"/></svg>'}</button>
-        <span style="font-size:12px;color:var(--text2);white-space:nowrap;">Неделя:</span>
+        <span class="hist-lbl">Неделя:</span>
         <select class="tag-select" id="hist-week-filter" onchange="changeHistWeekFilter(this.value)" style="flex:1;">
           <option value="all">Все недели</option>
           ${(()=>{const maxW = Math.max(...h.map(r=>r.week||0), 9); return Array.from({length: maxW + 1}, (_, idx) => { const n = idx + 1; return `<option value="${n}">${n > maxW ? `Неделя ${n - 1}+` : `Неделя ${n}`}</option>`; }).join('')})()}
@@ -7527,7 +7591,7 @@ function openHistory(){
       </div>` +
       `<div id="hist-list" style="margin-top:8px;">` +
       renderList(null, 'all') +
-      `<button class="reset-btn" style="margin-top:16px;width:100%;" onclick="clearHistory()">Очистить историю</button></div>`;
+      `<button class="reset-btn hist-clear-wide" onclick="clearHistory()">Очистить историю</button></div>`;
   }
 
   // Восстанавливаем развёрнутые строки

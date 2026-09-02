@@ -17,8 +17,9 @@ Single‑file PWA (`index.html`, ~7652 lines / ~404 KB). Vanilla HTML/CSS/JS, no
   - `abw_sw` — stopwatch state (persisted across page reloads)
   - `catEdits` — user additions/edits to the exercise catalog
   - `abw_ex_timer_presets` — per-exercise timer presets
-  - `abw_v4_iso_migrated` — one-shot flag: history dates UTC → local
-  - `abw8_bsaw_mig` / `abw8_bsaw_hist_mig` — Body Saw rename migrations
+  - `abw_version` — integer (currently 5). Source of truth for migrations.
+  - `abw_v4_iso_migrated` — legacy one-shot flag: history dates UTC → local (now folded into `abw_version`)
+  - `abw8_bsaw_mig` / `abw8_bsaw_hist_mig` — legacy Body Saw rename migrations (now folded into `abw_version`)
 
 ## Boot sequence (top-level script order)
 
@@ -110,8 +111,9 @@ Single‑file PWA (`index.html`, ~7652 lines / ~404 KB). Vanilla HTML/CSS/JS, no
 | `abw_sw` | `{running, elapsed, started}` | Yes (restores running stopwatch) |
 | `catEdits` | `{[exId]: {n, d, t, g, how, tips, alts}}` | No (loaded on demand via `openCatalog()`) |
 | `abw_ex_timer_presets` | `{'w-d-i': secs}` | No (loaded on demand) |
-| `abw_v4_iso_migrated` | `'1'` (one-shot flag) | Checked on history open |
-| `abw8_bsaw_mig` / `abw8_bsaw_hist_mig` | `'1'` (one-shot flags) | Checked on save / history open |
+| `abw_version` | `'5'` (integer; source of truth for migrations) | Checked on boot via `runMigrations()` |
+| `abw_v4_iso_migrated` | legacy one-shot flag (kept for first-boot detection, no longer checked) | — |
+| `abw8_bsaw_mig` / `abw8_bsaw_hist_mig` | legacy one-shot flags (kept for first-boot detection) | — |
 | `histChartHidden` / `histChartExtra` | chart-mode-only exercise list | No (chart mode only) |
 | `measRefs` | reference-line values per field | No (measurements only) |
 
