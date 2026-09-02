@@ -1148,6 +1148,9 @@ body {
 .theme-icon { font-size: 22px; line-height: 1; width: 28px; text-align: center; }
 .theme-label { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
 .theme-check { color: var(--gold); flex-shrink: 0; }
+.theme-opt-add { border-style: dashed; }
+.theme-custom-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px dashed var(--border); }
+.theme-custom-row .swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--border); flex-shrink: 0; }
 
 /* ── MEASUREMENTS ── */
 .meas-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
@@ -3212,44 +3215,199 @@ grabWakeLock();
 let W=S.W, D=S.D, editMode=false;
 
 const THEME_ICONS = {light:'☀', dark:'☽', cyberpunk:'⚡', matrix:'⎔', synthwave:'◈', terminal:'⌨', holo:'◌'};
-const THEME_ORDER = ['light','dark','cyberpunk','matrix','synthwave','terminal','holo'];
+const THEME_LABELS = {light:'Светлая', dark:'Тёмная', cyberpunk:'Cyberpunk', matrix:'Matrix', synthwave:'Synthwave', terminal:'Terminal', holo:'Holo'};
+const THEME_BUILTIN = ['light','dark','cyberpunk','matrix','synthwave','terminal','holo'];
+const CUSTOM_THEMES_KEY = 'abw_themes';
+
+function loadCustomThemes(){
+  try { return JSON.parse(localStorage.getItem(CUSTOM_THEMES_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveCustomThemes(o){ try { localStorage.setItem(CUSTOM_THEMES_KEY, JSON.stringify(o)); } catch(e) {} }
+
+function applyCustomTheme(themeName){
+  const themes = loadCustomThemes();
+  const t = themes[themeName];
+  if (!t) return;
+  // Inject or update a <style id="custom-theme-style"> for [data-theme="custom-..."]
+  // !important + higher specificity via [data-theme] (single attr selector) ensures we
+  // beat the builtin :root[data-theme=...] rules regardless of <style> order.
+  let styleEl = document.getElementById('custom-theme-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'custom-theme-style';
+    // Prepend so this wins cascade order over any later <style> with equal specificity
+    document.head.insertBefore(styleEl, document.head.firstChild);
+  }
+  // Sanitize: only allow var-name-like keys with hex values to prevent injection
+  const safe = {};
+  for (const k in t) { if (/^--[a-z0-9-]+$/i.test(k) && /^#[0-9a-f]{3,8}$/i.test(t[k])) safe[k] = t[k]; }
+  styleEl.textContent = `:root { ${Object.entries(safe).map(([k,v]) => `${k}:${v} !important`).join('; ')} }`;
+}
+
+function getThemeList(){
+  return [...THEME_BUILTIN, ...Object.keys(loadCustomThemes())];
+}
+
+function isCustomTheme(name){ return name && name.startsWith('custom:'); }
+function customIdToName(id){ return id.slice('custom:'.length); }
 
 // Apply saved theme immediately
 document.documentElement.setAttribute('data-theme', S.theme);
-document.getElementById('theme-btn').textContent = THEME_ICONS[S.theme] || '☽';
+if (isCustomTheme(S.theme)) applyCustomTheme(customIdToName(S.theme));
+document.getElementById('theme-btn').textContent = THEME_ICONS[S.theme] || (isCustomTheme(S.theme) ? '◐' : '☽');
 
 function setTheme(name){
   S.theme = name;
   document.documentElement.setAttribute('data-theme', name);
-  document.getElementById('theme-btn').textContent = THEME_ICONS[name] || '☽';
+  if (isCustomTheme(name)) applyCustomTheme(customIdToName(name));
+  document.getElementById('theme-btn').textContent = THEME_ICONS[name] || (isCustomTheme(name) ? '◐' : '☽');
   const sel = document.getElementById('cfg-theme');
-  if (sel) sel.value = name;
+  if (sel) {
+    // ensure option exists for custom theme
+    if (isCustomTheme(name) && !sel.querySelector(`option[value="${name}"]`)) {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = `Своя: ${customIdToName(name)}`;
+      sel.appendChild(opt);
+    }
+    sel.value = name;
+  }
   save();
 }
 
 function toggleTheme(){
-  const idx = THEME_ORDER.indexOf(S.theme);
-  const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
+  const list = getThemeList();
+  const idx = list.indexOf(S.theme);
+  const next = list[(idx + 1) % list.length];
   setTheme(next);
 }
 
-const THEME_LABELS = {light:'Светлая', dark:'Тёмная', cyberpunk:'Cyberpunk', matrix:'Matrix', synthwave:'Synthwave', terminal:'Terminal', holo:'Holo'};
-
 function openThemePicker(){
   const body = document.getElementById('theme-picker-body');
-  body.innerHTML = THEME_ORDER.map(t => `
+  const customs = loadCustomThemes();
+  const opts = THEME_BUILTIN.map(t => `
     <div class="theme-opt${S.theme===t?' sel':''}" onclick="setTheme('${t}');closeThemePicker()">
       <span class="theme-icon">${THEME_ICONS[t]}</span>
       <span class="theme-label">${THEME_LABELS[t]}</span>
       ${S.theme===t?'<svg class="theme-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>':''}
-    </div>
-  `).join('');
+    </div>`).join('');
+  const customOpts = Object.keys(customs).map(name => {
+    const id = 'custom:' + name;
+    const t = customs[name];
+    const swatch = (t['--bg'] || t['--text'] || '#888');
+    return `<div class="theme-opt${S.theme===id?' sel':''}" onclick="setTheme('${id}');closeThemePicker()">
+      <span class="theme-icon" style="background:${swatch};border-radius:50%;width:22px;height:22px;display:inline-block;"></span>
+      <span class="theme-label">${name}</span>
+      <span class="theme-opt-del" onclick="event.stopPropagation();deleteCustomTheme('${name.replace(/'/g,"\\'")}');openThemePicker();" title="Удалить">✕</span>
+      ${S.theme===id?'<svg class="theme-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>':''}
+    </div>`;
+  }).join('');
+  body.innerHTML = opts + customOpts + `
+    <div class="theme-opt theme-opt-add" onclick="openCustomThemeEditor()">
+      <span class="theme-icon">+</span>
+      <span class="theme-label">Создать свою тему…</span>
+    </div>`;
   openSheet('theme-picker', document.activeElement);
   vibe(8);
 }
 
 function closeThemePicker(){
   closeSheet('theme-picker');
+}
+
+function openCustomThemeEditor(name){
+  const body = document.getElementById('theme-picker-body');
+  const isEdit = !!name;
+  const themes = loadCustomThemes();
+  const t = isEdit ? themes[name] : {
+    '--bg': '#1a1a1a', '--surface': '#222', '--text': '#eee',
+    '--gold': '#c8a96e', '--green': '#2aaa72', '--danger': '#c8442a'
+  };
+  const fields = [
+    ['--bg','Фон'], ['--surface','Поверхность'], ['--text','Текст'],
+    ['--gold','Золото'], ['--green','Зелёный'], ['--danger','Красный']
+  ];
+  body.innerHTML = `
+    <div class="help-section">
+      <div class="help-section-title">${isEdit ? 'Редактировать' : 'Новая'} тема</div>
+      <div class="sett-row" style="margin-bottom:10px;">
+        <span class="sett-label">Название</span>
+        <input class="edit-field" id="ct-name" value="${name || ''}" placeholder="Моя тема" ${isEdit ? 'readonly' : ''} style="flex:1;">
+      </div>
+      ${fields.map(([k, lbl]) => `<div class="sett-row">
+        <span class="sett-label" style="min-width:90px;">${lbl}</span>
+        <input type="color" class="sett-color-sm" id="ct-${k.slice(2)}" value="${t[k] || '#000000'}" oninput="ctPreview()">
+      </div>`).join('')}
+      <div id="ct-preview" class="theme-custom-row" style="margin-top:12px;padding:10px;border-radius:8px;">
+        <span class="swatch" style="background:${t['--bg']}"></span>
+        <span style="color:${t['--text']}">Предпросмотр</span>
+        <span style="color:${t['--gold']}">текст</span>
+        <span style="color:${t['--green']}">готово</span>
+        <span style="color:${t['--danger']}">опасно</span>
+      </div>
+      <div class="sett-row" style="margin-top:14px;">
+        <button class="catalog-add-btn btn-muted" onclick="openThemePicker()">← Назад</button>
+        <button class="catalog-add-btn btn-success" style="flex:1;" onclick="saveCustomTheme()">${isEdit ? 'Сохранить' : 'Создать'}</button>
+        ${isEdit ? `<button class="catalog-add-btn btn-danger" onclick="deleteCustomTheme('${name.replace(/'/g,"\\'")}');openThemePicker();">Удалить</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function ctPreview(){
+  const t = {
+    '--bg':     document.getElementById('ct-bg').value,
+    '--text':   document.getElementById('ct-text').value,
+    '--gold':   document.getElementById('ct-gold').value,
+    '--green':  document.getElementById('ct-green').value,
+    '--danger': document.getElementById('ct-danger').value,
+  };
+  applyCustomTheme('preview');
+  // Inject into a temp style with data-theme="custom-preview"
+  let styleEl = document.getElementById('custom-theme-style');
+  if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'custom-theme-style'; document.head.appendChild(styleEl); }
+  const safe = {}; for (const k in t) safe[k] = t[k];
+  const oldText = styleEl.textContent;
+  styleEl.textContent = `:root { ${Object.entries(safe).map(([k,v]) => `${k}:${v} !important`).join('; ')} }`;
+  document.documentElement.setAttribute('data-theme', 'custom-preview');
+  // Update preview swatch
+  const prev = document.getElementById('ct-preview');
+  if (prev) prev.style.background = t['--bg'];
+  // After 5s, restore the actual theme
+  clearTimeout(window._ctRestoreTimer);
+  window._ctRestoreTimer = setTimeout(() => {
+    styleEl.textContent = oldText;
+    document.documentElement.setAttribute('data-theme', S.theme);
+  }, 4000);
+}
+
+function saveCustomTheme(){
+  const nameEl = document.getElementById('ct-name');
+  const name = (nameEl.value || '').trim();
+  if (!name) { nameEl.focus(); return; }
+  if (THEME_BUILTIN.includes(name)) { showConfirm('Ошибка','Имя занято встроенной темой',null,'ОК'); return; }
+  const themes = loadCustomThemes();
+  const t = {
+    '--bg':     document.getElementById('ct-bg').value,
+    '--surface':document.getElementById('ct-surface').value,
+    '--text':   document.getElementById('ct-text').value,
+    '--gold':   document.getElementById('ct-gold').value,
+    '--green':  document.getElementById('ct-green').value,
+    '--danger': document.getElementById('ct-danger').value,
+  };
+  themes[name] = t;
+  saveCustomThemes(themes);
+  clearTimeout(window._ctRestoreTimer);
+  // Re-apply the style content to the new theme
+  const styleEl = document.getElementById('custom-theme-style');
+  if (styleEl) styleEl.textContent = '';
+  setTheme('custom:' + name);
+  openThemePicker();
+}
+
+function deleteCustomTheme(name){
+  const themes = loadCustomThemes();
+  delete themes[name];
+  saveCustomThemes(themes);
+  if (S.theme === 'custom:' + name) setTheme('light');
 }
 
 const save=()=>{S.W=W;S.D=D;try{localStorage.setItem('abw8',JSON.stringify(S));}catch(e){}};
@@ -5121,7 +5279,19 @@ function openAppSettings() {
   const rmLS = document.getElementById('cfg-show-reminder-label');
   if (rmLS) rmLS.checked = cfg.reminderLabelShow !== false;
   const themeSel = document.getElementById('cfg-theme');
-  if (themeSel) themeSel.value = S.theme || 'light';
+  if (themeSel) {
+    themeSel.value = S.theme || 'light';
+    // populate custom theme options
+    const customs = loadCustomThemes();
+    Object.keys(customs).forEach(name => {
+      if (!themeSel.querySelector(`option[value="custom:${name}"]`)) {
+        const opt = document.createElement('option');
+        opt.value = 'custom:' + name;
+        opt.textContent = 'Своя: ' + name;
+        themeSel.appendChild(opt);
+      }
+    });
+  }
   const tc = document.getElementById('cfg-topbar-color');
   if (tc) tc.value = cfg.topbarColor || '#ffffff';
   const hc = document.getElementById('cfg-hero-color');

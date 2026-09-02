@@ -75,11 +75,14 @@ async function main() {
   });
 
   // 5. Theme system — 7 themes selectable
-  await step(page, 'theme picker has 7 themes', async () => {
+  await step(page, 'theme picker has 7 built-in themes', async () => {
     await page.click('button[onclick="openThemePicker()"]');
     await page.waitForTimeout(200);
-    const opts = await page.locator('.theme-opt').count();
-    assert.equal(opts, 7, `expected 7 theme options, got ${opts}`);
+    // 7 built-in + 1 "+ Своя" tile = 8
+    const opts = await page.locator('.theme-opt:not(.theme-opt-add)').count();
+    assert.equal(opts, 7, `expected 7 built-in theme options, got ${opts}`);
+    const add = await page.locator('.theme-opt-add').count();
+    assert.equal(add, 1, `expected 1 "+ Своя" tile, got ${add}`);
     // close via direct API (Escape doesn't always dismiss sheets with body in front)
     await page.evaluate(() => closeThemePicker());
     await page.waitForTimeout(200);
@@ -212,6 +215,38 @@ async function main() {
     assert.equal(after.histName, 'Body Saw', 'history Body Saw not renamed');
     assert.equal(after.histIso, '2024-09-01', 'history isoDate not UTC→local migrated');
     await ctx2.close();
+  });
+
+  // 16. Custom theme CRUD
+  await step(page, 'custom theme create + apply + delete', async () => {
+    const before = await page.evaluate(() => Object.keys(loadCustomThemes()).length);
+    // Seed a custom theme via the public API (UI flow needs sheet interaction)
+    await page.evaluate(() => {
+      const themes = loadCustomThemes();
+      themes['TestPeach'] = { '--bg':'#fff5ee','--surface':'#ffe4d6','--text':'#3d2914','--gold':'#e07856','--green':'#7ba787','--danger':'#b03060' };
+      saveCustomThemes(themes);
+    });
+    const after = await page.evaluate(() => Object.keys(loadCustomThemes()).length);
+    assert.equal(after, before + 1, 'custom theme not saved');
+    // Switch to it
+    await page.evaluate(() => setTheme('custom:TestPeach'));
+    await page.waitForTimeout(150);
+    const dt = await page.locator('html').getAttribute('data-theme');
+    assert.equal(dt, 'custom:TestPeach', 'data-theme not switched to custom');
+    // CSS variables applied
+    const probe = await page.evaluate(() => {
+      const cs = getComputedStyle(document.documentElement);
+      // pick :root computed --bg by walking all sheets
+      const rs = getComputedStyle(document.documentElement);
+      return { dt: document.documentElement.getAttribute('data-theme'), bg: cs.getPropertyValue('--bg').trim() };
+    });
+    assert.equal(probe.bg.toLowerCase(), '#fff5ee', `--bg not applied: ${probe.bg} (data-theme=${probe.dt})`);
+    // Delete
+    await page.evaluate(() => deleteCustomTheme('TestPeach'));
+    const remaining = await page.evaluate(() => Object.keys(loadCustomThemes()));
+    assert.ok(!remaining.includes('TestPeach'), 'custom theme not deleted');
+    // Active theme should reset
+    await page.evaluate(() => setTheme('light'));
   });
 
   await browser.close();
