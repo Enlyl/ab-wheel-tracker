@@ -2232,6 +2232,8 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   animation: checkFadeIn .3s ease-out 1.3s forwards;
   transform-origin: 200px 200px;
 }
+.week-progress-text-card rect { fill: var(--surface); }
+[data-theme="dark"] .week-progress-text-card rect { fill: var(--surface); }
 @keyframes checkFadeIn { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: scale(1); } }
 }
 .week-progress-percent {
@@ -8065,9 +8067,17 @@ function triggerWeekComplete(w) {
   ring.setAttribute('aria-hidden', 'true');
   ring.innerHTML = `
     <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="progressTextBg" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="14"/>
+        </filter>
+      </defs>
       <g class="ring-rot">
         <circle class="week-progress-track" cx="200" cy="200" r="180"/>
         <circle class="week-progress-bar"   cx="200" cy="200" r="180"/>
+      </g>
+      <g class="week-progress-text-card" filter="url(#progressTextBg)">
+        <rect x="100" y="120" width="200" height="160" rx="20" fill="var(--surface)"/>
       </g>
       <text class="week-progress-title" x="200" y="184">${w}</text>
       <text class="week-progress-sub"   x="200" y="232">неделя</text>
