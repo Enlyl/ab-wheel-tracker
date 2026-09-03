@@ -2177,12 +2177,58 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   border-radius: 50%;
   animation: particleRise linear forwards;
 }
+@keyframes progressDraw {
+  0%   { stroke-dashoffset: 263.9; }
+  100% { stroke-dashoffset: 0;     }
+}
+@keyframes progressFadeIn {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.6) rotate(-90deg); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1)   rotate(0deg);    }
+}
+@keyframes progressFadeOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+.week-progress-ring {
+  pointer-events: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(.6);
+  z-index: 213;
+  width: 200px; height: 200px;
+  opacity: 0;
+  animation: progressFadeIn .35s ease-out forwards;
+}
+.week-progress-ring.is-leaving { animation: progressFadeOut .35s ease forwards; }
+.week-progress-ring svg { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
+.week-progress-track { fill: none; stroke: var(--border); stroke-width: 4; }
+.week-progress-bar {
+  fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round;
+  stroke-dasharray: 263.9; stroke-dashoffset: 263.9;
+  animation: progressDraw 1.5s cubic-bezier(.4,0,.2,1) forwards;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--gold) 60%, transparent));
+}
+.week-progress-percent {
+  font-family: 'Italiana', serif;
+  font-size: 56px;
+  fill: var(--gold);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.week-progress-label {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  fill: var(--text2);
+  text-anchor: middle;
+}
 .week-badge {
   pointer-events: none;
   position: fixed;
   top: 50%; left: 50%;
-  transform: translate(-50%, -50%) scale(0);  z-index: 212;
-  background: var(--gold);
+  transform: translate(-50%, -50%) scale(0);
+  z-index: 212;  background: var(--gold);
   color: #fff;
   font-family: 'Italiana', serif;
   font-size: 22px;
@@ -7987,7 +8033,24 @@ function triggerWeekComplete(w) {
     }
   }
 
-  // 3. Бейдж по центру
+  // 3. Круговой progress-bar (рисуется от 0% до 100%) — поверх бейджа
+  const ring = document.createElement('div');
+  ring.className = 'week-progress-ring';
+  ring.setAttribute('aria-hidden', 'true');
+  ring.innerHTML = `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle class="week-progress-track" cx="50" cy="50" r="42"/>
+      <circle class="week-progress-bar"   cx="50" cy="50" r="42"/>
+    </svg>`;
+  document.body.appendChild(ring);
+  const ringDur = reducedMotion() ? 1200 : 1900;
+  setTimeout(() => {
+    if (reducedMotion()) { ring.remove(); return; }
+    ring.classList.add('is-leaving');
+    setTimeout(() => ring.remove(), 380);
+  }, ringDur);
+
+  // 4. Бейдж по центру
   const badge = document.createElement('div');
   badge.className = 'week-badge';
   badge.innerHTML = `Неделя ${w} завершена!<span class="week-badge-sub">Отличная работа</span>`;
@@ -8000,7 +8063,7 @@ function triggerWeekComplete(w) {
     setTimeout(() => badge.remove(), 450);
   }, badgeDur);
 
-  // 4. Сильная вибрация
+  // 5. Сильная вибрация
   vibe([40, 40, 40, 40, 120, 60, 120]);
 }
 

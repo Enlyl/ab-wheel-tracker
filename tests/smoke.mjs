@@ -289,7 +289,41 @@ async function main() {
     assert.ok(wkTitle.includes('Неделя 3 завершена'), `week-badge text wrong: ${wkTitle}`);
     // Cleanup
     await page.evaluate(() => {
-      document.querySelectorAll('.week-badge, .week-flash-overlay, .week-particle').forEach(n => n.remove());
+      document.querySelectorAll('.week-badge, .week-flash-overlay, .week-particle, .week-progress-ring').forEach(n => n.remove());
+    });
+  });
+
+  // 19. Week-complete adds a circular progress ring (SVG circle)
+  await step(page, 'week-complete shows circular progress ring', async () => {
+    await page.evaluate(() => {
+      document.querySelectorAll('.week-progress-ring, .week-badge, .week-flash-overlay')
+        .forEach(n => n.remove());
+      // Override reducedMotion to false for this test
+      window.matchMedia = (q) => ({ matches: false, media: q, addListener: () => {}, removeListener: () => {} });
+      triggerWeekComplete(4);
+    });
+    await page.waitForTimeout(50);
+    const ringCount = await page.locator('.week-progress-ring').count();
+    assert.equal(ringCount, 1, 'progress ring not rendered on week-complete');
+    // The ring must contain a track + bar
+    const tracks = await page.locator('.week-progress-track').count();
+    const bars   = await page.locator('.week-progress-bar').count();
+    assert.equal(tracks, 1, 'progress track missing');
+    assert.equal(bars,   1, 'progress bar missing');
+    // The bar's stroke-dasharray / dashoffset is set in CSS, not via attribute.
+    // Verify via computed style: dasharray should be set to ~263.9 (= 2π·42).
+    const dashArray = await page.locator('.week-progress-bar').first().evaluate(el =>
+      window.getComputedStyle(el).strokeDasharray
+    );
+    assert.ok(dashArray, `progress bar missing stroke-dasharray: ${dashArray}`);
+    assert.ok(parseFloat(dashArray) > 250, `stroke-dasharray should be ~263.9, got ${dashArray}`);
+    // After ~2.4s the ring has had time to fade out + be removed
+    await page.waitForTimeout(2400);
+    const stillThere = await page.locator('.week-progress-ring').count();
+    assert.equal(stillThere, 0, 'progress ring should be removed after 2s');
+    await page.evaluate(() => {
+      document.querySelectorAll('.week-progress-ring, .week-badge, .week-flash-overlay, .week-particle')
+        .forEach(n => n.remove());
     });
   });
 
