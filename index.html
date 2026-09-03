@@ -2204,50 +2204,6 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   margin-top: 4px; opacity: 0.8;
 }
 
-/* ── WEEK-COMPLETE DANCING FIGURE ── */
-@keyframes dancerBounce {
-  0%   { transform: translateY(0)   rotate(0deg)   scale(1);   }
-  20%  { transform: translateY(-12px) rotate(-8deg)  scale(1.04); }
-  40%  { transform: translateY(0)   rotate(0deg)   scale(1);   }
-  60%  { transform: translateY(-12px) rotate(8deg)   scale(1.04); }
-  80%  { transform: translateY(0)   rotate(-4deg)  scale(0.98); }
-  100% { transform: translateY(0)   rotate(0deg)   scale(1);   }
-}
-@keyframes dancerWave {
-  0%, 100% { transform: rotate(-12deg); }
-  50%      { transform: rotate(40deg);  }
-}
-@keyframes dancerKick {
-  0%, 100% { transform: rotate(-15deg); }
-  50%      { transform: rotate(35deg);  }
-}
-@keyframes dancerFadeIn {
-  0%   { opacity: 0; transform: translate(-50%, -45%) scale(.7); }
-  100% { opacity: 1; transform: translate(-50%, -50%) scale(1);  }
-}
-@keyframes dancerFadeOut {
-  0%   { opacity: 1; }
-  100% { opacity: 0; }
-}
-.dancer {
-  pointer-events: none;
-  position: fixed;
-  bottom: 80px; left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 212;
-  width: 96px; height: 140px;
-  animation: dancerFadeIn .35s ease-out forwards, dancerBounce 0.9s ease-in-out 0.35s infinite;
-}
-.dancer.is-leaving { animation: dancerFadeOut .35s ease forwards; }
-.dancer svg { width: 100%; height: 100%; overflow: visible; }
-.dancer-body    { fill: var(--gold); transform-origin: 48px 70px; animation: dancerBounce 0.9s ease-in-out infinite; }
-.dancer-arm-l   { fill: var(--gold); transform-origin: 38px 60px; animation: dancerWave 0.7s ease-in-out infinite; }
-.dancer-arm-r   { fill: var(--gold); transform-origin: 58px 60px; animation: dancerWave 0.7s ease-in-out 0.18s infinite reverse; }
-.dancer-leg-l   { fill: var(--gold2); transform-origin: 42px 95px; animation: dancerKick 0.85s ease-in-out infinite; }
-.dancer-leg-r   { fill: var(--gold2); transform-origin: 54px 95px; animation: dancerKick 0.85s ease-in-out 0.2s infinite reverse; }
-.dancer-head    { fill: var(--gold); }
-.dancer-floor   { stroke: var(--gold2); stroke-width: 2; stroke-dasharray: 4 4; opacity: .35; fill: none; }
-
 /* ── DAY COMPLETE ANIMATION (compact, green) ── */
 @keyframes dayConfettiFall {
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
@@ -8044,26 +8000,7 @@ function triggerWeekComplete(w) {
     setTimeout(() => badge.remove(), 450);
   }, badgeDur);
 
-  // 4. Танцующий силуэт (stick figure) — внизу по центру
-  if (!reducedMotion()) {
-    const dancer = document.createElement('div');
-    dancer.className = 'dancer';
-    dancer.innerHTML = `
-      <svg viewBox="0 0 96 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <line class="dancer-floor" x1="6" y1="135" x2="90" y2="135"/>
-        <g class="dancer-body"><rect class="dancer-leg-l" x="40" y="92" width="5" height="36" rx="2.5"/><rect class="dancer-leg-r" x="51" y="92" width="5" height="36" rx="2.5"/><rect x="42" y="50" width="12" height="48" rx="3"/></g>
-        <rect class="dancer-arm-l" x="28" y="56" width="4" height="28" rx="2"/><rect class="dancer-arm-r" x="64" y="56" width="4" height="28" rx="2"/>
-        <circle class="dancer-head" cx="48" cy="36" r="11"/>
-      </svg>`;
-    document.body.appendChild(dancer);
-    const dancerDur = 3200;
-    setTimeout(() => {
-      dancer.classList.add('is-leaving');
-      setTimeout(() => dancer.remove(), 380);
-    }, dancerDur);
-  }
-
-  // 5. Сильная вибрация
+  // 4. Сильная вибрация
   vibe([40, 40, 40, 40, 120, 60, 120]);
 }
 
