@@ -4154,7 +4154,7 @@ function showCycleConfirmInput(){
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
       <input type="text" id="cycle-confirm-input" placeholder="go / поехали" style="width:100%;max-width:240px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;text-align:center;">
-      <div id="cycle-confirm-hint" style="font-size:11px;color:var(--text3);min-height:14px;"></div>
+      <div id="cycle-confirm-hint" class="sett-hint" style="min-height:14px;"></div>
     </div>`;
   const input = document.getElementById('cycle-confirm-input');
   const hint = document.getElementById('cycle-confirm-hint');
@@ -5177,7 +5177,7 @@ function render(){
         <span style="font-size:20px;">📦</span>
         <div style="flex:1;">
           <div style="font-weight:700;font-size:14px;">Цикл ${idx+1} <span style="font-weight:400;color:var(--text2);">(${c.started} — ${c.ended}, ${c.weeks} нед)</span></div>
-          <div style="font-size:11px;color:var(--text3);">Неделя ${c.W} / День ${c.D+1} • Тема: ${c.theme}</div>
+          <div class="sett-label-muted">Неделя ${c.W} / День ${c.D+1} • Тема: ${c.theme}</div>
         </div>
         <span class="cycle-arch-arrow" style="font-size:12px;color:var(--text3);transition:transform .2s;">▼</span>
       </summary>
@@ -5591,7 +5591,7 @@ function renderMeasEntry(e,i){
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <span class="meas-date">${e.date}${e.time?`<span style="font-weight:400;color:var(--text3);margin-left:6px;">${e.time}</span>`:''}</span>
       <span style="display:flex;gap:6px;align-items:center;">
-        <span style="font-size:11px;color:var(--text2);cursor:pointer;" onclick="event.stopPropagation();editMeasEntry(${i})">✎</span>
+        <span class="sett-reset" onclick="event.stopPropagation();editMeasEntry(${i})">✎</span>
         <span class="meas-del" onclick="event.stopPropagation();deleteMeasEntry(${i})">✕</span>
       </span>
     </div>
