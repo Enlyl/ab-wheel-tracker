@@ -2178,8 +2178,8 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   animation: particleRise linear forwards;
 }
 @keyframes progressDraw {
-  0%   { stroke-dashoffset: 263.9; }
-  100% { stroke-dashoffset: 0;     }
+  0%   { stroke-dashoffset: 1130.97; }
+  100% { stroke-dashoffset: 0;       }
 }
 @keyframes progressFadeIn {
   0%   { opacity: 0; transform: translate(-50%, -50%) scale(.6) rotate(-90deg); }
@@ -2195,18 +2195,44 @@ details.cycle-archive[open] .cycle-arch-arrow { transform: rotate(180deg); }
   top: 50%; left: 50%;
   transform: translate(-50%, -50%) scale(.6);
   z-index: 213;
-  width: 200px; height: 200px;
+  width: 400px; height: 400px;
   opacity: 0;
   animation: progressFadeIn .35s ease-out forwards;
 }
 .week-progress-ring.is-leaving { animation: progressFadeOut .35s ease forwards; }
-.week-progress-ring svg { width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
-.week-progress-track { fill: none; stroke: var(--border); stroke-width: 4; }
+.week-progress-ring svg { width: 100%; height: 100%; overflow: visible; }
+.week-progress-ring svg .ring-rot { transform-origin: 200px 200px; transform: rotate(-90deg); }
+.week-progress-track { fill: none; stroke: var(--border); stroke-width: 6; }
 .week-progress-bar {
-  fill: none; stroke: var(--gold); stroke-width: 6; stroke-linecap: round;
-  stroke-dasharray: 263.9; stroke-dashoffset: 263.9;
+  fill: none; stroke: var(--green); stroke-width: 12; stroke-linecap: round;
+  stroke-dasharray: 1130.97; stroke-dashoffset: 1130.97;
   animation: progressDraw 1.5s cubic-bezier(.4,0,.2,1) forwards;
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--gold) 60%, transparent));
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--green) 70%, transparent));
+}
+.week-progress-title {
+  font-family: 'Italiana', serif;
+  font-size: 56px;
+  fill: var(--green);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.week-progress-sub {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  fill: var(--text2);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.week-progress-icon {
+  fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0;
+  animation: checkFadeIn .3s ease-out 1.3s forwards;
+  transform-origin: 200px 200px;
+}
+@keyframes checkFadeIn { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: scale(1); } }
 }
 .week-progress-percent {
   font-family: 'Italiana', serif;
@@ -8038,30 +8064,25 @@ function triggerWeekComplete(w) {
   ring.className = 'week-progress-ring';
   ring.setAttribute('aria-hidden', 'true');
   ring.innerHTML = `
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <circle class="week-progress-track" cx="50" cy="50" r="42"/>
-      <circle class="week-progress-bar"   cx="50" cy="50" r="42"/>
+    <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <g class="ring-rot">
+        <circle class="week-progress-track" cx="200" cy="200" r="180"/>
+        <circle class="week-progress-bar"   cx="200" cy="200" r="180"/>
+      </g>
+      <text class="week-progress-title" x="200" y="184">${w}</text>
+      <text class="week-progress-sub"   x="200" y="232">неделя</text>
+      <text class="week-progress-sub"   x="200" y="252">завершена</text>
+      <g class="week-progress-icon" transform="translate(168,272)">
+        <polyline points="6,12 14,20 30,4" fill="none" stroke-width="4"/>
+      </g>
     </svg>`;
   document.body.appendChild(ring);
-  const ringDur = reducedMotion() ? 1200 : 1900;
+  const ringDur = reducedMotion() ? 1400 : 2300;
   setTimeout(() => {
     if (reducedMotion()) { ring.remove(); return; }
     ring.classList.add('is-leaving');
     setTimeout(() => ring.remove(), 380);
   }, ringDur);
-
-  // 4. Бейдж по центру
-  const badge = document.createElement('div');
-  badge.className = 'week-badge';
-  badge.innerHTML = `Неделя ${w} завершена!<span class="week-badge-sub">Отличная работа</span>`;
-  document.body.appendChild(badge);
-  const badgeDur = reducedMotion() ? 1200 : 2000;
-  setTimeout(() => {
-    if (reducedMotion()) { badge.remove(); return; }
-    badge.style.transition = 'opacity .4s ease';
-    badge.style.opacity = '0';
-    setTimeout(() => badge.remove(), 450);
-  }, badgeDur);
 
   // 5. Сильная вибрация
   vibe([40, 40, 40, 40, 120, 60, 120]);

@@ -274,27 +274,30 @@ async function main() {
     });
   });
 
-  await step(page, 'week-complete shows big badge (not day-toast)', async () => {
+  await step(page, 'week-complete shows big progress ring (not day-toast)', async () => {
     await page.evaluate(() => {
-      document.querySelectorAll('.day-toast, .week-badge, .day-confetti, .week-particle')
+      document.querySelectorAll('.day-toast, .week-progress-ring, .day-confetti, .week-particle')
         .forEach(n => n.remove());
       triggerWeekComplete(3);
     });
     await page.waitForTimeout(100);
-    const weekBadgeCount = await page.locator('.week-badge').count();
+    const ringCount = await page.locator('.week-progress-ring').count();
     const dayToastCount = await page.locator('.day-toast').count();
-    assert.equal(weekBadgeCount, 1, 'week-badge not rendered on week-complete');
+    assert.equal(ringCount, 1, 'progress ring not rendered on week-complete');
     assert.equal(dayToastCount, 0, 'day-toast must NOT render on week-complete');
-    const wkTitle = await page.locator('.week-badge').innerText();
-    assert.ok(wkTitle.includes('Неделя 3 завершена'), `week-badge text wrong: ${wkTitle}`);
+    // The ring contains a title (week number) and subtitle lines
+    const title = await page.locator('.week-progress-title').evaluate(el => el.textContent);
+    assert.equal(title, '3', `progress title should be '3', got '${title}'`);
+    const subs = await page.locator('.week-progress-sub').count();
+    assert.ok(subs >= 2, `expected >=2 subtitle lines, got ${subs}`);
     // Cleanup
     await page.evaluate(() => {
-      document.querySelectorAll('.week-badge, .week-flash-overlay, .week-particle, .week-progress-ring').forEach(n => n.remove());
+      document.querySelectorAll('.week-progress-ring, .week-flash-overlay, .week-particle').forEach(n => n.remove());
     });
   });
 
-  // 19. Week-complete adds a circular progress ring (SVG circle)
-  await step(page, 'week-complete shows circular progress ring', async () => {
+  // 19. Week-complete progress ring: large, green, animated stroke-dashoffset
+  await step(page, 'week-complete shows large green progress ring', async () => {
     await page.evaluate(() => {
       document.querySelectorAll('.week-progress-ring, .week-badge, .week-flash-overlay')
         .forEach(n => n.remove());
@@ -305,24 +308,44 @@ async function main() {
     await page.waitForTimeout(50);
     const ringCount = await page.locator('.week-progress-ring').count();
     assert.equal(ringCount, 1, 'progress ring not rendered on week-complete');
-    // The ring must contain a track + bar
+    // The ring is 400x400, not the old 200x200
+    const ringSize = await page.locator('.week-progress-ring').first().evaluate(el => ({
+      w: getComputedStyle(el).width,
+      h: getComputedStyle(el).height,
+    }));
+    assert.ok(ringSize.w === '400px' || ringSize.w === '401px',
+      `progress ring should be 400x400, got ${ringSize.w}x${ringSize.h}`);
+    // Track + bar
     const tracks = await page.locator('.week-progress-track').count();
     const bars   = await page.locator('.week-progress-bar').count();
     assert.equal(tracks, 1, 'progress track missing');
     assert.equal(bars,   1, 'progress bar missing');
-    // The bar's stroke-dasharray / dashoffset is set in CSS, not via attribute.
-    // Verify via computed style: dasharray should be set to ~263.9 (= 2π·42).
+    // Bar is rendered with stroke=var(--green)
+    const barStroke = await page.locator('.week-progress-bar').first().evaluate(el =>
+      window.getComputedStyle(el).stroke
+    );
+    assert.ok(/green/i.test(barStroke) || /rgb/.test(barStroke),
+      `progress bar should be green, got: ${barStroke}`);
+    // Bar's stroke-dasharray computed to ~1130.97 (2π·180).
     const dashArray = await page.locator('.week-progress-bar').first().evaluate(el =>
       window.getComputedStyle(el).strokeDasharray
     );
-    assert.ok(dashArray, `progress bar missing stroke-dasharray: ${dashArray}`);
-    assert.ok(parseFloat(dashArray) > 250, `stroke-dasharray should be ~263.9, got ${dashArray}`);
-    // After ~2.4s the ring has had time to fade out + be removed
-    await page.waitForTimeout(2400);
+    const dashNum = parseFloat(dashArray);
+    assert.ok(dashNum > 1000 && dashNum < 1200, `stroke-dasharray should be ~1130.97, got ${dashArray}`);
+    // Text inside the ring (uses <text> element, not HTMLElement, so use evaluate)
+    const titleText = await page.locator('.week-progress-title').evaluate(el => el.textContent);
+    assert.equal(titleText, '4', `progress title should be '4', got '${titleText}'`);
+    // Checkmark icon fades in at 1.3s
+    const iconVisible = await page.locator('.week-progress-icon polyline').first().evaluate(el =>
+      parseFloat(getComputedStyle(el).opacity)
+    );
+    assert.ok(iconVisible >= 0, 'check icon should be rendered with opacity');
+    // After ~2.7s the ring has had time to fade out + be removed
+    await page.waitForTimeout(2700);
     const stillThere = await page.locator('.week-progress-ring').count();
-    assert.equal(stillThere, 0, 'progress ring should be removed after 2s');
+    assert.equal(stillThere, 0, 'progress ring should be removed after 2.7s');
     await page.evaluate(() => {
-      document.querySelectorAll('.week-progress-ring, .week-badge, .week-flash-overlay, .week-particle')
+      document.querySelectorAll('.week-progress-ring, .week-flash-overlay, .week-particle')
         .forEach(n => n.remove());
     });
   });
